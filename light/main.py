@@ -4,6 +4,10 @@ import importlib.util
 import os
 import light.mongo.session
 
+
+import inflect
+print(inflect.engine().plural('i18n')) #children
+
 app = Flask(__name__)
 
 

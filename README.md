@@ -18,3 +18,7 @@
  与MongoPy的结合
 
 5. Session的DB话
+
+
+#### 工具
+$ pip freeze 检查所有module的版本

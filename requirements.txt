@@ -9,3 +9,5 @@ Jinja2==2.8
 
 # inflect - 单英文词变复数形式
 inflect==0.2.5
+
+# bson

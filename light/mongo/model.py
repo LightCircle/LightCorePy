@@ -3,10 +3,9 @@ import inflect
 
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from bson import json_util
-import json
+from light.constant import Const
 
-SYSTEM_DB = 'LightDB'
+CONST = Const()
 
 
 class Model:
@@ -29,7 +28,7 @@ class Model:
         self.table = inflect.engine().plural(table)
 
         # When using the system db, table name without the prefix
-        if self.domain == SYSTEM_DB:
+        if self.domain == CONST.SYSTEM_DB:
             self.code = self.table
         else:
             self.code = self.code + '.' + self.table

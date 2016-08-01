@@ -6,6 +6,7 @@
 
 #### TODO
 1. Web Framework 选择 Flask Django Bottle
+ 选用Flask, 内嵌的功能精炼, 活跃度上升趋势明显
 
 2. 解决动态路由
  api
@@ -19,6 +20,11 @@
 
 5. Session的DB话
 
+6. Config配置
+ 负责从数据库读取配置内容, 方便代码中的引用
+ 数据库的内容会在基于内存lur的cache中保存, 来减少对数据库的搜索
+
+7. 内存缓存 lur cache
 
 #### 工具
 $ pip freeze 检查所有module的版本

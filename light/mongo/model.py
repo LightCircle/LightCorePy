@@ -2,11 +2,22 @@ import os
 import inflect
 
 from pymongo import MongoClient
+from bson.objectid import ObjectId
+from bson import json_util
+import json
 
 SYSTEM_DB = 'LightDB'
 
 
 class Model:
+    """
+    1. 创建于数据库的连接, 并保持连接池
+    2. 数据库连接信息通过环境变量设定
+    3. 用表结构的定义, 对保存的数据进行类型转换
+    4. 用表结构的定义, 对条件中的数据进行类型转换
+    5. 功能包括: 通常的CURD, GridFS操作, 数据库索引操作, 数据库用户操作
+    """
+
     def __init__(self, domain, code, table, define=None, user=None, password=None):
         self.domain = domain
         self.code = code
@@ -32,21 +43,28 @@ class Model:
         # Initialize database connection
         if user is None:
             uri = 'mongodb://{host}:{port}/{db}'
-            self.db = MongoClient(uri.format(host=host, port=port, db=self.domain))
+            client = MongoClient(uri.format(host=host, port=port, db=self.domain))
+            self.db = client[self.domain][self.code]
         else:
             uri = 'mongodb://{user}:{password}@{host}:{port}/{db}?authSource={db}&authMechanism=MONGODB-CR'
-            self.db = MongoClient(uri.format(host=host, port=port, user=user, password=password, db=self.domain))
+            client = MongoClient(uri.format(host=host, port=port, user=user, password=password, db=self.domain))
+            self.db = client[self.domain][self.code]
 
         print('{domain} / {code}'.format(domain=self.domain, code=self.code))
 
-    def get(self):
-        pass
+    def get(self, condition=None, select=None):
 
-    def get_by(self):
-        pass
+        if isinstance(condition, str) or isinstance(condition, ObjectId):
+            condition = {'_id': condition}
 
-    def add(self):
-        pass
+        return self.db.find_one(filter=condition, projection=select)
+
+    def get_by(self, condition=None, select=None):
+
+        return list(self.db.find(filter=condition, projection=select))
+
+    def add(self, data=None):
+        return self.db.insert_one(data)
 
     def update(self):
         pass

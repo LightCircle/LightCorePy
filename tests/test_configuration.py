@@ -13,4 +13,8 @@ class TestConfig(unittest.TestCase):
         Cache('LightDB').init()
 
     def test_init(self):
-        Config()
+        conf = Config()
+
+        self.assertEqual(conf.app.cookieSecret, 'light')
+        self.assertTrue(isinstance(conf.ignore.auth, list))
+        self.assertTrue(isinstance(conf.mail.auth.user, str))

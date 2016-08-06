@@ -43,3 +43,13 @@ class Const(object):
         return 'tenant'
 
     SYSTEM_DB_TENANT = property(get_system_db_tenant)
+
+    def get_env_light_db_port(self):
+        return 'LIGHTDB_PORT'
+
+    ENV_LIGHT_DB_PORT = property(get_env_light_db_port)
+
+    def get_env_light_db_host(self):
+        return 'LIGHTDB_HOST'
+
+    ENV_LIGHT_DB_HOST = property(get_env_light_db_host)

@@ -1,4 +1,5 @@
 import os
+import re
 import inflect
 
 from pymongo import MongoClient
@@ -53,12 +54,18 @@ class Model:
 
     def get(self, condition=None, select=None):
 
+        # Convert string or object id to dict
         if isinstance(condition, str) or isinstance(condition, ObjectId):
             condition = {'_id': condition}
 
         return self.db.find_one(filter=condition, projection=select)
 
     def get_by(self, condition=None, select=None):
+
+        # Convert string to dict : a,b,c -> {'a': 1, 'b': 1, 'c': 1}
+        if isinstance(select, str):
+            select = re.split(r'[, ]', select)
+            select = {select[i]: 1 for i in range(0, len(select))}
 
         return list(self.db.find(filter=condition, projection=select))
 

@@ -1,46 +1,45 @@
-def constant(f):
-    def fset(self, value):
-        raise TypeError
-
-    def fget(self):
-        return f(self)
-
-    return property(fget, fset)
-
-
 class Const(object):
-    @constant
-    def SYSTEM_DB(self):
+    def get_system_db(self):
         return 'LightDB'
 
-    @constant
-    def SYSTEM_DB_PREFIX(self):
+    SYSTEM_DB = property(get_system_db)
+
+    def get_system_db_prefix(self):
         return 'light'
 
-    @constant
-    def SYSTEM_DB_CONFIG(self):
+    SYSTEM_DB_PREFIX = property(get_system_db_prefix)
+
+    def get_system_db_config(self):
         return 'configuration'
 
-    @constant
-    def SYSTEM_DB_VALIDATOR(self):
+    SYSTEM_DB_CONFIG = property(get_system_db_config)
+
+    def get_system_db_validator(self):
         return 'validator'
 
-    @constant
-    def SYSTEM_DB_I18N(self):
+    SYSTEM_DB_VALIDATOR = property(get_system_db_validator)
+
+    def get_system_db_i18n(self):
         return 'i18n'
 
-    @constant
-    def SYSTEM_DB_STRUCTURE(self):
+    SYSTEM_DB_I18N = property(get_system_db_i18n)
+
+    def get_system_db_structure(self):
         return 'structure'
 
-    @constant
-    def SYSTEM_DB_BOARD(self):
+    SYSTEM_DB_STRUCTURE = property(get_system_db_structure)
+
+    def get_system_db_board(self):
         return 'board'
 
-    @constant
-    def SYSTEM_DB_ROUTE(self):
+    SYSTEM_DB_BOARD = property(get_system_db_board)
+
+    def get_system_db_route(self):
         return 'route'
 
-    @constant
-    def SYSTEM_DB_TENANT(self):
+    SYSTEM_DB_ROUTE = property(get_system_db_route)
+
+    def get_system_db_tenant(self):
         return 'tenant'
+
+    SYSTEM_DB_TENANT = property(get_system_db_tenant)

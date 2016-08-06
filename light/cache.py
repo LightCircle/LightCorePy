@@ -43,14 +43,14 @@ class Cache:
         valid = {'valid': 1}
 
         # configuration
-        select = 'group,name,rule,key,option,message,sanitize,class,action,condition'
+        select = 'type, key, value, valueType'
         model = Model(domain=self.domain, code=CONST.SYSTEM_DB_PREFIX, table=CONST.SYSTEM_DB_CONFIG)
         self.cache.set(CONST.SYSTEM_DB_CONFIG, model.get_by(condition=valid, select=select))
 
         # structure
         select = 'public,lock,type,kind,tenant,version,schema,items,extend,tenant'
         model = Model(domain=self.domain, code=CONST.SYSTEM_DB_PREFIX, table=CONST.SYSTEM_DB_STRUCTURE)
-        self.cache.set(CONST.SYSTEM_DB_CONFIG, model.get_by(condition=valid, select=select))
+        self.cache.set(CONST.SYSTEM_DB_STRUCTURE, model.get_by(condition=valid, select=select))
 
     @staticmethod
     def instance():

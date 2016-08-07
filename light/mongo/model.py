@@ -35,10 +35,10 @@ class Model:
             self.code = self.code + '.' + self.table
 
         # Environment Variables higher priority
-        host = os.getenv('LIGHTDB_HOST', 'db')
-        port = os.getenv('LIGHTDB_PORT', 57017)
-        user = os.getenv('LIGHTDB_USER', self.user)
-        password = os.getenv('LIGHTDB_PASS', self.password)
+        host = os.getenv(CONST.ENV_LIGHT_DB_HOST, 'db')
+        port = os.getenv(CONST.ENV_LIGHT_DB_PORT, 57017)
+        user = os.getenv(CONST.ENV_LIGHT_DB_USER, self.user)
+        password = os.getenv(CONST.ENV_LIGHT_DB_PASS, self.password)
 
         # Initialize database connection
         if user is None:

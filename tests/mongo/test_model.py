@@ -1,12 +1,15 @@
 import os
 import unittest
 from light.mongo.model import Model
+from light.constant import Const
+
+CONST = Const()
 
 
 class TestModel(unittest.TestCase):
     def setUp(self):
-        os.environ['LIGHTDB_HOST'] = 'localhost'
-        os.environ['LIGHTDB_PORT'] = '57017'
+        os.environ[CONST.ENV_LIGHT_DB_HOST] = 'localhost'
+        os.environ[CONST.ENV_LIGHT_DB_PORT] = '57017'
 
     def test_add(self):
         model = Model('python', 'light', 'test')

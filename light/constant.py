@@ -53,3 +53,13 @@ class Const(object):
         return 'LIGHTDB_HOST'
 
     ENV_LIGHT_DB_HOST = property(get_env_light_db_host)
+
+    def get_env_light_db_user(self):
+        return 'LIGHTDB_USER'
+
+    ENV_LIGHT_DB_USER = property(get_env_light_db_user)
+
+    def get_env_light_db_pass(self):
+        return 'LIGHTDB_PASS'
+
+    ENV_LIGHT_DB_PASS = property(get_env_light_db_pass)

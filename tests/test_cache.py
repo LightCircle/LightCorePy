@@ -1,18 +1,21 @@
 import os
 import unittest
 from light.cache import LRUCache, Cache
+from light.constant import Const
+
+CONST = Const()
 
 
 class TestCache(unittest.TestCase):
     def setUp(self):
-        os.environ['LIGHTDB_HOST'] = 'db.alphabets.cn'
-        os.environ['LIGHTDB_PORT'] = '57017'
-        os.environ['LIGHTDB_USER'] = 'light'
-        os.environ['LIGHTDB_PASS'] = '2e35501c2b7e'
+        os.environ[CONST.ENV_LIGHT_DB_HOST] = 'db.alphabets.cn'
+        os.environ[CONST.ENV_LIGHT_DB_PORT] = '57017'
+        os.environ[CONST.ENV_LIGHT_DB_USER] = 'light'
+        os.environ[CONST.ENV_LIGHT_DB_PASS] = '2e35501c2b7e'
 
     def test_init(self):
-        Cache('LightDB').init()
-        self.assertIsNotNone(Cache.instance().get('configuration'))
+        Cache(CONST.SYSTEM_DB).init()
+        self.assertIsNotNone(Cache.instance().get(CONST.SYSTEM_DB_CONFIG))
 
 
 class TestLURCache(unittest.TestCase):

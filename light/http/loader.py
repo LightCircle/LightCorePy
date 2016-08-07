@@ -17,18 +17,18 @@ def initialize(app, domain):
     # job
 
     # setup flask
-    setup_flask()
+    setup_flask(app)
 
     # start app
-    start(app)
+    # start(app)
 
 
 def setup_flask(app):
     # 初始化基于mongo的session
     app.session_interface = MongoSessionInterface(
         db='sessions',
-        port=os.environ[CONST.ENV_LIGHT_DB_PORT],
-        host=os.environ[CONST.ENV_LIGHT_DB_HOST])
+        host=os.environ[CONST.ENV_LIGHT_DB_HOST],
+        port=int(os.environ[CONST.ENV_LIGHT_DB_PORT]))
 
     # 解析静态资源
     def static(file):

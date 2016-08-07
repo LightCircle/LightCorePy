@@ -1,5 +1,6 @@
 import os
 import unittest
+import urllib.request
 import time
 import light.http.loader
 
@@ -22,13 +23,22 @@ class TestLoader(unittest.TestCase):
         # init application
         light.http.loader.initialize(self.app, 'LightDB')
 
+        # test request
+        def view_func():
+            return 'OK'
+
+        self.app.add_url_rule('/test', endpoint='test', view_func=view_func, methods=['GET'])
+
         # start by process
-        def run():
+        def app_run():
             self.app.run()
 
-        self.server = Process(target=run)
+        self.server = Process(target=app_run)
         self.server.start()
+
         time.sleep(1)
+
+        urllib.request.urlopen('http://127.0.0.1:5000/test')
 
     def tearDown(self):
         # automatic stop flask server

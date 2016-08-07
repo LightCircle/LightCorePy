@@ -6,6 +6,7 @@ from light.constant import Const
 
 CONST = Const()
 
+
 class TestConfig(unittest.TestCase):
     def setUp(self):
         os.environ[CONST.ENV_LIGHT_DB_HOST] = 'db.alphabets.cn'

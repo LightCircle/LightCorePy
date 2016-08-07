@@ -82,7 +82,6 @@ class Cache:
         global CACHE_INSTANCE
 
         if not CACHE_INSTANCE:
-            print(1)
             CACHE_INSTANCE = LRUCache(100)
 
         return CACHE_INSTANCE

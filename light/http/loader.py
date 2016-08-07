@@ -26,7 +26,7 @@ def initialize(app, domain):
 def setup_flask(app):
     # 初始化基于mongo的session
     app.session_interface = MongoSessionInterface(
-        db='sessions',
+        db='sessions1',
         host=os.environ[CONST.ENV_LIGHT_DB_HOST],
         port=int(os.environ[CONST.ENV_LIGHT_DB_PORT]))
 

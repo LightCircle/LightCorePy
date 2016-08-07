@@ -7,9 +7,14 @@ CONST = Const()
 
 
 class TestModel(unittest.TestCase):
-    def setUp(self):
+
+    @classmethod
+    def setUpClass(cls):
         os.environ[CONST.ENV_LIGHT_DB_HOST] = 'localhost'
         os.environ[CONST.ENV_LIGHT_DB_PORT] = '57017'
+
+    def setUp(self):
+        pass
 
     def test_add(self):
         model = Model('python', 'light', 'test')

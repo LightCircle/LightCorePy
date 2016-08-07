@@ -63,3 +63,8 @@ class Const(object):
         return 'LIGHTDB_PASS'
 
     ENV_LIGHT_DB_PASS = property(get_env_light_db_pass)
+
+    def get_env_light_app_port(self):
+        return 'PORT'
+
+    ENV_LIGHT_APP_PORT = property(get_env_light_app_port)

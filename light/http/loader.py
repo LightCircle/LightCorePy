@@ -24,13 +24,13 @@ def initialize(app, domain):
 
 
 def setup_flask(app):
-    # 初始化基于mongo的session
+    # setup mongodb session
     app.session_interface = MongoSessionInterface(
         db='sessions1',
         host=os.environ[CONST.ENV_LIGHT_DB_HOST],
         port=int(os.environ[CONST.ENV_LIGHT_DB_PORT]))
 
-    # 解析静态资源
+    # analyse static resource
     def static(file):
         path = os.path.join(os.path.abspath('..'), 'public/static/js')
         return flask.send_from_directory(path, file)
@@ -39,4 +39,9 @@ def setup_flask(app):
 
 
 def start(app):
-    app.run()
+
+    port = 7000
+    if CONST.ENV_LIGHT_APP_PORT in os.environ:
+        port = int(os.environ[CONST.ENV_LIGHT_APP_PORT])
+
+    app.run(port=port)

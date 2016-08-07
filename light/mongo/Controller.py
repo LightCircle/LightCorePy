@@ -1,4 +1,9 @@
 from light.mongo.model import Model
+from light.cache import Cache
+from light.constant import Const
+from light.model.structure import Structure
+
+CONST = Const()
 
 
 class Controller(object):
@@ -9,10 +14,35 @@ class Controller(object):
     4. 统一封装关于数据库操作的错误内容
     """
 
-    def __init__(self, handler, table):
+    def __init__(self, handler, table=None):
         define = {}
-        self.model = Model(domain=handler.domain, code=handler.code, table=table, define=define)
+        if table:
+            define = getattr(Structure.instance(), table)['items']
 
+        self.model = Model(domain=handler.domain, code=handler.code, table=table, define=define)
+        self.condition = handler.params.condition
+        self.select = handler.params.select
+
+    def list(self):
+        return self.model.get_by(condition=self.condition, select=self.select)
+
+    def create_user(self):
         pass
 
+    def add_user(self):
+        pass
 
+    def drop_user(self):
+        pass
+
+    def change_password(self):
+        pass
+
+    def drop(self):
+        pass
+
+    def aggregate(self):
+        pass
+
+    def increment(self):
+        pass

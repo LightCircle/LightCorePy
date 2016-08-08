@@ -27,22 +27,22 @@ class Controller(object):
         return self.model.get_by(condition=self.condition, select=self.select)
 
     def create_user(self):
-        pass
+        raise NotImplementedError
 
     def add_user(self):
-        pass
+        raise NotImplementedError
 
     def drop_user(self):
-        pass
+        raise NotImplementedError
 
     def change_password(self):
-        pass
+        raise NotImplementedError
 
     def drop(self):
-        pass
+        raise NotImplementedError
 
     def aggregate(self):
-        pass
+        raise NotImplementedError
 
     def increment(self):
-        pass
+        raise NotImplementedError

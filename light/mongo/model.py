@@ -24,15 +24,17 @@ class Model:
         self.define = define
         self.user = user
         self.password = password
+        self.table = table
 
-        # Plural form
-        self.table = inflect.engine().plural(table)
+        if table:
+            # Plural form
+            self.table = inflect.engine().plural(table)
 
-        # When using the system db, table name without the prefix
-        if self.domain == CONST.SYSTEM_DB:
-            self.code = self.table
-        else:
-            self.code = self.code + '.' + self.table
+            # When using the system db, table name without the prefix
+            if self.domain == CONST.SYSTEM_DB:
+                self.code = self.table
+            else:
+                self.code = self.code + '.' + self.table
 
         # Environment Variables higher priority
         host = os.getenv(CONST.ENV_LIGHT_DB_HOST, 'db')
@@ -43,12 +45,14 @@ class Model:
         # Initialize database connection
         if user is None:
             uri = 'mongodb://{host}:{port}/{db}'
-            client = MongoClient(uri.format(host=host, port=port, db=self.domain))
-            self.db = client[self.domain][self.code]
+            self.client = MongoClient(uri.format(host=host, port=port, db=self.domain))
         else:
             uri = 'mongodb://{user}:{password}@{host}:{port}/{db}?authSource={db}&authMechanism=MONGODB-CR'
-            client = MongoClient(uri.format(host=host, port=port, user=user, password=password, db=self.domain))
-            self.db = client[self.domain][self.code]
+            self.client = MongoClient(uri.format(host=host, port=port, user=user, password=password, db=self.domain))
+
+        self.db = self.client[self.domain]
+        if self.code:
+            self.db = self.db[self.code]
 
         print('{domain} / {code}'.format(domain=self.domain, code=self.code))
 

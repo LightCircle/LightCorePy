@@ -25,8 +25,8 @@ class TestLoader(unittest.TestCase):
         self.rider = Rider().instance()
 
     def test_init(self):
-        self.rider.app.list(self.handler)
+        app = self.rider.app.list(self.handler)
+        self.assertGreater(len(app), 0)
 
     def test_create_user(self):
-        # self.rider.create_user(self.handler)
-        pass
+        self.rider.create_user(self.handler)

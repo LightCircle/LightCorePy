@@ -16,7 +16,8 @@ class Data(object):
         ctrl = Controller(handler=handler, table=self.board['class'])
         return ctrl.list()
 
-    def add(self):
+    def add(self, handler):
+        print('>>>>>>>>>>>>>>>>>>>>', handler)
         return {}
 
     def update(self):

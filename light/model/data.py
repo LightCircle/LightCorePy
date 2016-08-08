@@ -1,4 +1,3 @@
-from light.cache import Cache
 from light.constant import Const
 from light.mongo.controller import Controller
 
@@ -9,8 +8,9 @@ class Data(object):
     def __init__(self, board):
         self.board = board
 
-    def get(self):
-        return {}
+    def get(self, handler):
+        ctrl = Controller(handler=handler, table=self.board['class'])
+        return ctrl.get()
 
     def list(self, handler):
         ctrl = Controller(handler=handler, table=self.board['class'])

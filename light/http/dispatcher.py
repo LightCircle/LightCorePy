@@ -5,6 +5,7 @@ from light.cache import Cache
 from light.constant import Const
 from light.model.datarider import Rider
 from light.http.context import Context
+from light.configuration import Config
 
 CONST = Const()
 
@@ -50,11 +51,24 @@ def bind_api(app):
 
 
 def bind_route(app):
-    route = Cache.instance().get(CONST.SYSTEM_DB_ROUTE)
+    routes = Cache.instance().get(CONST.SYSTEM_DB_ROUTE)
 
-    # try lookup controllers class
+    for route in routes:
+        action = route['action']
+        url = route['url']
+        class_name = route['class']
+        template = route['template']
 
-    # render html
+        # try lookup controllers class
+        path = light.helper.project_path('controllers')
+        clazz = light.helper.resolve(name=class_name, path=path)
+        if clazz:
+            if hasattr(clazz, action):
+                add_html_rule(app, url, clazz, action, template)
+                continue
+
+        # render html
+        add_html_rule(app, url, None, None, template)
 
 
 def add_api_rule(app, api, clazz, action):
@@ -64,7 +78,18 @@ def add_api_rule(app, api, clazz, action):
     app.add_url_rule(api, endpoint=api, view_func=func)
 
 
-def add_html_rule(clazz, action):
-    result = getattr(clazz, action)()
+def add_html_rule(app, url, clazz, action, template):
+    def func():
+        handler = Context()
+        data = dict()
+        data['req'] = flask.request
+        data['handler'] = handler
+        data['user'] = handler.user
+        data['conf'] = Config()
 
-    return result
+        if clazz:
+            data['data'] = getattr(clazz, action)(handler)
+
+        return light.helper.load_template(template).render(data)
+
+    app.add_url_rule(url, endpoint=url, view_func=func)

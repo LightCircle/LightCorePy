@@ -13,7 +13,6 @@ class Config(object):
 
         self.dictionary = {}
         config = Cache.instance().get(CONST.SYSTEM_DB_CONFIG)
-        print(config)
 
         for item in config:
             key = item['type']

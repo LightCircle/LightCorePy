@@ -1,10 +1,11 @@
 import os
+import jinja2
 import importlib.util
 
 
 def resolve(name, path=''):
     path = os.path.join(path, name + '.py')
-    print(path)
+
     if not os.path.isfile(path):
         return None
 
@@ -16,7 +17,7 @@ def resolve(name, path=''):
 
 def project_path(*relate):
     path = os.getcwd()
-    
+
     if relate:
         return os.path.join(path, *relate)
 
@@ -30,3 +31,15 @@ def core_path(*relate):
         return os.path.join(path, *relate)
 
     return path
+
+
+def load_template(name):
+    loader = jinja2.FileSystemLoader(project_path('views'), 'utf-8')
+    environment = jinja2.Environment(
+        loader=loader,
+        block_start_string='<%',
+        block_end_string='%>',
+        variable_start_string='<%=',
+        variable_end_string='%>')
+
+    return environment.get_template(name + '.html')

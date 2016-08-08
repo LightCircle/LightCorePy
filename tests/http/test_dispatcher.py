@@ -30,7 +30,7 @@ class TestDispatcher(unittest.TestCase):
 
     def test_bind_app(self):
         app = flask.Flask(__name__)
-        light.http.dispatcher.bind_api(app)
+        light.http.dispatcher.dispatch(app)
 
         # start by process
         def app_run():
@@ -42,6 +42,7 @@ class TestDispatcher(unittest.TestCase):
         time.sleep(1)
 
         urllib.request.urlopen('http://127.0.0.1:5000/api/app/add')
+        urllib.request.urlopen('http://127.0.0.1:5000/')
 
     def tearDown(self):
         # automatic stop flask server

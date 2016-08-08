@@ -13,7 +13,6 @@ class Rider(object):
 
         for board in boards:
             setattr(self, board['class'], Data(board))
-            print(board)
 
     @staticmethod
     def instance():

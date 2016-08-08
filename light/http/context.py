@@ -1,7 +1,7 @@
 import flask
 
 
-class Context():
+class Context(object):
     def __init__(self, uid=None, domain=None, code=None):
         self._uid = uid
         self._domain = domain

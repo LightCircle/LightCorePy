@@ -1,13 +1,11 @@
 # Flask - Web Framework
 Flask==0.11.1
 
-# pymongo - MongoDB 操作
+# pymongo - MongoDB Driver for python
 pymongo==3.2.2
 
-# jinja2 - 模板工具
+# jinja2 - Template tools
 Jinja2==2.8
 
-# inflect - 单英文词变复数形式
+# inflect - Generate plurals
 inflect==0.2.5
-
-# bson

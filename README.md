@@ -1,9 +1,3 @@
-
-
-#### 目录结构构成
- 参考 http://monklof.com/post/19/
-
-
 #### TODO
 1. Web Framework 选择 Flask Django Bottle
  选用Flask, 内嵌的功能精炼, 活跃度上升趋势明显
@@ -26,5 +20,6 @@
 
 7. 内存缓存 lur cache
 
-#### 工具
-$ pip freeze 检查所有module的版本
+8. 启动初始化
+
+9. 打包Python

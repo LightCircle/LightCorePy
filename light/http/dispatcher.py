@@ -1,3 +1,4 @@
+import os
 import flask
 import light.helper
 
@@ -17,7 +18,7 @@ def dispatch(app):
 
 def bind_api(app):
     boards = Cache.instance().get(CONST.SYSTEM_DB_BOARD)
-    rider = Rider().instance()
+    rider = Rider.instance()
 
     for board in boards:
 
@@ -58,6 +59,7 @@ def bind_route(app):
         url = route['url']
         class_name = route['class']
         template = route['template']
+        print(url, action, template)
 
         # try lookup controllers class
         path = light.helper.project_path('controllers')
@@ -86,6 +88,8 @@ def add_html_rule(app, url, clazz, action, template):
         data['handler'] = handler
         data['user'] = handler.user
         data['conf'] = Config()
+        data['environ'] = os.environ
+        data['dynamic'] = func_dynamic
 
         if clazz:
             data['data'] = getattr(clazz, action)(handler)
@@ -93,3 +97,11 @@ def add_html_rule(app, url, clazz, action, template):
         return light.helper.load_template(template).render(data)
 
     app.add_url_rule(url, endpoint=url, view_func=func)
+
+
+def func_dynamic(url):
+
+    if '?' in url:
+        return '{url}&stamp={stamp}'.format(url=url, stamp=Config.instance().app.stamp)
+
+    return '{url}?stamp={stamp}'.format(url=url, stamp=Config.instance().app.stamp)

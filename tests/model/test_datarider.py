@@ -22,7 +22,7 @@ class TestLoader(unittest.TestCase):
 
     def setUp(self):
         self.handler = Context(uid='000000000000000000000001', domain='LightDB', code='light')
-        self.rider = Rider().instance()
+        self.rider = Rider.instance()
 
     def test_init(self):
         app = self.rider.app.list(self.handler)

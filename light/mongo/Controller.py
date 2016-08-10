@@ -1,5 +1,4 @@
 from light.mongo.model import Model
-from light.cache import Cache
 from light.constant import Const
 from light.model.structure import Structure
 

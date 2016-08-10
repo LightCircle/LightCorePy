@@ -64,7 +64,37 @@ class Const(object):
 
     ENV_LIGHT_DB_PASS = property(get_env_light_db_pass)
 
+    def get_env_light_db_auth(self):
+        return 'LIGHTDB_AUTH'
+
+    ENV_LIGHT_DB_AUTH = property(get_env_light_db_auth)
+
     def get_env_light_app_port(self):
         return 'PORT'
 
     ENV_LIGHT_APP_PORT = property(get_env_light_app_port)
+
+    def get_env_light_mysql_port(self):
+        return 'LIGHTMYSQL_PORT'
+
+    ENV_LIGHT_MYSQL_PORT = property(get_env_light_mysql_port)
+
+    def get_env_light_mysql_host(self):
+        return 'LIGHTMYSQL_HOST'
+
+    ENV_LIGHT_MYSQL_HOST = property(get_env_light_mysql_host)
+
+    def get_env_light_mysql_user(self):
+        return 'LIGHTMYSQL_USER'
+
+    ENV_LIGHT_MYSQL_USER = property(get_env_light_mysql_user)
+
+    def get_env_light_mysql_pass(self):
+        return 'LIGHTMYSQL_PASS'
+
+    ENV_LIGHT_MYSQL_PASS = property(get_env_light_mysql_pass)
+
+    def get_env_light_app_domain(self):
+        return 'APPNAME'
+
+    ENV_LIGHT_APP_DOMAIN = property(get_env_light_app_domain)

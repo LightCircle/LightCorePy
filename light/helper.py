@@ -33,8 +33,12 @@ def core_path(*relate):
     return path
 
 
-def load_template(name):
-    loader = jinja2.FileSystemLoader(project_path('views'), 'utf-8')
+def load_template(name, path=None):
+    if not path:
+        path = project_path('views')
+
+    loader = jinja2.FileSystemLoader(path, 'utf-8')
+
     environment = jinja2.Environment(
         loader=loader,
         block_start_string='<%',

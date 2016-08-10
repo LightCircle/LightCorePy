@@ -41,14 +41,16 @@ class Model:
         port = os.getenv(CONST.ENV_LIGHT_DB_PORT, 57017)
         user = os.getenv(CONST.ENV_LIGHT_DB_USER, self.user)
         password = os.getenv(CONST.ENV_LIGHT_DB_PASS, self.password)
+        auth = os.getenv(CONST.ENV_LIGHT_DB_AUTH, 'MONGODB-CR')
 
         # Initialize database connection
         if user is None:
             uri = 'mongodb://{host}:{port}/{db}'
             self.client = MongoClient(uri.format(host=host, port=port, db=self.domain))
         else:
-            uri = 'mongodb://{user}:{password}@{host}:{port}/{db}?authSource={db}&authMechanism=MONGODB-CR'
-            self.client = MongoClient(uri.format(host=host, port=port, user=user, password=password, db=self.domain))
+            uri = 'mongodb://{user}:{password}@{host}:{port}/{db}?authSource={db}&authMechanism={auth}'
+            self.client = MongoClient(uri.format(
+                host=host, port=port, user=user, password=password, db=self.domain, auth=auth))
 
         self.db = self.client[self.domain]
         if self.code:

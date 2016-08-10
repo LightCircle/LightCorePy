@@ -34,6 +34,11 @@
   
  - 执行单体测试
   ```# python setup.py test```
+  
+ - 关于 ``` if __name__ == '__main__': ```
+  当 Python 文件被当做脚本执行时, __name__ 变量会被设定成 '__main__'
+  而, 当被 import 加载时, __name__ 不会被设定
+  所以, 一般用他来判断是否是以脚本方式启动的
 
 ## Python 工程目录结构
  参考 http://monklof.com/post/19/

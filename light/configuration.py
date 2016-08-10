@@ -2,6 +2,7 @@ from light.constant import Const
 from light.cache import Cache
 
 CONST = Const()
+CONFIG_INSTANCE = None
 
 
 class Config(object):
@@ -22,6 +23,15 @@ class Config(object):
                 attr = Item()
                 attr.add_children(item)
                 setattr(self, key, attr)
+
+    @staticmethod
+    def instance():
+        global CONFIG_INSTANCE
+
+        if not CONFIG_INSTANCE:
+            CONFIG_INSTANCE = Config()
+
+        return CONFIG_INSTANCE
 
 
 class Item(object):

@@ -100,8 +100,10 @@ def add_html_rule(app, url, clazz, action, template):
 
 
 def func_dynamic(url):
+    static = Config.instance().app.static
+    stamp = Config.instance().app.stamp
 
     if '?' in url:
-        return '{url}&stamp={stamp}'.format(url=url, stamp=Config.instance().app.stamp)
+        return '{url}&stamp={stamp}'.format(static=static, url=url, stamp=stamp)
 
-    return '{url}?stamp={stamp}'.format(url=url, stamp=Config.instance().app.stamp)
+    return '{static}{url}?stamp={stamp}'.format(static=static, url=url, stamp=stamp)

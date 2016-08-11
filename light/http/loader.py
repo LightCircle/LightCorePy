@@ -2,11 +2,13 @@ import os
 import flask
 import configparser
 
+from light import helper
 from light.http import dispatcher
 from light.cache import Cache
 from light.constant import Const
 from light.model.datarider import Rider
 from light.mongo.session import MongoSessionInterface
+from light.configuration import Config
 
 CONST = Const()
 
@@ -15,6 +17,7 @@ def initialize(app=None, domain=None):
     # flask
     if not app:
         app = flask.Flask(__name__)
+
     if not domain:
         domain = os.getenv(Const().ENV_LIGHT_APP_DOMAIN)
 
@@ -46,11 +49,8 @@ def setup_flask(app, db):
         port=int(os.environ[CONST.ENV_LIGHT_DB_PORT]))
 
     # analyse static resource
-    def static(file):
-        path = os.path.join(os.path.abspath('..'), 'public/static/js')
-        return flask.send_from_directory(path, file)
-
-    app.add_url_rule('/js/<path:path>', endpoint='sss', view_func=static)
+    app.static_folder = helper.project_path('public') + Config.instance().app.static
+    app.static_url_path = Config.instance().app.static
 
 
 def start(app):

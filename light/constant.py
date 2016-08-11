@@ -98,3 +98,8 @@ class Const(object):
         return 'APPNAME'
 
     ENV_LIGHT_APP_DOMAIN = property(get_env_light_app_domain)
+
+    def get_default_tenant(self):
+        return 'Default'
+
+    DEFAULT_TENANT = property(get_default_tenant)

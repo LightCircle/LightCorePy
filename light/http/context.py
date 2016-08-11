@@ -2,7 +2,7 @@ import flask
 
 
 class Context(object):
-    def __init__(self, uid=None, domain=None, code=None):
+    def __init__(self, uid=None, domain=None, code=None, param=None):
         self._uid = uid
         self._domain = domain
         self._code = code
@@ -13,7 +13,18 @@ class Context(object):
         if not uid:
             self.req = flask.request
             self.session = flask.session
+
+        if param is not None:
+            self._params = Params(param)
+        else:
             self._params = Params(flask.request.values.to_dict())
+
+    def copy(self, params):
+        handler = Context(param=params)
+        handler.set_uid(self._uid)
+        handler.set_domain(self._domain)
+        handler.set_code(self._code)
+        return handler
 
     def get_params(self):
         return self._params
@@ -93,54 +104,54 @@ class Params(object):
         if objects:
             self.objects = objects
 
-    def get_id(self):
-        if 'id' in self.objects:
-            return self.objects['id']
-        return None
-
-    id = property(fget=get_id)
-
-    def get_condition(self):
-        if 'condition' in self.objects:
-            return self.objects['condition']
-        return None
-
-    condition = property(fget=get_condition)
-
-    def get_data(self):
-        if 'data' in self.objects:
-            return self.objects['data']
-        return None
-
-    data = property(fget=get_data)
-
-    def get_start(self):
-        if 'start' in self.objects:
-            return self.objects['start']
-        return None
-
-    start = property(fget=get_start)
-
-    def get_limit(self):
-        if 'limit' in self.objects:
-            return self.objects['limit']
-        return None
-
-    limit = property(fget=get_limit)
-
-    def get_sort(self):
-        if 'sort' in self.objects:
-            return self.objects['sort']
-        return None
-
-    sort = property(fget=get_sort)
-
-    def get_select(self):
-        if 'select' in self.objects:
-            return self.objects['select']
-        return None
-
-    select = property(fget=get_select)
+    # def get_id(self):
+    #     if 'id' in self.objects:
+    #         return self.objects['id']
+    #     return None
+    #
+    # id = property(fget=get_id)
+    #
+    # def get_condition(self):
+    #     if 'condition' in self.objects:
+    #         return self.objects['condition']
+    #     return None
+    #
+    # condition = property(fget=get_condition)
+    #
+    # def get_data(self):
+    #     if 'data' in self.objects:
+    #         return self.objects['data']
+    #     return None
+    #
+    # data = property(fget=get_data)
+    #
+    # def get_start(self):
+    #     if 'start' in self.objects:
+    #         return self.objects['start']
+    #     return None
+    #
+    # start = property(fget=get_start)
+    #
+    # def get_limit(self):
+    #     if 'limit' in self.objects:
+    #         return self.objects['limit']
+    #     return None
+    #
+    # limit = property(fget=get_limit)
+    #
+    # def get_sort(self):
+    #     if 'sort' in self.objects:
+    #         return self.objects['sort']
+    #     return None
+    #
+    # sort = property(fget=get_sort)
+    #
+    # def get_select(self):
+    #     if 'select' in self.objects:
+    #         return self.objects['select']
+    #     return None
+    #
+    # select = property(fget=get_select)
 
     def __getattr__(self, key):
         if key in self.objects:

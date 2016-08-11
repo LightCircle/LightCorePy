@@ -20,7 +20,15 @@ class Controller(object):
 
         self.model = Model(domain=handler.domain, code=handler.code, table=table, define=define)
         self.condition = handler.params.condition
+        self.id = handler.params.id
         self.select = handler.params.select
+
+    def get(self):
+        if self.id:
+            condition = self.id
+        else:
+            condition = self.condition
+        return self.model.get(condition=condition, select=self.select)
 
     def list(self):
         return self.model.get_by(condition=self.condition, select=self.select)

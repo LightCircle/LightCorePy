@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 from flask.sessions import SessionInterface, SessionMixin
 from werkzeug.datastructures import CallbackDict
-from pymongo import MongoClient
 
 
 # By default, Flask stores sessions on the client's side in cookies
@@ -23,9 +22,8 @@ class MongoSession(CallbackDict, SessionMixin):
 # i.e. storing, saving, etc
 class MongoSessionInterface(SessionInterface):
     # Init connection
-    def __init__(self, host='localhost', port=27017, db='', collection='sessions'):
-        client = MongoClient(host, port)
-        self.store = client[db][collection]
+    def __init__(self, db=None, collection='sessions'):
+        self.store = db[collection]
 
     def open_session(self, app, request):
         # Get session id from the cookie

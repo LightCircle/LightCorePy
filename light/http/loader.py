@@ -22,7 +22,7 @@ def initialize(app=None, domain=None):
         domain = os.getenv(Const().ENV_LIGHT_APP_DOMAIN)
 
     # cache
-    Cache(domain).init()
+    db = Cache(domain).init()
 
     # rider
     Rider.instance()
@@ -33,7 +33,7 @@ def initialize(app=None, domain=None):
     # TODO: job
 
     # setup flask
-    setup_flask(app, domain)
+    setup_flask(app, db)
 
     # start app
     start(app)
@@ -43,10 +43,7 @@ def initialize(app=None, domain=None):
 
 def setup_flask(app, db):
     # setup mongodb session
-    app.session_interface = MongoSessionInterface(
-        db=db,
-        host=os.environ[CONST.ENV_LIGHT_DB_HOST],
-        port=int(os.environ[CONST.ENV_LIGHT_DB_PORT]))
+    app.session_interface = MongoSessionInterface(db=db)
 
     # analyse static resource
     app.static_folder = helper.project_path('public') + Config.instance().app.static

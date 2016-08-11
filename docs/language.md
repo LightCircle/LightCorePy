@@ -61,6 +61,9 @@
   upload 用于上传工程到 PyPI
   install 
 
+ - 本地安装
+  ```$ python3 setup.py install```
+
 ## 异常处理 关于 Exception 和 Return
  1. 未知的异常用try...except.
  2. 可预见的可以用if..else..处理下

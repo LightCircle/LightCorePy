@@ -77,6 +77,8 @@ class Cache:
         model = Model(domain=self.domain, code=CONST.SYSTEM_DB_PREFIX, table=CONST.SYSTEM_DB_TENANT)
         self.cache.set(CONST.SYSTEM_DB_TENANT, model.get_by(condition=valid, select=select))
 
+        return model.db
+
     @staticmethod
     def instance():
         global CACHE_INSTANCE

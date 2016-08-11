@@ -24,4 +24,14 @@ class User(object):
             return None, NotCorrect()
 
         del user['password']
+        self.setup_session(handler, user)
+
         return user, None
+
+    @staticmethod
+    def setup_session(handler, user):
+        session = handler.session
+
+        session['user'] = user
+        session['code'] = handler.code
+        session['domain'] = handler.domain

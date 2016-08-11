@@ -11,7 +11,6 @@ CONST = Const()
 
 
 class TestUser(unittest.TestCase):
-
     @staticmethod
     def setUpClass():
         os.environ[CONST.ENV_LIGHT_DB_HOST] = '127.0.0.1'
@@ -33,5 +32,10 @@ class TestUser(unittest.TestCase):
 
     def test_verify(self):
         user = User()
-        user.verify(self.handler)
 
+        self.handler.params.id = 'admin'
+        self.handler.params.password = '1qaz2wsx'
+        u, e = user.verify(self.handler)
+
+        self.assertIsNone(e)
+        self.assertIsNotNone(u)

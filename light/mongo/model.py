@@ -61,7 +61,9 @@ class Model:
     def get(self, condition=None, select=None):
 
         # Convert string or object id to dict
-        if isinstance(condition, str) or isinstance(condition, ObjectId):
+        if isinstance(condition, str):
+            condition = {'_id': ObjectId(condition)}
+        elif isinstance(condition, ObjectId):
             condition = {'_id': condition}
 
         return self.db.find_one(filter=condition, projection=select)

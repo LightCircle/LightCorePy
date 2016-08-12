@@ -7,6 +7,7 @@ from light.constant import Const
 from light.model.datarider import Rider
 from light.http.context import Context
 from light.configuration import Config
+from light.http import response
 
 CONST = Const()
 
@@ -75,7 +76,8 @@ def bind_route(app):
 
 def add_api_rule(app, api, clazz, action):
     def func():
-        return flask.jsonify(getattr(clazz, action)(Context())), 200
+        data, error = getattr(clazz, action)(Context())
+        return response.send(data, error)
 
     app.add_url_rule(api, endpoint=api, view_func=func)
 

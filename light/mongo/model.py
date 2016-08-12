@@ -78,7 +78,8 @@ class Model:
         return list(self.db.find(filter=condition, projection=select))
 
     def add(self, data=None):
-        return self.db.insert_one(data)
+        data = self.db.insert_one(data)
+        return data.inserted_id
 
     def update(self):
         pass
@@ -92,8 +93,8 @@ class Model:
     def remove_by(self):
         pass
 
-    def total(self):
-        pass
+    def total(self, condition):
+        return self.db.count(filter=condition)
 
     def increment(self):
         pass

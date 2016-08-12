@@ -31,7 +31,9 @@ class Controller(object):
         return self.model.get(condition=condition, select=self.select)
 
     def list(self):
-        return self.model.get_by(condition=self.condition, select=self.select)
+        count = self.model.total(condition=self.condition)
+        data = self.model.get_by(condition=self.condition, select=self.select)
+        return {'totalItems': count, 'items': data}
 
     def create_user(self):
         raise NotImplementedError

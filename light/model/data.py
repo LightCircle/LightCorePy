@@ -10,11 +10,11 @@ class Data(object):
 
     def get(self, handler):
         ctrl = Controller(handler=handler, table=self.board['class'])
-        return ctrl.get()
+        return ctrl.get(), None
 
     def list(self, handler):
         ctrl = Controller(handler=handler, table=self.board['class'])
-        return ctrl.list()
+        return ctrl.list(), None
 
     def add(self, handler):
         print('>>>>>>>>>>>>>>>>>>>>', handler)

@@ -40,6 +40,9 @@
   而, 当被 import 加载时, __name__ 不会被设定
   所以, 一般用他来判断是否是以脚本方式启动的
 
+ - json 的 dump 与 dumps 的区别
+  dump会生成一个类文件对象，dumps会生成字符串
+
 ## Python 工程目录结构
  参考 http://monklof.com/post/19/
 

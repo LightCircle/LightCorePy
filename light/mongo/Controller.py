@@ -22,18 +22,25 @@ class Controller(object):
         self.condition = handler.params.condition
         self.id = handler.params.id
         self.select = handler.params.select
+        self.data = handler.params.data
 
     def get(self):
         if self.id:
             condition = self.id
         else:
             condition = self.condition
-        return self.model.get(condition=condition, select=self.select)
+
+        data = self.model.get(condition=condition, select=self.select)
+        return data, None
 
     def list(self):
         count = self.model.total(condition=self.condition)
         data = self.model.get_by(condition=self.condition, select=self.select)
-        return {'totalItems': count, 'items': data}
+        return {'totalItems': count, 'items': data}, None
+
+    def add(self):
+        data = self.model.add(data=self.data)
+        return {'_id': data}, None
 
     def create_user(self):
         raise NotImplementedError

@@ -10,6 +10,7 @@ from light.configuration import Config
 from light.http import response
 
 CONST = Const()
+METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'GET', 'GET', 'GET', 'GET']
 
 
 def dispatch(app):
@@ -27,13 +28,15 @@ def bind_api(app):
         api = board['api']
         class_name = board['class']
         class_folder = board['path']
+        method = board['type']
+        print('>>>> ', api, class_name, action, METHODS[method])
 
         # try lookup controllers class
         path = light.helper.project_path('controllers', class_folder)
         clazz = light.helper.resolve(name=class_name, path=path)
         if clazz:
             if hasattr(clazz, action):
-                add_api_rule(app, api, clazz, action)
+                add_api_rule(app, api, clazz, action, method)
                 continue
 
         # try lookup system class
@@ -41,14 +44,14 @@ def bind_api(app):
         clazz = light.helper.resolve(name=class_name, path=path)
         if clazz:
             if hasattr(clazz, action):
-                add_api_rule(app, api, clazz, action)
+                add_api_rule(app, api, clazz, action, method)
                 continue
 
         # try lookup data rider
         clazz = getattr(rider, class_name)
         if clazz:
             if hasattr(clazz, action):
-                add_api_rule(app, api, clazz, action)
+                add_api_rule(app, api, clazz, action, method)
                 continue
 
 
@@ -60,7 +63,7 @@ def bind_route(app):
         url = route['url']
         class_name = route['class']
         template = route['template']
-        print(url, action, template)
+        print('>>>> ', url, action, template)
 
         # try lookup controllers class
         path = light.helper.project_path('controllers')
@@ -74,12 +77,12 @@ def bind_route(app):
         add_html_rule(app, url, None, None, template)
 
 
-def add_api_rule(app, api, clazz, action):
+def add_api_rule(app, api, clazz, action, method):
     def func():
         data, error = getattr(clazz, action)(Context())
         return response.send(data, error)
 
-    app.add_url_rule(api, endpoint=api, view_func=func)
+    app.add_url_rule(api, endpoint=api, view_func=func, methods=[METHODS[method]])
 
 
 def add_html_rule(app, url, clazz, action, template):

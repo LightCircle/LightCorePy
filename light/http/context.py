@@ -17,7 +17,7 @@ class Context(object):
         if param is not None:
             self._params = Params(param)
         else:
-            self._params = Params(flask.request.values.to_dict())
+            self._params = Params(flask.request.values.to_dict(), flask.request.get_json())
 
     def copy(self, params):
         handler = Context(param=params)
@@ -99,61 +99,14 @@ class Context(object):
 
 
 class Params(object):
-    def __init__(self, objects=None):
-        self.objects = {}
-        if objects:
-            self.objects = objects
-
-    # def get_id(self):
-    #     if 'id' in self.objects:
-    #         return self.objects['id']
-    #     return None
-    #
-    # id = property(fget=get_id)
-    #
-    # def get_condition(self):
-    #     if 'condition' in self.objects:
-    #         return self.objects['condition']
-    #     return None
-    #
-    # condition = property(fget=get_condition)
-    #
-    # def get_data(self):
-    #     if 'data' in self.objects:
-    #         return self.objects['data']
-    #     return None
-    #
-    # data = property(fget=get_data)
-    #
-    # def get_start(self):
-    #     if 'start' in self.objects:
-    #         return self.objects['start']
-    #     return None
-    #
-    # start = property(fget=get_start)
-    #
-    # def get_limit(self):
-    #     if 'limit' in self.objects:
-    #         return self.objects['limit']
-    #     return None
-    #
-    # limit = property(fget=get_limit)
-    #
-    # def get_sort(self):
-    #     if 'sort' in self.objects:
-    #         return self.objects['sort']
-    #     return None
-    #
-    # sort = property(fget=get_sort)
-    #
-    # def get_select(self):
-    #     if 'select' in self.objects:
-    #         return self.objects['select']
-    #     return None
-    #
-    # select = property(fget=get_select)
+    def __init__(self, values=None, data=None):
+        self.values = {}
+        if values:
+            self.values = values
+        if data:
+            self.values.update(data)
 
     def __getattr__(self, key):
-        if key in self.objects:
-            return self.objects[key]
+        if key in self.values:
+            return self.values[key]
         return None

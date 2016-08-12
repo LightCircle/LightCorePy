@@ -7,27 +7,28 @@ CONST = Const()
 class Data(object):
     def __init__(self, board):
         self.board = board
+        self.table = self.board['class']
 
     def get(self, handler):
-        ctrl = Controller(handler=handler, table=self.board['class'])
-        return ctrl.get(), None
+        data, error = Controller(handler=handler, table=self.table).get()
+        return data, error
 
     def list(self, handler):
-        ctrl = Controller(handler=handler, table=self.board['class'])
-        return ctrl.list(), None
+        data, error = Controller(handler=handler, table=self.table).list()
+        return data, error
 
     def add(self, handler):
-        print('>>>>>>>>>>>>>>>>>>>>', handler)
-        return {}
+        data, error = Controller(handler=handler, table=self.table).add()
+        return data, error
 
     def update(self):
-        return {}
+        return {}, None
 
     def remove(self):
-        return {}
+        return {}, None
 
     def count(self):
-        return {}
+        return {}, None
 
     def search(self):
-        return {}
+        return {}, None

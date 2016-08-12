@@ -10,7 +10,10 @@ class User(object):
 
     def verify(self, handler):
         condition = {'condition': {'id': handler.params.id}}
-        user = self.rider.user.get(handler.copy(condition))
+        user, error = self.rider.user.get(handler.copy(condition))
+
+        if error:
+            return None, error
 
         if user is None:
             return None, NotExist()

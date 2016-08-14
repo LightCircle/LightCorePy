@@ -70,3 +70,10 @@
 ## 异常处理 关于 Exception 和 Return
  1. 未知的异常用try...except.
  2. 可预见的可以用if..else..处理下
+
+## Coverage
+ - ```$ coverage run -m unittest tests/mongo/test_type.py```
+  收集测试覆盖率
+  
+ - ```$ coverage html ```
+  查看HTML版覆盖率结果

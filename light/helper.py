@@ -1,4 +1,6 @@
 import os
+import string
+import random
 import jinja2
 import importlib.util
 
@@ -47,3 +49,10 @@ def load_template(name, path=None):
         variable_end_string='%>')
 
     return environment.get_template(name + '.html')
+
+
+def random_guid(size=4, upper=False):
+    base = string.ascii_lowercase + string.digits
+    if upper:
+        base = string.ascii_uppercase + string.digits
+    return ''.join(random.SystemRandom().choice(base) for _ in range(size))

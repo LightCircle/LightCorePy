@@ -1,6 +1,10 @@
+import os
+import light.helper
+
 from light.mongo.model import Model
 from light.constant import Const
 from light.model.structure import Structure
+from light.configuration import Config
 
 CONST = Const()
 
@@ -23,6 +27,7 @@ class Controller(object):
         self.id = handler.params.id
         self.select = handler.params.select
         self.data = handler.params.data
+        self.files = handler.params.files
 
     def get(self):
         if self.id:
@@ -62,3 +67,38 @@ class Controller(object):
 
     def increment(self):
         raise NotImplementedError
+
+    def write_file_to_grid(self):
+        data = []
+        for file in self.files:
+            data.append(self.model.write_file_to_grid(file))
+
+        return {'totalItems': len(self.files), 'items': data}, None
+
+    def write_buffer_to_grid(self):
+        raise NotImplementedError
+
+    def write_stream_to_grid(self):
+        data = []
+        for file in self.files:
+            content_type = file.content_type
+            name = file.filename
+            data.append(self.model.write_stream_to_grid(name, file.stream(), content_type))
+
+        return {'totalItems': len(self.files), 'items': data}, None
+
+    def read_file_from_grid(self):
+        folder = self.data['folder']
+        name = self.data['name']
+        if folder is None:
+            folder = Config.instance().app.tmp
+        if name is None:
+            name = light.helper.random_guid(8)
+
+        return self.model.read_file_from_grid(self.id, os.path.join(folder, name))
+
+    def read_buffer_from_grid(self):
+        raise NotImplementedError
+
+    def read_stream_from_grid(self):
+        return self.model.read_stream_from_grid(self.id)

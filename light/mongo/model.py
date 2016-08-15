@@ -1,12 +1,12 @@
 import os
 import re
-import json
 import inflect
+import mimetypes
 
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from light.constant import Const
-from light.mongo.encoder import JsonEncoder
+from gridfs import GridFS, GridFSBucket
 
 CONST = Const()
 
@@ -20,7 +20,7 @@ class Model:
     5. 功能包括: 通常的CURD, GridFS操作, 数据库索引操作, 数据库用户操作
     """
 
-    def __init__(self, domain, code, table, define=None, user=None, password=None):
+    def __init__(self, domain, code=None, table=None, define=None, user=None, password=None):
         self.domain = domain
         self.code = code
         self.define = define
@@ -101,23 +101,68 @@ class Model:
     def increment(self):
         pass
 
-    def write_file_to_grid(self):
-        pass
+    def write_file_to_grid(self, file):
+        grid = GridFS(self.db)
+        f = open(file, 'rb')
+
+        content_type, encoding = mimetypes.guess_type(file)
+        filename = os.path.basename(f.name)
+
+        result = {
+            'name': filename,
+            'contentType': content_type,
+            'length': os.path.getsize(file),
+            'fileId': grid.put(f.read(), filename=filename, content_type=content_type)
+        }
+
+        f.close()
+        return result
 
     def write_buffer_to_grid(self):
-        pass
+        raise NotImplementedError
 
-    def write_stream_to_grid(self):
-        pass
+    def write_stream_to_grid(self, name, stream, content_type):
+        return {
+            'name': name,
+            'contentType': content_type,
+            'length': 0,
+            'fileId': GridFSBucket(self.db).upload_from_stream(name, stream, metadata={'contentType': content_type})
+        }
 
-    def read_file_from_grid(self):
-        pass
+    def read_file_from_grid(self, fid, file):
+        if isinstance(fid, str):
+            fid = ObjectId(fid)
+
+        grid = GridFS(self.db).get(fid)
+
+        f = open(str(file), 'wb')
+        f.write(grid.read())
+        f.close()
+
+        return {
+            'name': grid.filename,
+            'contentType': grid.content_type,
+            'length': grid.chunk_size,
+            'fileId': fid,
+            'uploadDate': grid.upload_date
+        }
 
     def read_buffer_from_grid(self):
-        pass
+        raise NotImplementedError
 
-    def read_stream_from_grid(self):
-        pass
+    def read_stream_from_grid(self, fid):
+        if isinstance(fid, str):
+            fid = ObjectId(fid)
+
+        grid = GridFSBucket(self.db).open_download_stream(fid)
+        return {
+            'name': grid.filename,
+            'contentType': grid.content_type,
+            'length': grid.chunk_size,
+            'fileId': fid,
+            'uploadDate': grid.upload_date,
+            'fileStream': grid.read()
+        }
 
     def create_user(self):
         pass

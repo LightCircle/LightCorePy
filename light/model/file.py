@@ -3,6 +3,10 @@ import os
 
 
 def add():
+    """
+    添加文件, 物理文件保存到 GridFS 中，Meta信息保存到 files 表中
+    :return: Meta信息
+    """
     raise NotImplementedError
 
 
@@ -11,7 +15,6 @@ def update():
 
 
 def upload():
-
     # <form action="" method=post enctype=multipart/form-data>
     # <p>
     #     <input type=file name=file>

@@ -21,7 +21,19 @@ class TestMapping(unittest.TestCase):
         Mapping.parse_data(data, Items('items', self.define))
         self.assertEqual(data['$set']['schema'], '1')
 
-        # test val operator
+        # TODO: test val operator
+        # data = {'$push': {'fields': {'$each': [1, 2, 3]}}}
+        # Mapping.parse_data(data, Items('items', self.define))
+        # self.assertEqual(data['$push']['fields']['$each'], ['1', '2', '3'])
+
+        # test array value
+        data = {'$push': {'fields': [1, 2, 3]}}
+        Mapping.parse_data(data, Items('items', self.define))
+        self.assertEqual(data['$push']['fields'], ['1', '2', '3'])
+
+        data = {'selects': [{'select': 0, 'fields': 1}, {'select': 1, 'fields': 2}]}
+        Mapping.parse_data(data, Items('items', self.define))
+        self.assertEqual(data['$push']['fields'], ['1', '2', '3'])
 
     def test_parse_query(self):
         query = {}
@@ -33,27 +45,26 @@ class TestMapping(unittest.TestCase):
 
     def setUp(self):
         self.define = {
+            # ObjectID type
             "_id": {
                 "reserved": 1,
                 "type": "ObjectID",
                 "name": "ID"
             },
+            # Number type
             "valid": {
                 "reserved": 1,
                 "type": "Number",
                 "name": "有效标识",
                 "description": "1:有效 0:无效"
             },
+            # Date type
             "createAt": {
                 "reserved": 1,
                 "type": "Date",
                 "name": "创建时间"
             },
-            "createBy": {
-                "reserved": 1,
-                "type": "String",
-                "name": "创建者"
-            },
+            # String type
             "schema": {
                 "type": "String",
                 "name": "Schema名",
@@ -61,29 +72,16 @@ class TestMapping(unittest.TestCase):
                 "description": "",
                 "reserved": 2
             },
-            "filters": {
-                "contents": {
-                    "key": {
-                        "type": "String",
-                        "name": "字段",
-                        "default": "",
-                        "description": "",
-                        "reserved": 2
-                    },
-                    "operator": {
-                        "type": "String",
-                        "name": "比较",
-                        "default": "$eq",
-                        "description": "$eq, $ne, $gt, $gte, $lt, $lte, $in, $nin",
-                        "reserved": 2
-                    }
-                },
+            # Array basic type
+            "fields": {
                 "type": "Array",
-                "name": "条件",
+                "name": "附加项 关联后选择的字段",
                 "default": "",
                 "description": "",
-                "reserved": 2
+                "reserved": 2,
+                "contents": "String"
             },
+            # Array type
             "selects": {
                 "contents": {
                     "select": {
@@ -98,11 +96,36 @@ class TestMapping(unittest.TestCase):
                         "name": "附加项 关联后选择的字段",
                         "default": "",
                         "description": "",
-                        "reserved": 2
+                        "reserved": 2,
+                        "contents": "String"
                     }
                 },
                 "type": "Array",
                 "name": "选择字段",
+                "default": "",
+                "description": "",
+                "reserved": 2
+            },
+            # Object type
+            "limit": {
+                "contents": {
+                    "date": {
+                        "type": "Date",
+                        "name": "备份截止日",
+                        "default": "",
+                        "description": "",
+                        "reserved": 2
+                    },
+                    "count": {
+                        "type": "Number",
+                        "name": "备份次数",
+                        "default": "",
+                        "description": "",
+                        "reserved": 2
+                    }
+                },
+                "type": "Object",
+                "name": "限制",
                 "default": "",
                 "description": "",
                 "reserved": 2

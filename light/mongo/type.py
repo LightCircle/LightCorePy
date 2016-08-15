@@ -6,7 +6,24 @@ class Array(object):
 
 
 class Boolean(object):
-    pass
+    @staticmethod
+    def convert(val):
+        if val is None:
+            return False
+        if isinstance(val, bool):
+            return val
+        if isinstance(val, str):
+            if val.lower() == 'true':
+                return True
+            if val.lower() == 'false' and val == '0':
+                return False
+        return bool(val)
+
+    @staticmethod
+    def parse(data):
+        if isinstance(data, list):
+            return list(map(lambda x: Boolean.convert(x), data))
+        return Boolean.convert(data)
 
 
 class Date(object):

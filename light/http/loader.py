@@ -9,6 +9,7 @@ from light.constant import Const
 from light.model.datarider import Rider
 from light.mongo.session import MongoSessionInterface
 from light.configuration import Config
+from light.job import Schedule
 
 CONST = Const()
 
@@ -31,6 +32,7 @@ def initialize(app=None, domain=None):
     dispatcher.dispatch(app)
 
     # TODO: job
+    Schedule().start()
 
     # setup flask
     setup_flask(app, db)

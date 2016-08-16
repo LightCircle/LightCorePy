@@ -59,8 +59,15 @@ class Number(object):
 
     @staticmethod
     def parse(data):
+        if isinstance(data, dict):
+            for key, val in data.items():
+                data[key] = Number.convert(val)
+            return
         if isinstance(data, list):
-            return list(map(lambda x: Number.convert(x), data))
+            for index, val in enumerate(data):
+                data[index] = Number.convert(val)
+            return
+            # return list(map(lambda x: Number.convert(x), data))
         return Number.convert(data)
 
 

@@ -1,49 +1,79 @@
-from light.mongo.type import *
+from light.mongo.type import Array, Boolean, Number, String, Date, ObjectID
 
 
-class Mapping(object):
+class Update(object):
+
     @staticmethod
-    def parse_data(data, defines):
+    def define(defines, path):
+        return getattr(defines, path)
+
+    @staticmethod
+    def parse(data, defines, path=None):
+
+        if isinstance(data, list):
+            for index, datum in enumerate(data):
+                if isinstance(datum, dict):
+                    Update.parse(datum, defines)
+                    return
+
+                define
+                data[key] = globals()[define.type].parse(val)
+
+                data[index] = Number.convert(val)
+                return
+
+            for datum in data:
+                if isinstance(datum, dict):
+                    Update.parse(datum, defines)
+                    return
+
+
+                return
+
+        for key, val in data.items():
+
+            # If the key contains mongodb operator, ex. {$set: {field: val}}
+            if key.startswith('$'):
+                UpdateOperator.parse(key, val, defines)
+                continue
+
+            # If define not found, then parse next
+            define = getattr(defines, key)
+            if define is None:
+                continue
+
+            # # The val contains mongodb operator
+            # if Update.has_operator(val):
+            #     Update.parse(val, Items(key, define))
+            #     continue
+
+            # Is dict, then recursion
+            if isinstance(val, dict):
+                if isinstance(define.contents, dict):
+                    Update.parse_data(val, define.contents)
+                    continue
+
+
+            # Is list, then recursion
+            if isinstance(val, list):
+                if isinstance(define.contents, Items):
+                    Update.parse_data(val, define.contents)
+                    continue
+
+                # TODO
+                data[key] = globals()[define.contents].parse(val)
+                continue
+
+            # Parse value
+            data[key] = globals()[define.type].parse(val)
+
+    @staticmethod
+    def has_operator(data):
         if isinstance(data, dict):
-            data = [data]
-
-        for datum in data:
-
-            for key, val in datum.items():
-
-                # If the key contains mongodb operator, ex. {$set: {field: val}}
+            for key, val in data.items():
                 if key.startswith('$'):
-                    UpdateOperator.parse(key, val, defines)
-                    continue
-
-                define = getattr(defines, key)
-
-                # Is dict, then recursion
-                if isinstance(val, dict):
-                    if isinstance(define.contents, dict):
-                        Mapping.parse_data(val, define.contents)
-                        continue
-
-                    # The val contains mongodb operator
-                    # TODO
-                    continue
-
-                # Is list, then recursion
-                if isinstance(val, list):
-                    if isinstance(define.contents, Items):
-                        Mapping.parse_data(val, define.contents)
-                        continue
-
-                    # TODO
-                    datum[key] = globals()[define.contents].parse(val)
-                    continue
-
-                # Parse value
-                datum[key] = globals()[define.type].parse(val)
-
-    def parse_query(self, query, define):
-        pass
-
+                    return True
+        return False
 
 class Items(object):
     def __init__(self, key, items):
@@ -133,8 +163,9 @@ class Item(object):
 
 class UpdateOperator(object):
     @staticmethod
-    def parse(name, data, defines):
-        getattr(UpdateOperator, name[1:])(data, defines)
+    def parse(key, val, defines):
+        define = getattr(defines, key)
+        getattr(UpdateOperator, key[1:])(val, define)
 
     """
     Field Update Operators
@@ -143,35 +174,43 @@ class UpdateOperator(object):
     @staticmethod
     def inc(data, defines):
         # { $inc: { <field1>: <amount1>, <field2>: <amount2>, ... } }
-        Mapping.parse_data(data, defines)
+        Number.parse(data)
 
     @staticmethod
     def mul(data, defines):
-        Mapping.parse_data(data, defines)
+        # { $mul: { field: <number> } }
+        Number.parse(data)
 
     @staticmethod
     def rename(data, defines):
-        Mapping.parse_data(data, defines)
+        # { $rename: { <field1>: <newName1>, <field2>: <newName2>, ... } }
+        String.parse(data)
 
     @staticmethod
     def setOnInsert(data, defines):
-        Mapping.parse_data(data, defines)
+        # { $setOnInsert: { <field1>: <value1>, ... } }
+        define = getattr(defines, key)
+        Update.parse_data(data, defines)
 
     @staticmethod
     def set(data, defines):
-        Mapping.parse_data(data, defines)
+        # { $set: { <field1>: <value1>, ... } }
+        Update.parse_data(data, defines)
 
     @staticmethod
     def unset(data, defines):
-        Mapping.parse_data(data, defines)
+        # { $unset: { <field1>: "", ... } }
+        String.parse(data)
 
     @staticmethod
     def min(data, defines):
-        Mapping.parse_data(data, defines)
+        # { $min: { <field1>: <value1>, ... } }
+        Update.parse_data(data, defines)
 
     @staticmethod
     def max(data, defines):
-        Mapping.parse_data(data, defines)
+        # { $max: { <field1>: <value1>, ... } }
+        Update.parse_data(data, defines)
 
     @staticmethod
     def currentDate(data, defines):
@@ -185,38 +224,37 @@ class UpdateOperator(object):
     @staticmethod
     def addToSet(data, defines):
         # { $addToSet: { <field1>: <value1>, ... } }
-        Mapping.parse_data(data, defines)
+        Update.parse_data(data, defines)
 
     @staticmethod
     def pop(data, defines):
         # { $pop: { <field>: <-1 | 1>, ... } }
-        pass
+        Number.parse(data)
 
     @staticmethod
     def pullAll(data, defines):
         # { $pullAll: { <field1>: [ <value1>, <value2> ... ], ... } }
-        Mapping.parse_data(data, defines)
+        Update.parse_data(data, defines)
 
     @staticmethod
     def pull(data, defines):
         # { $pull: { <field1>: <value|condition>, <field2>: <value|condition>, ... } }
         # TODO: convert condition
-        Mapping.parse_data(data, defines)
+        Update.parse_data(data, defines)
 
     @staticmethod
     def pushAll(data, defines):
         # { $pushAll: { <field>: [ <value1>, <value2>, ... ] } }
-        Mapping.parse_data(data, defines)
+        Update.parse_data(data, defines)
 
     @staticmethod
     def push(data, defines):
         # { $push: { <field1>: <value1>, ... } }
-        Mapping.parse_data(data, defines)
+        Update.parse_data(data, defines)
 
     @staticmethod
     def each(data, defines):
         # { $push: { <field>: { $each: [ <value1>, <value2> ... ] } } }
-        # TODO: convert each value
         pass
 
     @staticmethod

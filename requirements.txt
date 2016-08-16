@@ -12,3 +12,8 @@ inflect==0.2.5
 
 # pycrypto - Encrypt and decrypt
 PyCrypto==2.6.1
+
+# websocket -
+
+# schedule - Job schedule
+apscheduler==3.2.0

@@ -14,7 +14,7 @@ from light.job import Schedule
 CONST = Const()
 
 
-def initialize(app=None, domain=None):
+def initialize(app=None, domain=None, run=True):
     # flask
     if not app:
         app = flask.Flask(__name__)
@@ -38,7 +38,8 @@ def initialize(app=None, domain=None):
     setup_flask(app, db)
 
     # start app
-    start(app)
+    if run:
+        start_app(app)
 
     return app
 
@@ -52,7 +53,7 @@ def setup_flask(app, db):
     app.static_url_path = Config.instance().app.static
 
 
-def start(app):
+def start_app(app):
     port = 7000
     if CONST.ENV_LIGHT_APP_PORT in os.environ:
         port = int(os.environ[CONST.ENV_LIGHT_APP_PORT])

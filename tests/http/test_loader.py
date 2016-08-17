@@ -22,25 +22,17 @@ class TestLoader(unittest.TestCase):
 
     def test_initialize(self):
         # init application
-        light.http.loader.initialize(self.app, 'LightDB')
-
-        # test request
-        def view_func():
-            print(flask.request.values['params'])
-            return 'OK'
-
-        self.app.add_url_rule('/test', endpoint='test', view_func=view_func, methods=['GET'])
+        light.http.loader.initialize(self.app, domain='LightDB', run=False)
 
         # start by process
-        def app_run():
-            self.app.run(port=5000)
-
-        self.server = Process(target=app_run)
+        self.app.add_url_rule('/test', endpoint='test', view_func=lambda: 'OK', methods=['GET'])
+        self.server = Process(target=lambda: self.app.run(port=5000))
         self.server.start()
 
+        # test request
         time.sleep(1)
-
         urllib.request.urlopen('http://127.0.0.1:5000/test?params=p1')
+        time.sleep(1)
 
     def tearDown(self):
         # automatic stop flask server

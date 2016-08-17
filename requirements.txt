@@ -2,7 +2,7 @@
 Flask==0.11.1
 
 # pymongo - MongoDB Driver for python
-pymongo==3.2.2
+pymongo==3.3.0
 
 # jinja2 - Template tools
 Jinja2==2.8

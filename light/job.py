@@ -16,5 +16,4 @@ class Schedule(object):
         atexit.register(lambda: self.shutdown())
 
     def shutdown(self):
-        print('stop')
         self.scheduler.shutdown(wait=False)

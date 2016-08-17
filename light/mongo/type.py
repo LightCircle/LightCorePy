@@ -1,4 +1,12 @@
+import datetime
+import dateutil.parser
+
+from datetime import datetime, date
 from bson import ObjectId
+
+
+class Object(object):
+    pass
 
 
 class Array(object):
@@ -27,7 +35,23 @@ class Boolean(object):
 
 
 class Date(object):
-    pass
+    @staticmethod
+    def convert(val):
+        if val is None:
+            return None
+        if isinstance(val, date):
+            return val
+        if isinstance(val, datetime):
+            return val
+        return dateutil.parser.parse(val)
+
+    @staticmethod
+    def parse(data):
+        if isinstance(data, list):
+            for index, val in enumerate(data):
+                data[index] = Date.convert(val)
+            return data
+        return Date.convert(data)
 
 
 class String(object):
@@ -40,7 +64,9 @@ class String(object):
     @staticmethod
     def parse(data):
         if isinstance(data, list):
-            return list(map(lambda x: String.convert(x), data))
+            for index, val in enumerate(data):
+                data[index] = String.convert(val)
+            return data
         return String.convert(data)
 
 
@@ -62,12 +88,11 @@ class Number(object):
         if isinstance(data, dict):
             for key, val in data.items():
                 data[key] = Number.convert(val)
-            return
+            return data
         if isinstance(data, list):
             for index, val in enumerate(data):
                 data[index] = Number.convert(val)
-            return
-            # return list(map(lambda x: Number.convert(x), data))
+            return data
         return Number.convert(data)
 
 

@@ -17,3 +17,6 @@ PyCrypto==2.6.1
 
 # schedule - Job schedule
 apscheduler==3.2.0
+
+# dateutil
+python-dateutil==2.5.3

@@ -2,67 +2,57 @@ from light.mongo.type import *
 
 
 class UpdateOperator(object):
-    def __init__(self):
-        self.path = None
-        self.defines = None
-
-    def parse(self, key, val, defines, path):
-        self.path = path
-        self.defines = defines
-
-        getattr(self, key.replace('$', '_'))(val)
+    def parse(self, key, val, defines):
+        getattr(self, key.replace('$', '_'))(val, defines)
 
     """
     Field Update Operators
     """
 
     @staticmethod
-    def _inc(data):
+    def _inc(data, defines):
         # { $inc: { <field1>: <amount1>, <field2>: <amount2>, ... } }
         Number.parse(data)
 
     @staticmethod
-    def _mul(data):
+    def _mul(data, defines):
         # { $mul: { field: <number> } }
         Number.parse(data)
 
     @staticmethod
-    def _rename(data):
+    def _rename(data, defines):
         # { $rename: { <field1>: <newName1>, <field2>: <newName2>, ... } }
         String.parse(data)
 
     @staticmethod
-    def _setOnInsert(data):
+    def _setOnInsert(data, defines):
         # { $setOnInsert: { <field1>: <value1>, ... } }
-        # define = getattr(defines, key)
-        # Update.parse_data(data)
         raise NotImplementedError
 
-    def _set(self, data):
+    @staticmethod
+    def _set(data, defines):
         # { $set: { <field1>: <value1>, ... } }
         for key, val in data.items():
-            define = self.defines.get(key)
+            define = defines.get(key)
             data[key] = globals()[define.type].parse(val)
 
     @staticmethod
-    def _unset(data):
+    def _unset(data, defines):
         # { $unset: { <field1>: "", ... } }
         return ''
 
     @staticmethod
-    def _min(data):
+    def _min(data, defines):
         # { $min: { <field1>: <value1>, ... } }
-        # Update.parse_data(data)
         raise NotImplementedError
 
     @staticmethod
-    def _max(data):
+    def _max(data, defines):
         # { $max: { <field1>: <value1>, ... } }
-        # Update.parse_data(data)
         raise NotImplementedError
 
     @staticmethod
-    def _currentDate(data):
+    def _currentDate(data, defines):
         # { $currentDate: { <field1>: <typeSpecification1>, ... } }
         pass
 
@@ -71,47 +61,54 @@ class UpdateOperator(object):
     """
 
     @staticmethod
-    def _addToSet(data):
+    def _addToSet(data, defines):
         # { $addToSet: { <field1>: <value1>, ... } }
-        # Update.parse_data(data)
-
-        raise NotImplementedError
-
-    @staticmethod
-    def _pop(data):
-        # { $pop: { <field>: <-1 | 1>, ... } }
-        Number.parse(data)
-
-    @staticmethod
-    def _pullAll(data):
-        # { $pullAll: { <field1>: [ <value1>, <value2> ... ], ... } }
-        # Update.parse_data(data)
-
-        raise NotImplementedError
-
-    @staticmethod
-    def _pull(data):
-        # { $pull: { <field1>: <value|condition>, <field2>: <value|condition>, ... } }
-        # TODO: convert condition
-        # Update.parse_data(data)
-        raise NotImplementedError
-
-    @staticmethod
-    def _pushAll(data):
-        # { $pushAll: { <field>: [ <value1>, <value2>, ... ] } }
-        # Update.parse_data(data)
-        raise NotImplementedError
-
-    def _push(self, data):
-        # { $push: { <field1>: <value1>, ... } }
-        # { $push: { <field1>: { <modifier1>: <value1>, ... }, ... } }
+        # { $addToSet: { <field1>: { <modifier1>: <value1>, ... }, ... } }
         for key, val in data.items():
-            define = self.defines.get(key)
+            define = defines.get(key)
 
             # support modifier
             if isinstance(val, dict):
                 for k, v in val.items():
-                    val[k] = getattr(self, k.replace('$', '_'))(v, define)
+                    val[k] = getattr(UpdateOperator, k.replace('$', '_'))(v, define)
+                continue
+
+            # basic type
+            data[key] = globals()[define.contents].parse(val)
+
+    @staticmethod
+    def _pop(data, defines):
+        # { $pop: { <field>: <-1 | 1>, ... } }
+        Number.parse(data)
+
+    @staticmethod
+    def _pullAll(data, defines):
+        # { $pullAll: { <field1>: [ <value1>, <value2> ... ], ... } }
+        raise NotImplementedError
+
+    @staticmethod
+    def _pull(data, defines):
+        # { $pull: { <field1>: <value|condition>, <field2>: <value|condition>, ... } }
+        # TODO: convert condition
+        raise NotImplementedError
+
+    @staticmethod
+    def _pushAll(data, defines):
+        # { $pushAll: { <field>: [ <value1>, <value2>, ... ] } }
+        # Update.parse_data(data)
+        raise NotImplementedError
+
+    @staticmethod
+    def _push(data, defines):
+        # { $push: { <field1>: <value1>, ... } }
+        # { $push: { <field1>: { <modifier1>: <value1>, ... }, ... } }
+        for key, val in data.items():
+            define = defines.get(key)
+
+            # support modifier
+            if isinstance(val, dict):
+                for k, v in val.items():
+                    val[k] = getattr(UpdateOperator, k.replace('$', '_'))(v, define)
                 continue
 
             # basic type
@@ -142,7 +139,7 @@ class UpdateOperator(object):
     """
 
     @staticmethod
-    def _bit(data):
+    def _bit(data, defines):
         # { $bit: { <field>: { <and|or|xor>: <int> } } }
         pass
 
@@ -151,7 +148,7 @@ class UpdateOperator(object):
     """
 
     @staticmethod
-    def _isolated(data):
+    def _isolated(data, defines):
         pass
 
 

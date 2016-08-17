@@ -1,4 +1,4 @@
-from light.mongo.type import Array, Boolean, Number, String, Date, ObjectID
+from light.mongo.type import *
 from light.mongo.define import Item, Items
 from light.mongo.operator import UpdateOperator, QueryOperator
 
@@ -12,51 +12,38 @@ type: 负责实际的数据类型转换, 当输入数据为 dict 或 list 时, �
 
 class Update(object):
     @staticmethod
-    def define(defines, path):
-        return getattr(defines, path)
-
-    @staticmethod
-    def parse(data, defines, path=None):
-
+    def parse(data, defines):
         if isinstance(data, dict):
             data = [data]
 
         for datum in data:
-
             for key, val in datum.items():
-
                 define = defines.get(key)
 
                 # Parse sub items
                 if define is not None and isinstance(define.contents, Items):
-                    Update.parse(val, define.contents, path=define.key)
+                    Update.parse(val, define.contents)
                     continue
 
                 # If the key contains mongodb operator, ex. {$set: {field: val}}
                 if key.startswith('$'):
-                    UpdateOperator().parse(key, val, defines, path)
+                    UpdateOperator().parse(key, val, defines)
                     continue
 
                 # If define not found, then parse next
                 if define is None:
                     continue
 
-                # # The val contains mongodb operator
-                # if Update.has_operator(val):
-                #     Update.parse(val, Items(key, define))
-                #     continue
-
+                # Is array basic type
                 if isinstance(val, list):
-                    # Is array basic type
                     datum[key] = globals()[define.contents].parse(val)
+
+                # Parse basic type
                 else:
-                    # Parse basic type
                     datum[key] = globals()[define.type].parse(val)
 
+
+class Query(object):
     @staticmethod
-    def has_operator(data):
-        if isinstance(data, dict):
-            for key, val in data.items():
-                if key.startswith('$'):
-                    return True
-        return False
+    def parse(data, defines):
+        pass

@@ -1,6 +1,6 @@
 import unittest
 
-from light.mongo.mapping import Update
+from light.mongo.mapping import Update, Query
 from light.mongo.define import Items
 from datetime import datetime, date
 from bson import ObjectId
@@ -12,7 +12,7 @@ class TestMapping(unittest.TestCase):
         test type convert
         """
 
-        # test objectid
+        # test basic data type
         data = {'_id': '000000000000000000000001'}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['_id'], ObjectId('000000000000000000000001'))
@@ -26,34 +26,38 @@ class TestMapping(unittest.TestCase):
         test mongodb operator
         """
 
-        # test key operator > $inc
+        # $inc
         data = {'$inc': {'item1': '1', 'item2': '2'}}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$inc']['item1'], 1)
         self.assertEqual(data['$inc']['item2'], 2)
 
-        # test key operator > $set
+        # $set
         data = {'$set': {'schema': 1}}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$set']['schema'], '1')
 
-        # test val operator > $push $each $slice $sort $position
+        # $push
         data = {'$push': {'fields': 2}}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$push']['fields'], '2')
 
+        # $push $each
         data = {'$push': {'fields': {'$each': [1, 2, 3]}}}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$push']['fields']['$each'], ['1', '2', '3'])
 
+        # $push $slice
         data = {'$push': {'fields': {'$slice': '2'}}}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$push']['fields']['$slice'], 2)
 
+        # $push $sort
         data = {'$push': {'fields': {'$sort': '-1'}}}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$push']['fields']['$sort'], -1)
 
+        # $push $position
         data = {'$push': {'fields': {'$position': '1'}}}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$push']['fields']['$position'], 1)
@@ -74,8 +78,75 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(data['limit'], {'date': datetime(2006, 1, 1, 0, 0), 'count': 1})
 
     def test_parse_query(self):
-        query = {}
-        # Update().parse_query(query, Items('items', self.define))
+        """
+        test basic type
+        """
+        query = {'_id': '000000000000000000000001', 'valid': '1', 'createAt': '2016/01/01', 'schema': 2}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query, {
+            '_id': ObjectId('000000000000000000000001'),
+            'valid': 1,
+            'createAt': datetime(2016, 1, 1, 0, 0),
+            'schema': '2'
+        })
+
+        """
+        test mongodb operator : comparison
+        """
+        # $eq
+        query = {'valid': {'$eq': '1'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['valid']['$eq'], 1)
+
+        # $eq top level
+        query = {'$eq': {'valid': '1'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['$eq']['valid'], 1)
+
+        # $gt
+        query = {'valid': {'$gt': '1'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['valid']['$gt'], 1)
+
+        """
+        test mongodb operator : logical
+        """
+        # $or
+        query = {'$or': [{'valid': '1'}, {'valid': '2'}]}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['$or'][0]['valid'], 1)
+        self.assertEqual(query['$or'][1]['valid'], 2)
+
+        # $or $gt $lt $in
+        query = {'$or': [
+            {'valid': {'$gt': '1'}},
+            {'valid': {'$lt': '2'}},
+            {'valid': {'$in': ['1', '2']}}
+        ]}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['$or'][0]['valid'], {'$gt': 1})
+        self.assertEqual(query['$or'][1]['valid'], {'$lt': 2})
+        self.assertEqual(query['$or'][2]['valid']['$in'], [1, 2])
+
+        # $and $gt $lt $in
+        query = {'$and': [
+            {'valid': {'$gt': '1'}},
+            {'valid': {'$lt': '2'}},
+            {'valid': {'$in': ['1', '2']}}
+        ]}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['$and'][0]['valid'], {'$gt': 1})
+        self.assertEqual(query['$and'][1]['valid'], {'$lt': 2})
+        self.assertEqual(query['$and'][2]['valid']['$in'], [1, 2])
+
+        # $and + $or
+        query = {'$and': [
+            {'$or': [{'valid': {'$gt': '10'}}, {'valid': {'$lt': '12'}}]},
+            {'$or': [{'valid': {'$gt': '15'}}, {'valid': {'$lt': '17'}}]}
+        ]}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['$and'][0]['$or'][0]['valid'], {'$gt': 10})
+        self.assertEqual(query['$and'][1]['$or'][1]['valid'], {'$lt': 17})
 
     def test_default_item(self):
         define = Items(self.define)

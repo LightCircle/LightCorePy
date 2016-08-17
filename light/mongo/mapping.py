@@ -1,5 +1,5 @@
 from light.mongo.type import *
-from light.mongo.define import Item, Items
+from light.mongo.define import Items
 from light.mongo.operator import UpdateOperator, QueryOperator
 
 """
@@ -46,4 +46,18 @@ class Update(object):
 class Query(object):
     @staticmethod
     def parse(data, defines):
-        pass
+
+        for key, val in data.items():
+
+            # If the key contains mongodb operator, ex. {$set: {field: val}}
+            if key.startswith('$'):
+                QueryOperator().parse(key, val, defines)
+                continue
+
+            define = defines.get(key)
+
+            # If define not found, then parse next
+            if define is None:
+                continue
+
+            data[key] = globals()[define.type].parse(val)

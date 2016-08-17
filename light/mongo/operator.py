@@ -153,29 +153,39 @@ class UpdateOperator(object):
 
 
 class QueryOperator(object):
+    def parse(self, key, val, defines):
+        getattr(self, key.replace('$', '_'))(val, defines)
+
     """
     Comparison Query Operators
     """
 
     @staticmethod
-    def _eq(self):
+    def _eq(data, defines):
         # { <field>: { $eq: <value> } }
-        pass
+        # { $eq: { <field>: <value> } }
+        for key, val in data.items():
+            define = defines.get(key)
+            data[key] = globals()[define.type].parse(val)
 
     @staticmethod
     def _gt(self):
+        # { field: {$gt: value} }
         pass
 
     @staticmethod
     def _gte(self):
+        # { field: {$gte: value} }
         pass
 
     @staticmethod
     def _lt(self):
+        # { field: {$lt: value} }
         pass
 
     @staticmethod
     def _lte(self):
+        # { field: {$lte: value} }
         pass
 
     @staticmethod
@@ -185,11 +195,12 @@ class QueryOperator(object):
 
     @staticmethod
     def _in(self):
-        # { field: { $in: [<value1>, <value2>, ... <valueN> ] } }TODO
+        # { field: { $in: [<value1>, <value2>, ... <valueN> ] } }
         pass
 
     @staticmethod
     def _nin(self):
+        # { field: { $nin: [<value1>, <value2>, ... <valueN> ] } }
         pass
 
     """
@@ -197,24 +208,47 @@ class QueryOperator(object):
     """
 
     @staticmethod
-    def _or(self):
+    def _or(data, defines):
         # { $or: [ { <expression1> }, { <expression2> }, ... , { <expressionN> } ] }
-        pass
+        for datum in data:
+            for key, val in datum.items():
+                define = defines.get(key)
+
+                if isinstance(val, dict):
+                    for k, v in val.items():
+                        val[k] = globals()[define.type].parse(v)
+                    continue
+
+                datum[key] = globals()[define.type].parse(val)
 
     @staticmethod
-    def _and(self):
+    def _and(data, defines):
         # { $and: [ { <expression1> }, { <expression2> } , ... , { <expressionN> } ] }
-        pass
+        for datum in data:
+            for key, val in datum.items():
+                # $and + $or
+                if key.startswith('$'):
+                    getattr(QueryOperator, key.replace('$', '_'))(val, defines)
+                    continue
+
+                define = defines.get(key)
+
+                if isinstance(val, dict):
+                    for k, v in val.items():
+                        val[k] = globals()[define.type].parse(v)
+                    continue
+
+                datum[key] = globals()[define.type].parse(val)
 
     @staticmethod
-    def _not(self):
+    def _not(data, defines):
         # { field: { $not: { <operator-expression> } } }
-        pass
+        raise NotImplementedError
 
     @staticmethod
-    def _nor(self):
+    def _nor(data, defines):
         # { $nor: [ { <expression1> }, { <expression2> }, ...  { <expressionN> } ] }
-        pass
+        raise NotImplementedError
 
     """
     Element Query Operators
@@ -222,11 +256,11 @@ class QueryOperator(object):
 
     def _exists(self):
         # { field: { $exists: <boolean> } }
-        pass
+        raise NotImplementedError
 
     def _type(self):
         # { field: { $type: <BSON type number> | <String alias> } }
-        pass
+        raise NotImplementedError
 
     """
     Evaluation Query Operators
@@ -234,11 +268,11 @@ class QueryOperator(object):
 
     def _mod(self):
         # { field: { $mod: [ divisor, remainder ] } }
-        pass
+        raise NotImplementedError
 
     def _regex(self):
         # { <field>: { $regex: /pattern/, $options: '<options>' } }
-        pass
+        raise NotImplementedError
 
     def _text(self):
         # {
@@ -249,10 +283,10 @@ class QueryOperator(object):
         #     $diacriticSensitive: <boolean>
         #   }
         # }
-        pass
+        raise NotImplementedError
 
     def _where(self):
-        pass
+        raise NotImplementedError
 
     """
     Geospatial Query Operators
@@ -264,14 +298,14 @@ class QueryOperator(object):
 
     def _all(self):
         # { <field>: { $all: [ <value1> , <value2> ... ] } }
-        pass
+        raise NotImplementedError
 
     def _elemMatch(self):
         # { <field>: { $elemMatch: { <query1>, <query2>, ... } } }
-        pass
+        raise NotImplementedError
 
     def _size(self):
-        pass
+        raise NotImplementedError
 
     """
     Bitwise Query Operators
@@ -295,10 +329,6 @@ class QueryOperator(object):
 
     def _meta(self):
         # { $meta: <metaDataKeyword> }
-        pass
-
-    def _slice(self):
-        # db.collection.find( { field: value }, { array: {$slice: count } } );
         pass
 
     def _comment(self):

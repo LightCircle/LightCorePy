@@ -103,3 +103,8 @@ class Const(object):
         return 'Default'
 
     DEFAULT_TENANT = property(get_default_tenant)
+
+    def get_env_light_app_websocket(self):
+        return 'LIGHTAPP_WEBSOCKET'
+
+    ENV_LIGHT_APP_WEBSOCKET = property(get_env_light_app_websocket)

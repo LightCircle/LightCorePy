@@ -16,6 +16,29 @@ METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'GET', 'GET', 'GET', 'GET']
 def dispatch(app):
     bind_api(app)
     bind_route(app)
+    bind_websocket(app)
+
+
+def bind_websocket(app):
+    if os.getenv(CONST.ENV_LIGHT_APP_WEBSOCKET, 'on') == 'off':
+        return
+
+    from flask_uwsgi_websocket import AsyncioWebSocket
+    from asyncio import coroutine
+
+    socket = AsyncioWebSocket(app)
+
+    # TODO
+    @coroutine
+    def func(ws):
+        while True:
+            msg = yield from ws.receive()
+            if msg is not None:
+                yield from ws.send(msg)
+            else:
+                return
+
+    socket.add_url_rule('/websocket', '/websocket', view_func=func)
 
 
 def bind_api(app):

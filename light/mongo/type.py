@@ -23,7 +23,7 @@ class Boolean(object):
         if isinstance(val, str):
             if val.lower() == 'true':
                 return True
-            if val.lower() == 'false' and val == '0':
+            if val.lower() == 'false' or val == '0':
                 return False
         return bool(val)
 
@@ -39,9 +39,9 @@ class Date(object):
     def convert(val):
         if val is None:
             return None
-        if isinstance(val, date):
-            return val
         if isinstance(val, datetime):
+            return val
+        if isinstance(val, date):
             return val
         return dateutil.parser.parse(val)
 

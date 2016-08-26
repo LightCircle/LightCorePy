@@ -1,6 +1,7 @@
 import unittest
+from datetime import datetime, date
 
-from light.mongo.type import ObjectID, Number
+from light.mongo.type import ObjectID, Number, String, Date, Boolean
 from bson import ObjectId
 
 
@@ -31,3 +32,79 @@ class TestType(unittest.TestCase):
         self.assertEqual(result[1], 3.01)
         self.assertEqual(result[2], 4)
         self.assertEqual(result[3], 5.0)
+
+        result = Number.parse({0: 1, 1: '2', 2: 3.5, 3: '4.2'})
+        self.assertEqual(result[0], 1)
+        self.assertEqual(result[1], 2)
+        self.assertEqual(result[2], 3.5)
+        self.assertEqual(result[3], 4.2)
+
+    def test_parse_string(self):
+        result = String.parse(None)
+        self.assertEqual(result, '')
+
+        result = String.parse([2.0, 's', True, (1, 2, 3)])
+        self.assertEqual(result[0], '2.0')
+        self.assertEqual(result[1], 's')
+        self.assertEqual(result[2], 'True')
+        self.assertEqual(result[3], '(1, 2, 3)')
+
+    def test_parse_date(self):
+        result = Date.parse(None)
+        self.assertIsNone(result)
+
+        result = Date.parse('2008-10-1')
+        self.assertEqual(result, datetime(2008, 10, 1))
+
+        result = Date.parse('2008/10/1')
+        self.assertEqual(result, datetime(2008, 10, 1))
+
+        result = Date.parse(datetime(2008, 10, 1))
+        self.assertEqual(result, datetime(2008, 10, 1))
+
+        result = Date.parse(date(2008, 10, 1))
+        self.assertEqual(result, date(2008, 10, 1))
+
+        result = Date.parse([date(2008, 10, 1), datetime(2009, 10, 1), '2010-10-1', '2011/10/1'])
+        self.assertEqual(result[0], date(2008, 10, 1))
+        self.assertEqual(result[1], datetime(2009, 10, 1))
+        self.assertEqual(result[2], datetime(2010, 10, 1))
+        self.assertEqual(result[3], datetime(2011, 10, 1))
+
+    def test_parse_boolean(self):
+        result = Boolean.parse(None)
+        self.assertEqual(result, False)
+
+        result = Boolean.parse(False)
+        self.assertEqual(result, False)
+        result = Boolean.parse(True)
+        self.assertEqual(result, True)
+
+        result = Boolean.parse('')
+        self.assertEqual(result, False)
+        result = Boolean.parse("")
+        self.assertEqual(result, False)
+        result = Boolean.parse('FALSE')
+        self.assertEqual(result, False)
+        result = Boolean.parse('False')
+        self.assertEqual(result, False)
+        result = Boolean.parse('0')
+        self.assertEqual(result, False)
+        result = Boolean.parse('TRUE')
+        self.assertEqual(result, True)
+        result = Boolean.parse('True')
+        self.assertEqual(result, True)
+        result = Boolean.parse('bool')
+        self.assertEqual(result, True)
+
+        result = Boolean.parse(1)
+        self.assertEqual(result, True)
+        result = Boolean.parse(0)
+        self.assertEqual(result, False)
+
+        result = Boolean.parse(['', 'false', 'true', 0, 1])
+        self.assertEqual(result[0], False)
+        self.assertEqual(result[1], False)
+        self.assertEqual(result[2], True)
+        self.assertEqual(result[3], False)
+        self.assertEqual(result[4], True)

@@ -11,6 +11,15 @@ class TestMapping(unittest.TestCase):
         """
         test type convert
         """
+        # 'None' type
+        data = {None: None}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(None, None)
+
+        # data = {None}
+        data = None
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data, None)
 
         # test basic data type
         data = {'_id': '000000000000000000000001'}
@@ -21,6 +30,10 @@ class TestMapping(unittest.TestCase):
         data = {'valid': '1'}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['valid'], 1)
+
+        data = {'fields': ['1', '2', '3']}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['fields'], ['1', '2', '3'])
 
         """
         test mongodb operator
@@ -81,6 +94,16 @@ class TestMapping(unittest.TestCase):
         """
         test basic type
         """
+        # 'None' type
+        query = {None: None}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query, {None: None})
+
+        # query = {None}
+        query = None
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query, None)
+
         query = {'_id': '000000000000000000000001', 'valid': '1', 'createAt': '2016/01/01', 'schema': 2}
         Query.parse(query, Items(self.define))
         self.assertEqual(query, {

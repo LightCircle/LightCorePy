@@ -56,10 +56,6 @@ class Item(object):
         return self._type
 
     @property
-    def type(self):
-        return self._type
-
-    @property
     def name(self):
         return self._name
 

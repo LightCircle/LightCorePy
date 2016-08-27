@@ -15,6 +15,8 @@ class Update(object):
     def parse(data, defines):
         if isinstance(data, dict):
             data = [data]
+        else:
+            return
 
         for datum in data:
             for key, val in datum.items():
@@ -26,7 +28,7 @@ class Update(object):
                     continue
 
                 # If the key contains mongodb operator, ex. {$set: {field: val}}
-                if key.startswith('$'):
+                if key is not None and key.startswith('$'):
                     UpdateOperator().parse(key, val, defines)
                     continue
 
@@ -46,11 +48,15 @@ class Update(object):
 class Query(object):
     @staticmethod
     def parse(data, defines):
+        if isinstance(data, dict):
+            pass
+        else:
+            return
 
         for key, val in data.items():
 
             # If the key contains mongodb operator, ex. {$set: {field: val}}
-            if key.startswith('$'):
+            if key is not None and key.startswith('$'):
                 QueryOperator().parse(key, val, defines)
                 continue
 

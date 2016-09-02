@@ -13,10 +13,14 @@ inflect==0.2.5
 # pycrypto - Encrypt and decrypt
 PyCrypto==2.6.1
 
-# websocket -
-
 # schedule - Job schedule
 apscheduler==3.2.0
 
 # dateutil
 python-dateutil==2.5.3
+
+#
+# uwsig=2.0.13.1
+
+# websocket - SocketIO based websocket
+Flask-uWSGI-WebSocket=0.5.3

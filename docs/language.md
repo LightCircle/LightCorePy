@@ -77,3 +77,30 @@
   
  - ```$ coverage html ```
   查看HTML版覆盖率结果
+
+## 部署
+ - uwsgi:
+ https://github.com/unbit/uwsgi
+ http://qiita.com/morinokami/items/e0efb2ae2aa04a1b148b
+
+ - gevent:
+ https://github.com/gevent/gevent
+
+ - asyncio:
+
+ - uwsgi for mac
+ 安装依赖
+ $ brew install openssl
+ $ sudo brew link openssl --force
+ $ sudo brew install pcre  >>>> 对应错误 !!! no internal routing support, rebuild with pcre support !!!
+ $ pip install greenlet >>> 启用 asyncio 时, 需要先安装这个包
+ 
+ 编译安装
+ $ LDFLAGS="-L/usr/local/lib" UWSGI_PROFILE=asyncio pip3 install uwsgi -I --no-use-wheel --verbose --no-cache-dir
+   LDFLAGS - 编译用动态库路径
+   UWSGI_PROFILE - 
+
+ - uwsgi for linux
+
+ 启动
+ $ uwsgi --http localhost:5000 --http-websockets --greenlet  --master  --asyncio 100 --wsgi wsgi:application --python-autoreload 1 --pyargv '-local'

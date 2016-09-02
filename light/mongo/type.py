@@ -29,6 +29,10 @@ class Boolean(object):
 
     @staticmethod
     def parse(data):
+        if isinstance(data, dict):
+            for key, val in data.items():
+                data[key] = Boolean.convert(val)
+            return data
         if isinstance(data, list):
             return list(map(lambda x: Boolean.convert(x), data))
         return Boolean.convert(data)
@@ -47,6 +51,10 @@ class Date(object):
 
     @staticmethod
     def parse(data):
+        if isinstance(data, dict):
+            for key, val in data.items():
+                data[key] = Date.convert(val)
+            return data
         if isinstance(data, list):
             for index, val in enumerate(data):
                 data[index] = Date.convert(val)
@@ -63,6 +71,10 @@ class String(object):
 
     @staticmethod
     def parse(data):
+        if isinstance(data, dict):
+            for key, val in data.items():
+                data[key] = String.convert(val)
+            return data
         if isinstance(data, list):
             for index, val in enumerate(data):
                 data[index] = String.convert(val)
@@ -107,6 +119,10 @@ class ObjectID(object):
 
     @staticmethod
     def parse(data):
+        if isinstance(data, dict):
+            for key, val in data.items():
+                data[key] = ObjectID.convert(val)
+            return data
         if isinstance(data, list):
             return list(map(lambda x: ObjectID.convert(x), data))
         return ObjectID.convert(data)

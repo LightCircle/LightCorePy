@@ -15,6 +15,8 @@ class Update(object):
     def parse(data, defines):
         if isinstance(data, dict):
             data = [data]
+        elif isinstance(data, list):
+            pass
         else:
             return
 
@@ -62,8 +64,16 @@ class Query(object):
 
             define = defines.get(key)
 
+            # Parse struct ex. {field: {$set: val}}
+            if isinstance(val, dict):
+                for k, v in val.items():
+                    if k is not None and k.startswith('$'):
+                        QueryOperator().parse(k, val, define)
+                continue
+
             # If define not found, then parse next
             if define is None:
                 continue
 
+            # Parse basic type
             data[key] = globals()[define.type].parse(val)

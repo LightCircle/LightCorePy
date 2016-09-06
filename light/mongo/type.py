@@ -67,6 +67,8 @@ class String(object):
     def convert(val):
         if val is None:
             return ''
+        #if isinstance(val, *):
+        #    return val
         return str(val)
 
     @staticmethod
@@ -126,3 +128,56 @@ class ObjectID(object):
         if isinstance(data, list):
             return list(map(lambda x: ObjectID.convert(x), data))
         return ObjectID.convert(data)
+
+
+class Type(object):
+    @staticmethod
+    def convert(val):
+        if val == 1 or val == '1':
+            return "double"
+        elif val == 2 or val == '2':
+            return "string"
+        elif val == 3 or val == '3':
+            return "object"
+        elif val == 4 or val == '4':
+            return "array"
+        elif val == 5 or val == '5':
+            return "binData"
+        elif val == 6 or val == '6':
+            return "undefined"
+        elif val == 7 or val == '7':
+            return "objectId"
+        elif val == 8 or val == '8':
+            return "bool"
+        elif val == 9 or val == '9':
+            return "date"
+        elif val == 10 or val == '10':
+            return "null"
+        elif val == 11 or val == '11':
+            return "regex"
+        elif val == 12 or val == '12':
+            return "dbPointer"
+        elif val == 13 or val == '13':
+            return "javascript"
+        elif val == 14 or val == '14':
+            return "symbol"
+        elif val == 15 or val == '15':
+            return "javascriptWithScope"
+        elif val == 16 or val == '16':
+            return "int"
+        elif val == 17 or val == '17':
+            return "timestamp"
+        elif val == 18 or val == '18':
+            return "long"
+        elif val == -1 or val == '-1':
+            return "double"
+        elif val == 127 or val == '127':
+            return "minKey"
+        elif val == 1 or val == '1':
+            return "maxKey"
+        else:
+            return val
+
+    @staticmethod
+    def parse(data):
+        return Type.convert(data)

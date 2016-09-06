@@ -64,11 +64,13 @@ class Query(object):
 
             define = defines.get(key)
 
-            # Parse struct ex. {field: {$set: val}}
+            # Parse struct ex. {field: {$set: val, $exist: val, ...}}
             if isinstance(val, dict):
                 for k, v in val.items():
                     if k is not None and k.startswith('$'):
-                        QueryOperator().parse(k, val, define)
+                        dict_cache = {k: v}
+                        QueryOperator().parse(k, dict_cache, define)
+                        val[k] = dict_cache[k]
                 continue
 
             # If define not found, then parse next

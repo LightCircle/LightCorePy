@@ -36,6 +36,16 @@ class UpdateOperator(object):
     @staticmethod
     def _set(data, defines):
         # { $set: { <field1>: <value1>, ... } }
+        # case I:   defines.contnents == None + defines.type == var or
+        #           defines.contnents == var + defines.type == Array
+        #           e.x. {'$set': {'schema': 1}}
+        # case II:  defines.contents == {} + defines.type == Object or
+        #           defines.contents == {} + defines.type == Array or
+        #           defines.contents == {nest} + defines.type == Object or
+        #           defines.contents == {nest} + defines.type == Array
+        #           e.x. {'$set': {'limit': {'date': '2006/01/01', 'count': '1'}}}
+        #           e.x. {'$set': {'selects': [{'select': 0, 'fields': [{'nest': 2}, {'nest': 3}]}, {'select': 1}]}}
+        #           e.x. {'$set': {'selects': [{'select': 0, 'fields': [1, 2]}, {'select': 1}]}}
         for key, val in data.items():
             define = defines.get(key)
             if define is not None and not isinstance(define.contents, Items):
@@ -45,14 +55,11 @@ class UpdateOperator(object):
                     data[key] = globals()[define.contents].parse(val)
                 continue
 
-            # e.x. {'$set': {'selects': [{'select': 0, 'fields': [{'nest': 2}, {'nest': 3}]}, {'select': 1}]}}
-            # e.x. {'$set': {'selects': [{'select': 0, 'fields': [1, 2]}, {'select': 1}]}}
             if isinstance(val, list):
                 for index, datum in enumerate(val):
                     getattr(UpdateOperator, '_set')(val[index], define.contents)
                 continue
 
-            # e.x. {'$set': {'limit': {'date': '2006/01/01', 'count': '1'}}}
             if isinstance(val, dict):
                 getattr(UpdateOperator, '_set')(val, define.contents)
                 continue
@@ -110,42 +117,49 @@ class UpdateOperator(object):
     @staticmethod
     def _pullAll(data, defines):
         # { $pullAll: { <field1>: [ <value1>, <value2> ... ], ... } }
-        raise NotImplementedError
+        for key, val in data.items():
+            define = defines.get(key)
+            data[key] = globals()[define.contents].parse(val)
 
     @staticmethod
     def _pull(data, defines):
         # { $pull: { <field1>: <value|condition>, <field2>: <value|condition>, ... } }
-        # TODO: convert condition
-        # { $pull: { results: { score: 8 , item: "B" } } }
-        # { $pull: { results: { $elemMatch: { score: 8 , item: "B" } } } }
-        # { $pull: { results: { answers: { $elemMatch: { q: 2, a: { $gte: 8 } } } } } }
-        pass
-        #for key, val in data.items():
-        #    define = defines.get(key)
-        #    if define is not None and not isinstance(define.contents, Items):
-        #        # { $pull: { vegetables: "carrots" } }
-        #        if not isinstance(val, dict):
-        #            data[val] = globals()[define.type].parse(val)
-        #            continue
-        #        # { $pull: { fruits: { $in: [ "apples", "oranges" ] }, vegetables: "carrots" } }
-        #        for k, v in val.items():
-        #            if k is not None and k.startswith('$'):
-        #                getattr(QueryOperator, k.replace('$', '_'))(v, define)
-        #                continue
-#
-        #    if isinstance(val, dict):
-        #        for k, v in val.items():
-        #            if k is not None and k.startswith('$'):
-        #                getattr(QueryOperator, k.replace('$', '_'))(v, define.contents)
-        #                continue
+        # case I:   defines.get(key).contents is val
+        #           { $pull: { fruits: { $ in: ["apples", "oranges"]}, vegetables: "carrots"}}
+        # case II:  defines.get(key).contents is Items
+        #           { $pull: { results: { $elemMatch: { score: 8 , item: "B" } } } }
+        #           { $pull: { results: { answers: { $elemMatch: { q: 2, a: { $gte: 8 } } } } } }
+        for key, val in data.items():
+            define = defines.get(key)
+            if define is not None and isinstance(define.contents, Items):
+                for k, v in val.items():
+                    dict_cache = {k: v}
+                    if k is not None and k.startswith('$'):
+                        getattr(QueryOperator, k.replace('$', '_'))(dict_cache, define)
+                        val[k] = dict_cache[k]
+                        continue
 
+                    getattr(UpdateOperator, '_pull')(dict_cache, define.contents)
+                    val[k] = dict_cache[k]
+                continue
 
+            if isinstance(val, dict):
+                for k, v in val.items():
+                    if k is not None and k.startswith('$'):
+                        dict_cache = {k: v}
+                        getattr(QueryOperator, k.replace('$', '_'))(dict_cache, define)
+                        val[k] = dict_cache[k]
+                continue
+
+            data[key] = globals()[define.contents].parse(val)
 
     @staticmethod
     def _pushAll(data, defines):
         # { $pushAll: { <field>: [ <value1>, <value2>, ... ] } }
         # Update.parse_data(data)
-        raise NotImplementedError
+        for key, val in data.items():
+            define = defines.get(key)
+            data[key] = globals()[define.contents].parse(val)
 
     @staticmethod
     def _push(data, defines):
@@ -214,57 +228,73 @@ class QueryOperator(object):
         # { <field>: { $eq: <value> } }
         # { <field>: <value> }
         for key, val in data.items():
-            if key is not None and key.startswith('$'):
+            if define.type != 'Array':
                 data[key] = globals()[define.type].parse(val)
+            else:
+                data[key] = globals()[define.contents].parse(val)
 
     @staticmethod
     def _gt(data, define):
         # { field: {$gt: value} }
         for key, val in data.items():
-            if key is not None and key.startswith('$'):
+            if define.type != 'Array':
                 data[key] = globals()[define.type].parse(val)
+            else:
+                data[key] = globals()[define.contents].parse(val)
 
     @staticmethod
     def _gte(data, define):
         # { field: {$gte: value} }
         for key, val in data.items():
-            if key is not None and key.startswith('$'):
+            if define.type != 'Array':
                 data[key] = globals()[define.type].parse(val)
+            else:
+                data[key] = globals()[define.contents].parse(val)
 
     @staticmethod
     def _lt(data, define):
         # { field: {$lt: value} }
         for key, val in data.items():
-            if key is not None and key.startswith('$'):
+            if define.type != 'Array':
                 data[key] = globals()[define.type].parse(val)
+            else:
+                data[key] = globals()[define.contents].parse(val)
 
     @staticmethod
     def _lte(data, define):
         # { field: {$lte: value} }
         for key, val in data.items():
-            if key is not None and key.startswith('$'):
+            if define.type != 'Array':
                 data[key] = globals()[define.type].parse(val)
+            else:
+                data[key] = globals()[define.contents].parse(val)
 
     @staticmethod
     def _ne(data, define):
         # { field: {$ne: value} }
         for key, val in data.items():
-            if key is not None and key.startswith('$'):
+            if define.type != 'Array':
                 data[key] = globals()[define.type].parse(val)
+            else:
+                data[key] = globals()[define.contents].parse(val)
 
     @staticmethod
     def _in(data, define):
         # { field: { $in: [<value1>, <value2>, ... <valueN> ] } }
         for key, val in data.items():
-            if key is not None and key.startswith('$'):
+            if define.type != 'Array':
                 data[key] = globals()[define.type].parse(val)
+            else:
+                data[key] = globals()[define.contents].parse(val)
 
     @staticmethod
     def _nin(data, define):
         # { field: { $nin: [<value1>, <value2>, ... <valueN> ] } }
         for key, val in data.items():
-            if key is not None and key.startswith('$'):
+            if define.type != 'Array':
                 data[key] = globals()[define.type].parse(val)
+            else:
+                data[key] = globals()[define.contents].parse(val)
 
     """
     Logical Query Operators
@@ -279,7 +309,11 @@ class QueryOperator(object):
 
                 if isinstance(val, dict):
                     for k, v in val.items():
-                        val[k] = globals()[define.type].parse(v)
+                        # val[k] = globals()[define.type].parse(v)
+                        if k is not None and k.startswith('$'):
+                            dict_cache = {k: v}
+                            getattr(QueryOperator, k.replace('$', '_'))(dict_cache, define)
+                            val[k] = dict_cache[k]
                     continue
 
                 datum[key] = globals()[define.type].parse(val)
@@ -290,7 +324,7 @@ class QueryOperator(object):
         for datum in data:
             for key, val in datum.items():
                 # $and + $or
-                if key.startswith('$'):
+                if key is not None and key.startswith('$'):
                     getattr(QueryOperator, key.replace('$', '_'))(val, defines)
                     continue
 
@@ -298,7 +332,10 @@ class QueryOperator(object):
 
                 if isinstance(val, dict):
                     for k, v in val.items():
-                        val[k] = globals()[define.type].parse(v)
+                        if k is not None and k.startswith('$'):
+                            dict_cache = {k: v}
+                            getattr(QueryOperator, k.replace('$', '_'))(dict_cache, define)
+                            val[k] = dict_cache[k]
                     continue
 
                 datum[key] = globals()[define.type].parse(val)
@@ -309,7 +346,9 @@ class QueryOperator(object):
         for key, val in data.items():
             if isinstance(val, dict):
                 for k, v in val.items():
-                    val[k] = globals()[define.type].parse(v)
+                    dict_cache = {k: v}
+                    getattr(QueryOperator, k.replace('$', '_'))(dict_cache, define)
+                    val[k] = dict_cache[k]
                 continue
 
             data[key] = globals()[define.type].parse(val)
@@ -325,7 +364,9 @@ class QueryOperator(object):
                 if isinstance(val, dict):
                     for k, v in val.items():
                         if k is not None and k.startswith('$'):
-                            getattr(QueryOperator, k.replace('$', '_'))(val, define)
+                            dict_cache = {k: v}
+                            getattr(QueryOperator, k.replace('$', '_'))(dict_cache, define)
+                            val[k] = dict_cache[k]
                     continue
 
                 datum[key] = globals()[define.type].parse(val)
@@ -338,12 +379,13 @@ class QueryOperator(object):
     def _exists(data, define):
         # { field: { $exists: <boolean> } }
         for key, val in data.items():
-            if key is not None and key.startswith('$'):
-                data[key] = Boolean.parse(val)
+            data[key] = Boolean.parse(val)
 
-    def _type(self):
+    @staticmethod
+    def _type(data, define):
         # { field: { $type: <BSON type number> | <String alias> } }
-        raise NotImplementedError
+        for key, val in data.items():
+            data[key] = Type.parse(val)
 
     """
     Evaluation Query Operators
@@ -353,8 +395,7 @@ class QueryOperator(object):
     def _mod(data, define):
         # { field: { $mod: [ divisor, remainder ] } }
         for key, val in data.items():
-            if key is not None and key.startswith('$'):
-                data[key] = Number.parse(val)
+            data[key] = Number.parse(val)
 
     def _regex(self):
         # { <field>: { $regex: /pattern/, $options: '<options>' } }
@@ -392,6 +433,13 @@ class QueryOperator(object):
     @staticmethod
     def _all(data, defines):
         # { <field>: { $all: [ <value1> , <value2> ... ] } }
+        # case I:   defines.contents == Items
+        #           { <field>: { $all: [{ $elemMatch: { <query1>, <query2>, ... }]}}
+        #           { <field>: { $all: [ { <contents_value1> }, { <contents_value2> }, ... ]}}
+        #           { <field>: { $all: [ [ { <contents_value1> }, { <contents_value2> }, ... ] , ... ] } }
+        # case II:  defines.contents == Var
+        #           { <field>: { $all: [ [ <value1>, <value2> ], ... ] } }
+        #           { <field>: { $all: [ <value1> , <value2>, ... ] } }
         for key, val in data.items():
             for index, datum in enumerate(val):
                 if defines.contents == 'Object':
@@ -400,28 +448,27 @@ class QueryOperator(object):
                     if isinstance(datum, dict):
                         for k, v in datum.items():
                             # $all + $elemMatch
-                            # {<field>: { $all: [{ $elemMatch: { <query1>, <query2>, ... }]}}
                             if k is not None and k.startswith('$'):
                                 getattr(QueryOperator, k.replace('$', '_'))(val[index], defines)
                                 continue
-                            # {<field>: { $all: [ { <contents_value1> }, { <contents_value2> }, ... ]}}
+
                             define = defines.contents.get(k)
                             val[index][k] = globals()[define.type].parse(v)
                             continue
                         continue
-                    # {<field>: { $all: [ [ { <contents_value1> }, { <contents_value2> }, ... ] , ... ] } }
+
                     if isinstance(datum, list):
                         for indexin, datumin in enumerate(datum):
-                            for k_sub, v_sub in datumin.items():
-                                define = defines.contents.get(k_sub)
-                                val[index][indexin][k_sub] = globals()[define.type].parse(v_sub)
+                            for k, v in datumin.items():
+                                define = defines.contents.get(k)
+                                val[index][indexin][k] = globals()[define.type].parse(v)
                                 continue
                         continue
-                # { <field>: { $all: [ [ <value1>, <value2> ], ... ] } }
+
                 if isinstance(datum, list):
                     globals()[defines.type].parse(val[index])
                     continue
-                # { <field>: { $all: [ <value1> , <value2>, ... ] } }
+
                 val[index] = globals()[defines.type].parse(datum)
 
         # Method I:
@@ -460,23 +507,46 @@ class QueryOperator(object):
     @staticmethod
     def _elemMatch(data, defines):
         # { <field>: { $elemMatch: { <query1>, <query2>, ... } } }
+        # case I:   defines.contents == Items
+        #           e.x. { results: { $elemMatch: { product: "xyz", score: { $gte: 8 } } } }
+        # case II:  defines.contents == Var
+        #           e.x. { results: { $elemMatch: { $gte: 80, $lt: 85 } } }
         for key, val in data.items():
             if isinstance(defines, Items):
                 define = defines.get(key)
                 if define is not None and isinstance(define.contents, Items):
                     getattr(QueryOperator, '_elemMatch')(val, define.contents)
                     continue
+
+                if isinstance(val, dict):
+                    for k, v in val.items():
+                        if k is not None and k.startswith('$'):
+                            dict_cache = {k: v}
+                            getattr(QueryOperator, k.replace('$', '_'))(dict_cache, define)
+                            val[k] = dict_cache[k]
+                    continue
+
                 if define.type != 'Array':
                     data[key] = globals()[define.type].parse(val)
                 else:
                     data[key] = globals()[define.contents].parse(val)
                 continue
-            # e.x. { results: { $elemMatch: { product: "xyz", score: { $gte: 8 } } } }
+
             if isinstance(defines.contents, Items):
                 getattr(QueryOperator, '_elemMatch')(val, defines.contents)
                 continue
-            # e.x. { results: { $elemMatch: { $gte: 80, $lt: 85 } } }
-            val[key] = globals()[defines.type].parse(val)
+
+            for k, v in val.items():
+                if k is not None and k.startswith('$'):
+                    dict_cache = {k: v}
+                    getattr(QueryOperator, k.replace('$', '_'))(dict_cache, defines)
+                    val[k] = dict_cache[k]
+
+
+            #if define.type != 'Array':
+            #    data[key] = globals()[define.type].parse(val)
+            #else:
+            #    data[key] = globals()[define.contents].parse(val)
 
             # Mathod I:
             # for k, v in val.items():

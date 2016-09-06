@@ -124,6 +124,36 @@ class TestMapping(unittest.TestCase):
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$addToSet']['fields']['$each'], ['1', '2', '3'])
 
+        # $pullAll
+        data = {'$pullAll': {'fields': [1, 2, 3]}}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['$pullAll']['fields'], ['1', '2', '3'])
+
+        # $pull
+        data = {'$pull': {'fields': 1}}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['$pull']['fields'], '1')
+
+        data = {'$pull': {'fields': {'$in': [1, 2, 3]}}}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['$pull']['fields']['$in'], ['1', '2', '3'])
+
+        # $pull + $elemMatch
+        data = {'$pull': {'selects': { '$elemMatch': {'select': 0, 'valid': '1'}}}}
+        Update.parse(data, Items(self.define))
+        self.assertFalse(data['$pull']['selects']['$elemMatch']['select'])
+        self.assertEqual(data['$pull']['selects']['$elemMatch']['valid'], 1)
+
+        data = {'$pull': {'nests': {'fields': { '$elemMatch': { 'valid': '1', 'nestins': { '$gte': 8 }}}}}}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['$pull']['nests']['fields']['$elemMatch']['valid'], 1)
+        self.assertEqual(data['$pull']['nests']['fields']['$elemMatch']['nestins']['$gte'],'8')
+
+        # $pushAll
+        data = {'$pushAll': {'fields': [1, 2, 3]}}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['$pushAll']['fields'], ['1', '2', '3'])
+
         # $push
         data = {'$push': {'fields': 2}}
         Update.parse(data, Items(self.define))
@@ -203,10 +233,15 @@ class TestMapping(unittest.TestCase):
         Query.parse(query, Items(self.define))
         self.assertEqual(query['valid']['$eq'], 1)
 
+        query = {'fields': {'$eq': [1, 2, 3]}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['fields']['$eq'], ['1', '2', '3'])
+
         # $gt
-        query = {'valid': {'$gt': '1'}}
+        query = {'valid': {'$gt': '1', '$lt': '2'}}
         Query.parse(query, Items(self.define))
         self.assertEqual(query['valid']['$gt'], 1)
+        self.assertEqual(query['valid']['$lt'], 2)
 
         # $gte
         query = {'createAt': {'$gte': '2006/01/01'}}
@@ -233,10 +268,18 @@ class TestMapping(unittest.TestCase):
         Query.parse(query, Items(self.define))
         self.assertEqual(query['valid']['$in'], [1, 2, 3])
 
+        query = {'fields': {'$in': [1, 2, 3]}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['fields']['$in'], ['1', '2', '3'])
+
         # $nin
         query = {'schema': {'$nin': [1, 2, 3]}}
         Query.parse(query, Items(self.define))
         self.assertEqual(query['schema']['$nin'], ['1', '2', '3'])
+
+        query = {'fields': {'$nin': [1, 2, 3]}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['fields']['$nin'], ['1', '2', '3'])
 
         """
         test mongodb operator : logical
@@ -263,6 +306,11 @@ class TestMapping(unittest.TestCase):
         Query.parse(query, Items(self.define))
         self.assertEqual(query['$and'][0]['valid'], 1)
         self.assertEqual(query['$and'][1]['valid'], 2)
+
+        query = {'$and': [{ 'valid': { '$ne': '1' } }, { 'valid': { '$exists': 'false' } }]}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['$and'][0]['valid']['$ne'], 1)
+        self.assertFalse(query['$and'][1]['valid']['$exists'])
 
         # $and $gt $lt $in
         query = {'$and': [
@@ -314,6 +362,14 @@ class TestMapping(unittest.TestCase):
         query = {'flag': {'$exists': 'true'}}
         Query.parse(query, Items(self.define))
         self.assertEqual(query['flag']['$exists'], True)
+
+        query = {'elem': {'$type': 1}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'double')
+
+        query = {'elem': {'$type': '1'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'double')
 
         """
         test mongodb operator : Evaluation
@@ -367,15 +423,28 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(query['limit']['$all'][0]['$elemMatch']['count'], 1)
 
         # $elemMatch
-        query = {'limit': {"$elemMatch": {'count': { '$gte': '8'}, 'date': '2006/01/01'}}}
+        query = {'selects': {"$elemMatch": {'fields': { '$gte': 8, '$lt': 10}, 'select': 0}}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['limit']['$elemMatch']['count']['$gte'], 8)
-        self.assertEqual(query['limit']['$elemMatch']['date'], datetime(2006, 1, 1, 0, 0))
+        self.assertEqual(query['selects']['$elemMatch']['fields']['$gte'], '8')
+        self.assertFalse(query['selects']['$elemMatch']['select'])
 
-        query = {'valid': {"$elemMatch": {'$gte': '8', '$lt': '5'}}}
+        query = {'nests': { "$elemMatch":
+            {
+                'fields': {'valid': { '$gte': '8'}, 'nestarray': { '$gte': 8, '$lt': 10}},
+                'select': 0
+            }
+        }}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['valid']['$elemMatch']['$gte'], 8)
-        self.assertEqual(query['valid']['$elemMatch']['$lt'], 5)
+        self.assertEqual(query['nests']['$elemMatch']['fields']['valid']['$gte'], 8)
+        self.assertEqual(query['nests']['$elemMatch']['fields']['nestarray']['$gte'], '8')
+        self.assertEqual(query['nests']['$elemMatch']['fields']['nestarray']['$lt'], '10')
+        self.assertFalse(query['nests']['$elemMatch']['select'])
+
+
+        query = {'fields': {"$elemMatch": {'$gte': 8, '$lt': 5}}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['fields']['$elemMatch']['$gte'], '8')
+        self.assertEqual(query['fields']['$elemMatch']['$lt'], '5')
 
         # $size
         query = {'item':{'$size': '1'} }
@@ -456,6 +525,12 @@ class TestMapping(unittest.TestCase):
                         "description": "",
                         "reserved": 2,
                         "contents": "String"
+                    },
+                    "valid": {
+                        "reserved": 1,
+                        "type": "Number",
+                        "name": "有效标识",
+                        "description": "1:有效 0:无效"
                     }
                 },
                 "type": "Array",
@@ -481,12 +556,26 @@ class TestMapping(unittest.TestCase):
                         "description": "",
                         "reserved": 2,
                         "contents": {
+                            "valid": {
+                                "reserved": 1,
+                                "type": "Number",
+                                "name": "有效标识",
+                                "description": "1:有效 0:无效"
+                            },
                             "nestins": {
                                 "type": "String",
                                 "name": "嵌套",
                                 "default": "",
                                 "description": "",
                                 "reserved": 2
+                            },
+                            "nestarray": {
+                                "type": "Array",
+                                "name": "附加项 关联后选择的字段",
+                                "default": "",
+                                "description": "",
+                                "reserved": 2,
+                                "contents": "String"
                             }
                         }
                     }

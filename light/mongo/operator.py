@@ -1,6 +1,56 @@
 from light.mongo.type import *
 from light.mongo.define import Items
 
+class Type(object):
+    @staticmethod
+    def convert(val):
+        if val == 1 or val == '1':
+            return "double"
+        elif val == 2 or val == '2':
+            return "string"
+        elif val == 3 or val == '3':
+            return "object"
+        elif val == 4 or val == '4':
+            return "array"
+        elif val == 5 or val == '5':
+            return "binData"
+        elif val == 6 or val == '6':
+            return "undefined"
+        elif val == 7 or val == '7':
+            return "objectId"
+        elif val == 8 or val == '8':
+            return "bool"
+        elif val == 9 or val == '9':
+            return "date"
+        elif val == 10 or val == '10':
+            return "null"
+        elif val == 11 or val == '11':
+            return "regex"
+        elif val == 12 or val == '12':
+            return "dbPointer"
+        elif val == 13 or val == '13':
+            return "javascript"
+        elif val == 14 or val == '14':
+            return "symbol"
+        elif val == 15 or val == '15':
+            return "javascriptWithScope"
+        elif val == 16 or val == '16':
+            return "int"
+        elif val == 17 or val == '17':
+            return "timestamp"
+        elif val == 18 or val == '18':
+            return "long"
+        elif val == -1 or val == '-1':
+            return "minKey"
+        elif val == 127 or val == '127':
+            return "maxKey"
+        else:
+            return val
+
+    @staticmethod
+    def parse(data):
+        return Type.convert(data)
+
 
 class UpdateOperator(object):
     def parse(self, key, val, defines):
@@ -87,7 +137,16 @@ class UpdateOperator(object):
     @staticmethod
     def _currentDate(data, defines):
         # { $currentDate: { <field1>: <typeSpecification1>, ... } }
-        pass
+        for key, val in data.items():
+            define = defines.get(key)
+            if isinstance(val, dict):
+                for k, v in val.items():
+                    dict_cache = {k: v}
+                    val[k] = getattr(QueryOperator, k.replace('$', '_'))(dict_cache, define)
+                    val[k] = dict_cache[k]
+                continue
+
+            data[key] = Boolean.parse(val)
 
     """
     Array Update Operators
@@ -397,9 +456,21 @@ class QueryOperator(object):
         for key, val in data.items():
             data[key] = Number.parse(val)
 
-    def _regex(self):
+    @staticmethod
+    def _regex(data, define):
         # { <field>: { $regex: /pattern/, $options: '<options>' } }
-        raise NotImplementedError
+        # { <field>: { $regex: 'pattern', $options: '<options>' } }
+        # { <field>: { $regex: /pattern/<options> } }
+        for key, val in data.items():
+            data[key] = String.parse(val)
+
+    @staticmethod
+    def _options(data, define):
+        # { <field>: { $regex: /pattern/, $options: '<options>' } }
+        # { <field>: { $regex: 'pattern', $options: '<options>' } }
+        # { <field>: { $regex: /pattern/<options> } }
+        for key, val in data.items():
+            data[key] = String.parse(val)
 
     @staticmethod
     def _text(data, define):
@@ -526,10 +597,11 @@ class QueryOperator(object):
                             val[k] = dict_cache[k]
                     continue
 
-                if define.type != 'Array':
-                    data[key] = globals()[define.type].parse(val)
-                else:
-                    data[key] = globals()[define.contents].parse(val)
+                data[key] = globals()[define.type].parse(val)
+                #if define.type != 'Array':
+                #    data[key] = globals()[define.type].parse(val)
+                #else:
+                #    data[key] = globals()[define.contents].parse(val)
                 continue
 
             if isinstance(defines.contents, Items):

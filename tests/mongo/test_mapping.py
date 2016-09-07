@@ -1,4 +1,5 @@
 import unittest
+import re
 
 from light.mongo.mapping import Update, Query
 from light.mongo.define import Items
@@ -16,7 +17,7 @@ class TestMapping(unittest.TestCase):
         Update.parse(data, Items(self.define))
         self.assertEqual(data[None], None)
 
-        # data = {None}
+        # data = None
         data = None
         Update.parse(data, Items(self.define))
         self.assertEqual(data, None)
@@ -34,6 +35,21 @@ class TestMapping(unittest.TestCase):
         data = {'fields': ['1', '2', '3']}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['fields'], ['1', '2', '3'])
+
+        """
+        test sub document
+        """
+
+        # array
+        data = {'selects': [{'select': 0, 'fields': [1, 2]}, {'select': 1}]}
+        Update.parse(data, Items(self.define))
+        self.assertFalse(data['selects'][0]['select'])
+        self.assertTrue(data['selects'][1]['select'])
+
+        # object
+        data = {'limit': {'date': '2006/01/01', 'count': '1'}}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['limit'], {'date': datetime(2006, 1, 1, 0, 0), 'count': 1})
 
         """
 
@@ -104,6 +120,12 @@ class TestMapping(unittest.TestCase):
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$max']['createAt'], datetime(2006, 1, 1, 0, 0))
         self.assertEqual(data['$max']['valid'], 2)
+
+        # $currentDate
+        data = {'$currentDate': {'createAt': 'true', 'cancellation.date': { '$type': 'timestamp'}}}
+        Update.parse(data, Items(self.define))
+        self.assertTrue(data['$currentDate']['createAt'])
+        self.assertEqual(data['$currentDate']['cancellation.date']['$type'], 'timestamp')
 
         """
         Array Update Operators
@@ -187,21 +209,6 @@ class TestMapping(unittest.TestCase):
         Isolation Update Operators
         """
 
-        """
-        test sub document
-        """
-
-        # array
-        data = {'selects': [{'select': 0, 'fields': [1, 2]}, {'select': 1}]}
-        Update.parse(data, Items(self.define))
-        self.assertFalse(data['selects'][0]['select'])
-        self.assertTrue(data['selects'][1]['select'])
-
-        # object
-        data = {'limit': {'date': '2006/01/01', 'count': '1'}}
-        Update.parse(data, Items(self.define))
-        self.assertEqual(data['limit'], {'date': datetime(2006, 1, 1, 0, 0), 'count': 1})
-
     def test_parse_query(self):
         """
         test basic type
@@ -211,7 +218,7 @@ class TestMapping(unittest.TestCase):
         Query.parse(query, Items(self.define))
         self.assertEqual(query, {None: None})
 
-        # query = {None}
+        # query = None
         query = None
         Query.parse(query, Items(self.define))
         self.assertEqual(query, None)
@@ -243,6 +250,11 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(query['valid']['$gt'], 1)
         self.assertEqual(query['valid']['$lt'], 2)
 
+        query = {'fields': {'$gt': 8, '$lte': 10}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['fields']['$gt'], '8')
+        self.assertEqual(query['fields']['$lte'], '10')
+
         # $gte
         query = {'createAt': {'$gte': '2006/01/01'}}
         Query.parse(query, Items(self.define))
@@ -262,6 +274,10 @@ class TestMapping(unittest.TestCase):
         query = {'schema': {'$ne': 1}}
         Query.parse(query, Items(self.define))
         self.assertEqual(query['schema']['$ne'], '1')
+
+        query = {'fields': {'$ne': 1}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['fields']['$ne'], '1')
 
         # $in
         query = {'valid': {'$in': ['1', '2', '3']}}
@@ -359,10 +375,12 @@ class TestMapping(unittest.TestCase):
         """
         test mongodb operator : Element
         """
+        # $exists
         query = {'flag': {'$exists': 'true'}}
         Query.parse(query, Items(self.define))
         self.assertEqual(query['flag']['$exists'], True)
 
+        # $type
         query = {'elem': {'$type': 1}}
         Query.parse(query, Items(self.define))
         self.assertEqual(query['elem']['$type'], 'double')
@@ -370,6 +388,90 @@ class TestMapping(unittest.TestCase):
         query = {'elem': {'$type': '1'}}
         Query.parse(query, Items(self.define))
         self.assertEqual(query['elem']['$type'], 'double')
+
+        query = {'elem': {'$type': 2}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'string')
+
+        query = {'elem': {'$type': '3'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'object')
+
+        query = {'elem': {'$type': 4}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'array')
+
+        query = {'elem': {'$type': '5'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'binData')
+
+        query = {'elem': {'$type': 6}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'undefined')
+
+        query = {'elem': {'$type': '7'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'objectId')
+
+        query = {'elem': {'$type': 8}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'bool')
+
+        query = {'elem': {'$type': '9'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'date')
+
+        query = {'elem': {'$type': 10}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'null')
+
+        query = {'elem': {'$type': '11'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'regex')
+
+        query = {'elem': {'$type': 12}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'dbPointer')
+
+        query = {'elem': {'$type': '13'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'javascript')
+
+        query = {'elem': {'$type': 14}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'symbol')
+
+        query = {'elem': {'$type': '15'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'javascriptWithScope')
+
+        query = {'elem': {'$type': 16}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'int')
+
+        query = {'elem': {'$type': '17'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'timestamp')
+
+        query = {'elem': {'$type': 18}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'long')
+
+        query = {'elem': {'$type': '-1'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'minKey')
+
+        query = {'elem': {'$type': -1}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'minKey')
+
+        query = {'elem': {'$type': '127'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'maxKey')
+
+        query = {'elem': {'$type': 127}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['elem']['$type'], 'maxKey')
 
         """
         test mongodb operator : Evaluation
@@ -379,6 +481,12 @@ class TestMapping(unittest.TestCase):
         query = {'valid': {'$mod': ['2', '0']}}
         Query.parse(query, Items(self.define))
         self.assertEqual(query['valid']['$mod'], [2, 0])
+
+        # $regex
+        query = {'general': { '$regex': re.compile(r'^S\d+'), '$options': 'm'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['general']['$regex'], re.compile(r'^S\d+'))
+        self.assertEqual(query['general']['$options'], 'm')
 
         # $text
         query = {'$text': {'$search': 'fields', '$caseSensitive': 'true'}}
@@ -439,7 +547,6 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(query['nests']['$elemMatch']['fields']['nestarray']['$gte'], '8')
         self.assertEqual(query['nests']['$elemMatch']['fields']['nestarray']['$lt'], '10')
         self.assertFalse(query['nests']['$elemMatch']['select'])
-
 
         query = {'fields': {"$elemMatch": {'$gte': 8, '$lt': 5}}}
         Query.parse(query, Items(self.define))

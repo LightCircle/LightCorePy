@@ -52,6 +52,31 @@ class Type(object):
         return Type.convert(data)
 
 
+class ReadDotDefine(object):
+    @staticmethod
+    def dotparse(key, define):
+        if not isinstance(key, str):
+            return None
+
+        if key.count(".") == 0:
+            return define.get(key)
+
+        datum = key.split('.')
+
+        for index, val in enumerate(datum):
+            if isinstance(define, Items):
+                define_cache = define.get(val)
+            elif isinstance(define.contents, Items):
+                define_cache = define.contents.get(val)
+
+            if define_cache is None:
+                continue
+
+            define = define_cache
+
+        return define
+
+
 class UpdateOperator(object):
     def parse(self, key, val, defines):
         getattr(self, key.replace('$', '_'))(val, defines)
@@ -239,7 +264,24 @@ class UpdateOperator(object):
     @staticmethod
     def _each(data, define):
         # { $push: { <field>: { $each: [ <value1>, <value2> ... ] } } }
-        return globals()[define.contents].parse(data)
+        if isinstance(define.contents, Items):
+            for index, val in enumerate(data):
+                for k, v in val.items():
+                    defin = define.contents.get(k)
+                    if isinstance(defin.contents, Items):
+                        if isinstance(v, dict):
+                            getattr(UpdateOperator, '_each')([data[index][k]], defin)
+                        elif isinstance(v, list):
+                            getattr(UpdateOperator, '_each')(data[index][k], defin)
+                        continue
+
+                    if defin.type != 'Array':
+                        data[index][k] = globals()[defin.type].parse(v)
+                    else:
+                        data[index][k] = globals()[defin.contents].parse(v)
+        else:
+            data = globals()[define.contents].parse(data)
+        return data
 
     @staticmethod
     def _slice(data, define):

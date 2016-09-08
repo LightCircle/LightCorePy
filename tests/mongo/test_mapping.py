@@ -68,6 +68,10 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(data['$inc']['item1'], 1)
         self.assertEqual(data['$inc']['item2'], 2)
 
+        #data = {'$inc': {'nestsii.fields.nestarray.0.date': '2001/01/01'}}
+        #Update.parse(data, Items(self.define))
+        #self.assertEqual(data['$inc']['nestsii.fields.nestarray.0.date'], datetime(2001, 1, 1, 0, 0))
+
         # $mul
         data = {'$mul': {'item1': '10.1'}}
         Update.parse(data, Items(self.define))
@@ -145,6 +149,25 @@ class TestMapping(unittest.TestCase):
         data = {'$addToSet': {'fields': {'$each': [1, 2, 3]}}}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$addToSet']['fields']['$each'], ['1', '2', '3'])
+
+        #
+        data = {'$addToSet': { "nests":{ '$each':[
+            {'fields': {'valid': '5', 'nestins': 6, 'nestarray':[11, 12, 13]}, 'select': 1},
+            {'fields': {'valid': '8', 'nestins': 10}, 'select': 0}
+        ] } } }
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['$addToSet']['nests']['$each'][0]['fields']['valid'], 5)
+        self.assertEqual(data['$addToSet']['nests']['$each'][1]['fields']['nestins'], '10')
+        self.assertEqual(data['$addToSet']['nests']['$each'][0]['fields']['nestarray'], ['11', '12', '13'])
+        self.assertFalse(data['$addToSet']['nests']['$each'][1]['select'])
+
+        #
+        data = {'$addToSet': {"nestsii": {'$each': [
+            {'fields': {'nestarray': [{'date': '2000/01/01'}, {'date': '2001/01/01'}]}, 'select': 1}
+        ]}}}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['$addToSet']['nestsii']['$each'][0]['fields']['nestarray'][0]['date'], datetime(2000, 1, 1, 0, 0))
+        self.assertTrue(data['$addToSet']['nestsii']['$each'][0]['select'])
 
         # $pullAll
         data = {'$pullAll': {'fields': [1, 2, 3]}}
@@ -239,6 +262,10 @@ class TestMapping(unittest.TestCase):
         query = {'valid': {'$eq': '1'}}
         Query.parse(query, Items(self.define))
         self.assertEqual(query['valid']['$eq'], 1)
+
+        query = {'nestsii.fields.nestarray.0.date': {'$eq': '2001/01/01'}}
+        Query.parse(query, Items(self.define))
+        self.assertEqual(query['nestsii.fields.nestarray.0.date']['$eq'], datetime(2001, 1, 1, 0, 0))
 
         query = {'fields': {'$eq': [1, 2, 3]}}
         Query.parse(query, Items(self.define))
@@ -683,6 +710,48 @@ class TestMapping(unittest.TestCase):
                                 "description": "",
                                 "reserved": 2,
                                 "contents": "String"
+                            }
+                        }
+                    }
+                },
+                "type": "Array",
+                "name": "选择字段",
+                "default": "",
+                "description": "",
+                "reserved": 2
+            },
+            # Array-Nest-II type
+            "nestsii": {
+                "contents": {
+                    "select": {
+                        "type": "Boolean",
+                        "name": "选中",
+                        "default": "false",
+                        "description": "",
+                        "reserved": 2
+                    },
+                    "fields": {
+                        "type": "Array",
+                        "name": "附加项 关联后选择的字段",
+                        "default": "",
+                        "description": "",
+                        "reserved": 2,
+                        "contents": {
+                            "nestarray": {
+                                "type": "Array",
+                                "name": "附加项 关联后选择的字段",
+                                "default": "",
+                                "description": "",
+                                "reserved": 2,
+                                "contents": {
+                                    "date": {
+                                        "type": "Date",
+                                        "name": "备份截止日",
+                                        "default": "",
+                                        "description": "",
+                                        "reserved": 2
+                                    }
+                                }
                             }
                         }
                     }

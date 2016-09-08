@@ -1,6 +1,6 @@
 from light.mongo.type import *
 from light.mongo.define import Items
-from light.mongo.operator import UpdateOperator, QueryOperator
+from light.mongo.operator import UpdateOperator, QueryOperator, ReadDotDefine
 
 """
 mapping: 根据数据库字段的定义, 对数据进行类型转换 (包括两种类型的数据: 1.跟新用的数据本身, 2.检索条件中的数据)
@@ -22,6 +22,7 @@ class Update(object):
 
         for datum in data:
             for key, val in datum.items():
+                #define = ReadDotDefine.dotparse(key, defines)
                 define = defines.get(key)
 
                 # Parse sub items
@@ -62,7 +63,8 @@ class Query(object):
                 QueryOperator().parse(key, val, defines)
                 continue
 
-            define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
+            #define = defines.get(key)
 
             # Parse struct ex. {field: {$set: val, $exist: val, ...}}
             if isinstance(val, dict):

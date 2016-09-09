@@ -22,8 +22,8 @@ class Update(object):
 
         for datum in data:
             for key, val in datum.items():
-                #define = ReadDotDefine.dotparse(key, defines)
-                define = defines.get(key)
+                #define = defines.get(key)
+                define = ReadDotDefine.dotparse(key, defines)
 
                 # Parse sub items
                 if define is not None and isinstance(define.contents, Items):
@@ -63,8 +63,8 @@ class Query(object):
                 QueryOperator().parse(key, val, defines)
                 continue
 
-            define = ReadDotDefine.dotparse(key, defines)
             #define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
 
             # Parse struct ex. {field: {$set: val, $exist: val, ...}}
             if isinstance(val, dict):

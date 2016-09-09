@@ -68,10 +68,6 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(data['$inc']['item1'], 1)
         self.assertEqual(data['$inc']['item2'], 2)
 
-        #data = {'$inc': {'nestsii.fields.nestarray.0.date': '2001/01/01'}}
-        #Update.parse(data, Items(self.define))
-        #self.assertEqual(data['$inc']['nestsii.fields.nestarray.0.date'], datetime(2001, 1, 1, 0, 0))
-
         # $mul
         data = {'$mul': {'item1': '10.1'}}
         Update.parse(data, Items(self.define))
@@ -86,6 +82,10 @@ class TestMapping(unittest.TestCase):
         data = {'$setOnInsert': {'schema': 1}}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$setOnInsert']['schema'], '1')
+
+        data = {'$setOnInsert': {'nestsii.fields.nestarray.0.date': '2001/01/01'}}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['$setOnInsert']['nestsii.fields.nestarray.0.date'], datetime(2001, 1, 1, 0, 0))
 
         # $set
         data = {'$set': {'schema': 1}}
@@ -145,10 +145,18 @@ class TestMapping(unittest.TestCase):
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$addToSet']['fields'], '2')
 
+        data = {'$addToSet': {'nests.0.fields.0.nestarray': [2, 3]}}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['$addToSet']['nests.0.fields.0.nestarray'], ['2', '3'])
+
         # $addToSet $each
         data = {'$addToSet': {'fields': {'$each': [1, 2, 3]}}}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$addToSet']['fields']['$each'], ['1', '2', '3'])
+
+        data = {'$addToSet': {'nests.0.fields.0.nestarray': {'$each': [1, 2, 3]}}}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['$addToSet']['nests.0.fields.0.nestarray']['$each'], ['1', '2', '3'])
 
         #
         data = {'$addToSet': { "nests":{ '$each':[
@@ -166,7 +174,8 @@ class TestMapping(unittest.TestCase):
             {'fields': {'nestarray': [{'date': '2000/01/01'}, {'date': '2001/01/01'}]}, 'select': 1}
         ]}}}
         Update.parse(data, Items(self.define))
-        self.assertEqual(data['$addToSet']['nestsii']['$each'][0]['fields']['nestarray'][0]['date'], datetime(2000, 1, 1, 0, 0))
+        self.assertEqual(data['$addToSet']['nestsii']['$each'][0]['fields']['nestarray'][0]['date'], \
+                         datetime(2000, 1, 1, 0, 0))
         self.assertTrue(data['$addToSet']['nestsii']['$each'][0]['select'])
 
         # $pullAll
@@ -178,6 +187,10 @@ class TestMapping(unittest.TestCase):
         data = {'$pull': {'fields': 1}}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$pull']['fields'], '1')
+
+        data = {'$pull': {'fields.0': 1}}
+        Update.parse(data, Items(self.define))
+        self.assertEqual(data['$pull']['fields.0'], '1')
 
         data = {'$pull': {'fields': {'$in': [1, 2, 3]}}}
         Update.parse(data, Items(self.define))

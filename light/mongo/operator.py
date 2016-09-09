@@ -64,6 +64,7 @@ class ReadDotDefine(object):
         datum = key.split('.')
 
         for index, val in enumerate(datum):
+            define_cache = None
             if isinstance(define, Items):
                 define_cache = define.get(val)
             elif isinstance(define.contents, Items):
@@ -105,7 +106,8 @@ class UpdateOperator(object):
     def _setOnInsert(data, defines):
         # { $setOnInsert: { <field1>: <value1>, ... } }
         for key, val in data.items():
-            define = defines.get(key)
+            # define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
             data[key] = globals()[define.type].parse(val)
 
     @staticmethod
@@ -122,7 +124,8 @@ class UpdateOperator(object):
         #           e.x. {'$set': {'selects': [{'select': 0, 'fields': [{'nest': 2}, {'nest': 3}]}, {'select': 1}]}}
         #           e.x. {'$set': {'selects': [{'select': 0, 'fields': [1, 2]}, {'select': 1}]}}
         for key, val in data.items():
-            define = defines.get(key)
+            #define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
             if define is not None and not isinstance(define.contents, Items):
                 if define.type != 'Array':
                     data[key] = globals()[define.type].parse(val)
@@ -149,21 +152,24 @@ class UpdateOperator(object):
     def _min(data, defines):
         # { $min: { <field1>: <value1>, ... } }
         for key, val in data.items():
-            define = defines.get(key)
+            #define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
             data[key] = globals()[define.type].parse(val)
 
     @staticmethod
     def _max(data, defines):
         # { $max: { <field1>: <value1>, ... } }
         for key, val in data.items():
-            define = defines.get(key)
+            #define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
             data[key] = globals()[define.type].parse(val)
 
     @staticmethod
     def _currentDate(data, defines):
         # { $currentDate: { <field1>: <typeSpecification1>, ... } }
         for key, val in data.items():
-            define = defines.get(key)
+            #define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
             if isinstance(val, dict):
                 for k, v in val.items():
                     dict_cache = {k: v}
@@ -182,8 +188,8 @@ class UpdateOperator(object):
         # { $addToSet: { <field1>: <value1>, ... } }
         # { $addToSet: { <field1>: { <modifier1>: <value1>, ... }, ... } }
         for key, val in data.items():
-            define = defines.get(key)
-
+            #define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
             # support modifier
             if isinstance(val, dict):
                 for k, v in val.items():
@@ -202,7 +208,8 @@ class UpdateOperator(object):
     def _pullAll(data, defines):
         # { $pullAll: { <field1>: [ <value1>, <value2> ... ], ... } }
         for key, val in data.items():
-            define = defines.get(key)
+            #define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
             data[key] = globals()[define.contents].parse(val)
 
     @staticmethod
@@ -214,7 +221,8 @@ class UpdateOperator(object):
         #           { $pull: { results: { $elemMatch: { score: 8 , item: "B" } } } }
         #           { $pull: { results: { answers: { $elemMatch: { q: 2, a: { $gte: 8 } } } } } }
         for key, val in data.items():
-            define = defines.get(key)
+            #define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
             if define is not None and isinstance(define.contents, Items):
                 for k, v in val.items():
                     dict_cache = {k: v}
@@ -242,7 +250,8 @@ class UpdateOperator(object):
         # { $pushAll: { <field>: [ <value1>, <value2>, ... ] } }
         # Update.parse_data(data)
         for key, val in data.items():
-            define = defines.get(key)
+            #define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
             data[key] = globals()[define.contents].parse(val)
 
     @staticmethod
@@ -250,8 +259,8 @@ class UpdateOperator(object):
         # { $push: { <field1>: <value1>, ... } }
         # { $push: { <field1>: { <modifier1>: <value1>, ... }, ... } }
         for key, val in data.items():
-            define = defines.get(key)
-
+            #define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
             # support modifier
             if isinstance(val, dict):
                 for k, v in val.items():
@@ -406,8 +415,8 @@ class QueryOperator(object):
         # { $or: [ { <expression1> }, { <expression2> }, ... , { <expressionN> } ] }
         for datum in data:
             for key, val in datum.items():
-                define = defines.get(key)
-
+                #define = defines.get(key)
+                define = ReadDotDefine.dotparse(key, defines)
                 if isinstance(val, dict):
                     for k, v in val.items():
                         # val[k] = globals()[define.type].parse(v)
@@ -429,8 +438,8 @@ class QueryOperator(object):
                     getattr(QueryOperator, key.replace('$', '_'))(val, defines)
                     continue
 
-                define = defines.get(key)
-
+                #define = defines.get(key)
+                define = ReadDotDefine.dotparse(key, defines)
                 if isinstance(val, dict):
                     for k, v in val.items():
                         if k is not None and k.startswith('$'):
@@ -460,7 +469,8 @@ class QueryOperator(object):
         for datum in data:
             for key, val in datum.items():
 
-                define = defines.get(key)
+                #define = defines.get(key)
+                define = ReadDotDefine.dotparse(key, defines)
 
                 if isinstance(val, dict):
                     for k, v in val.items():
@@ -626,7 +636,8 @@ class QueryOperator(object):
         #           e.x. { results: { $elemMatch: { $gte: 80, $lt: 85 } } }
         for key, val in data.items():
             if isinstance(defines, Items):
-                define = defines.get(key)
+                #define = defines.get(key)
+                define = ReadDotDefine.dotparse(key, defines)
                 if define is not None and isinstance(define.contents, Items):
                     getattr(QueryOperator, '_elemMatch')(val, define.contents)
                     continue

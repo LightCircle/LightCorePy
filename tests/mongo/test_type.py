@@ -1,4 +1,5 @@
 import unittest
+import re
 from datetime import datetime, date
 
 from light.mongo.type import ObjectID, Number, String, Date, Boolean
@@ -16,6 +17,10 @@ class TestType(unittest.TestCase):
         result = ObjectID.parse(['000000000000000000000002', '000000000000000000000003'])
         self.assertEqual(result[0], ObjectId('000000000000000000000002'))
         self.assertEqual(result[1], ObjectId('000000000000000000000003'))
+
+        result = ObjectID.parse({'item0': '000000000000000000000002', 'item1': '000000000000000000000003'})
+        self.assertEqual(result['item0'], ObjectId('000000000000000000000002'))
+        self.assertEqual(result['item1'], ObjectId('000000000000000000000003'))
 
         result = ObjectID.parse(ObjectId('000000000000000000000004'))
         self.assertEqual(result, ObjectId('000000000000000000000004'))
@@ -43,11 +48,19 @@ class TestType(unittest.TestCase):
         result = String.parse(None)
         self.assertEqual(result, '')
 
+        result = String.parse(re.compile('\d+'))
+        self.assertEqual(result, re.compile('\d+'))
+
         result = String.parse([2.0, 's', True, (1, 2, 3)])
         self.assertEqual(result[0], '2.0')
         self.assertEqual(result[1], 's')
         self.assertEqual(result[2], 'True')
         self.assertEqual(result[3], '(1, 2, 3)')
+
+        result = String.parse({'item0': 2.0, 'item1': True, 'item2': (1, 2, 3)})
+        self.assertEqual(result['item0'], '2.0')
+        self.assertEqual(result['item1'], 'True')
+        self.assertEqual(result['item2'], '(1, 2, 3)')
 
     def test_parse_date(self):
         result = Date.parse(None)
@@ -70,6 +83,10 @@ class TestType(unittest.TestCase):
         self.assertEqual(result[1], datetime(2009, 10, 1))
         self.assertEqual(result[2], datetime(2010, 10, 1))
         self.assertEqual(result[3], datetime(2011, 10, 1))
+
+        result = Date.parse({'item0': '2010-10-1', 'item1': '2011/10/1'})
+        self.assertEqual(result['item0'], datetime(2010, 10, 1))
+        self.assertEqual(result['item1'], datetime(2011, 10, 1))
 
     def test_parse_boolean(self):
         result = Boolean.parse(None)
@@ -108,3 +125,7 @@ class TestType(unittest.TestCase):
         self.assertEqual(result[2], True)
         self.assertEqual(result[3], False)
         self.assertEqual(result[4], True)
+
+        result = Boolean.parse({'item0': 'false', 'item1': 1})
+        self.assertEqual(result['item0'], False)
+        self.assertEqual(result['item1'], True)

@@ -1,6 +1,6 @@
 from light.mongo.type import *
 from light.mongo.define import Items
-from light.mongo.operator import UpdateOperator, QueryOperator
+from light.mongo.operator import UpdateOperator, QueryOperator, ReadDotDefine
 
 """
 mapping: 根据数据库字段的定义, 对数据进行类型转换 (包括两种类型的数据: 1.跟新用的数据本身, 2.检索条件中的数据)
@@ -15,12 +15,15 @@ class Update(object):
     def parse(data, defines):
         if isinstance(data, dict):
             data = [data]
+        elif isinstance(data, list):
+            pass
         else:
             return
 
         for datum in data:
             for key, val in datum.items():
-                define = defines.get(key)
+                #define = defines.get(key)
+                define = ReadDotDefine.dotparse(key, defines)
 
                 # Parse sub items
                 if define is not None and isinstance(define.contents, Items):
@@ -60,10 +63,21 @@ class Query(object):
                 QueryOperator().parse(key, val, defines)
                 continue
 
-            define = defines.get(key)
+            #define = defines.get(key)
+            define = ReadDotDefine.dotparse(key, defines)
+
+            # Parse struct ex. {field: {$set: val, $exist: val, ...}}
+            if isinstance(val, dict):
+                for k, v in val.items():
+                    if k is not None and k.startswith('$'):
+                        dict_cache = {k: v}
+                        QueryOperator().parse(k, dict_cache, define)
+                        val[k] = dict_cache[k]
+                continue
 
             # If define not found, then parse next
             if define is None:
                 continue
 
+            # Parse basic type
             data[key] = globals()[define.type].parse(val)

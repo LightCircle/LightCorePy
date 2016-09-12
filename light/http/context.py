@@ -1,4 +1,6 @@
 import flask
+import os
+from light.constant import Const
 
 
 class Context(object):
@@ -30,11 +32,10 @@ class Context(object):
         return self._params
 
     def add_params(self, key, val):
-        self._params[key] = val
+        self._params.add(key, val)
 
     def remove_params(self, key):
-        if key in self._params:
-            del self._params[key]
+        self._params.remove(key)
 
     def extend_params(self, objects):
         self._params.update(objects)
@@ -62,7 +63,7 @@ class Context(object):
         if self.session:
             return self.session['domain']
 
-        return self._domain
+        return os.environ[Const().ENV_LIGHT_APP_DOMAIN]
 
     def set_domain(self, domain):
         self._domain = domain
@@ -110,3 +111,13 @@ class Params(object):
         if key in self.values:
             return self.values[key]
         return None
+
+    def add(self, key, val):
+        self.values[key] = val
+
+    def update(self, data):
+        self.values.update(data)
+
+    def remove(self, key):
+        if key in self.values:
+            del self.values[key]

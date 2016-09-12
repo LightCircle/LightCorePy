@@ -1,4 +1,5 @@
 import os
+import re
 import flask
 import light.helper
 
@@ -98,16 +99,21 @@ def bind_route(app):
 
 
 def add_api_rule(app, api, clazz, action, method):
-    def func():
-        data, error = getattr(clazz, action)(Context())
+    def func(**kwargs):
+        handler = Context()
+        handler.extend_params(kwargs)
+        data, error = getattr(clazz, action)(handler)
         return response.send(data, error)
 
+    api = re.sub('/:(\w+)', '/<\\1>', api)
     app.add_url_rule(api, endpoint=api, view_func=func, methods=[METHODS[method]])
 
 
 def add_html_rule(app, url, clazz, action, template):
-    def func():
+    def func(**kwargs):
         handler = Context()
+        handler.extend_params(kwargs)
+
         data = dict()
         data['req'] = flask.request
         data['handler'] = handler
@@ -121,6 +127,7 @@ def add_html_rule(app, url, clazz, action, template):
 
         return light.helper.load_template(template).render(data)
 
+    url = re.sub('/:(\w+)', '/<\\1>', url)
     app.add_url_rule(url, endpoint=url, view_func=func)
 
 

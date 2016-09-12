@@ -72,6 +72,9 @@
  2. 可预见的可以用if..else..处理下
 
 ## Coverage
+ - ```$ coverage html```
+  安装
+ 
  - ```$ coverage run -m unittest tests/mongo/test_type.py```
   收集测试覆盖率
   

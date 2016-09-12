@@ -103,4 +103,4 @@
  - uwsgi for linux
 
  启动
- $ uwsgi --http localhost:5000 --http-websockets --greenlet  --master  --asyncio 100 --wsgi wsgi:application --python-autoreload 1 --pyargv '-local'
+ $ uwsgi --http localhost:7000 --http-websockets --greenlet  --master  --asyncio 100 --wsgi wsgi:application --python-autoreload 1 --pyargv '-local'

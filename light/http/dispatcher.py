@@ -8,7 +8,7 @@ from light.constant import Const
 from light.model.datarider import Rider
 from light.http.context import Context
 from light.configuration import Config
-from light.http import response
+from light.http import response, websocket
 
 CONST = Const()
 METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'GET', 'GET', 'GET', 'GET']
@@ -27,14 +27,15 @@ def bind_websocket(app):
     from flask_uwsgi_websocket import AsyncioWebSocket
     socket = AsyncioWebSocket(app)
 
-    # TODO
     async def func(ws):
+        websocket.on_open(ws)
+        websocket.send(ws.id, {'socketid': ws.id})
         while True:
-            msg = await ws.receive()
-            if msg is None:
+            message = await ws.receive()
+            if message is None:
+                websocket.on_close(ws)
                 break
-
-            await ws.send(msg)
+            websocket.on_message(ws, message)
 
     socket.add_url_rule('/websocket', '/websocket', view_func=func)
 

@@ -24,19 +24,16 @@ def bind_websocket(app):
         return
 
     from flask_uwsgi_websocket import AsyncioWebSocket
-    from asyncio import coroutine
-
     socket = AsyncioWebSocket(app)
 
     # TODO
-    @coroutine
-    def func(ws):
+    async def func(ws):
         while True:
-            msg = yield from ws.receive()
-            if msg is not None:
-                yield from ws.send(msg)
-            else:
-                return
+            msg = await ws.receive()
+            if msg is None:
+                break
+
+            await ws.send(msg)
 
     socket.add_url_rule('/websocket', '/websocket', view_func=func)
 

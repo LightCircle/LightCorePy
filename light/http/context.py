@@ -60,7 +60,7 @@ class Context(object):
         if self._domain:
             return self._domain
 
-        if self.session:
+        if self.session and 'domain' in self.session:
             return self.session['domain']
 
         return os.environ[Const().ENV_LIGHT_APP_DOMAIN]
@@ -74,7 +74,7 @@ class Context(object):
         if self._code:
             return self._code
 
-        if self.session:
+        if self.session and 'code' in self.session:
             return self.session['code']
 
         return self._code
@@ -88,7 +88,7 @@ class Context(object):
         if self._user:
             return self._user
 
-        if self.session:
+        if self.session and 'user' in self.session:
             return self.session['user']
 
         return self._user

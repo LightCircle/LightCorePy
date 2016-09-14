@@ -8,6 +8,9 @@ from bson.objectid import ObjectId
 from light.constant import Const
 from gridfs import GridFS, GridFSBucket
 
+from light.mongo.mapping import Update, Query
+from light.mongo.define import Items
+
 CONST = Const()
 
 
@@ -40,7 +43,7 @@ class Model:
 
         # Environment Variables higher priority
         host = os.getenv(CONST.ENV_LIGHT_DB_HOST, 'db')
-        port = os.getenv(CONST.ENV_LIGHT_DB_PORT, 57017)
+        port = os.getenv(CONST.ENV_LIGHT_DB_PORT, 27017)
         user = os.getenv(CONST.ENV_LIGHT_DB_USER, self.user)
         password = os.getenv(CONST.ENV_LIGHT_DB_PASS, self.password)
         auth = os.getenv(CONST.ENV_LIGHT_DB_AUTH, 'MONGODB-CR')
@@ -63,10 +66,23 @@ class Model:
     def get(self, condition=None, select=None):
 
         # Convert string or object id to dict
-        if isinstance(condition, str):
-            condition = {'_id': ObjectId(condition)}
-        elif isinstance(condition, ObjectId):
-            condition = {'_id': condition}
+        #if isinstance(condition, str):
+        #    condition = {'_id': ObjectId(condition)}
+        #elif isinstance(condition, ObjectId):
+        #    condition = {'_id': condition}
+        #elif isinstance(condition, dict):
+        #    Query.parse(condition, Items(self.define))
+
+        if isinstance(condition, dict):
+            Query.parse(condition, Items(self.define))
+        else:
+            if isinstance(condition, ObjectId):
+                condition = {'_id': condition}
+            else:
+                condition = {'_id': ObjectId(str(condition))}
+
+
+        Query.parse(select, Items(self.define))
 
         return self.db.find_one(filter=condition, projection=select)
 
@@ -77,29 +93,82 @@ class Model:
             select = re.split(r'[, ]', select)
             select = {select[i]: 1 for i in range(0, len(select))}
 
+        Query.parse(condition, Items(self.define))
+        Query.parse(select, Items(self.define))
+
         return list(self.db.find(filter=condition, projection=select))
 
     def add(self, data=None):
+
+        Update.parse(data, Items(self.define))
+
         data = self.db.insert_one(data)
         return data.inserted_id
 
-    def update(self):
-        pass
+    def update(self, condition = None, update = None):
 
-    def update_by(self):
-        pass
+        #if isinstance(condition, str):
+        #    condition = {'_id': ObjectId(condition)}
+        #elif isinstance(condition, ObjectId):
+        #    condition = {'_id': condition}
+        #elif isinstance(condition, dict):
+        #    Query.parse(condition, Items(self.define))
 
-    def remove(self):
-        pass
+        if isinstance(condition, dict):
+            Query.parse(condition, Items(self.define))
+        else:
+            if isinstance(condition, ObjectId):
+                condition = {'_id': condition}
+            else:
+                condition = {'_id': ObjectId(str(condition))}
 
-    def remove_by(self):
+        Update.parse(update, Items(self.define))
+
+        return self.db.update_one(filter=condition, update=update)
+
+    def update_by(self, condition = None, update = None):
+
+        Query.parse(condition, Items(self.define))
+        Update.parse(update, Items(self.define))
+
+        return self.db.update_many(filter=condition, update=update)
+
+    def remove(self, condition = None):
         pass
+        #Update.parse(condition, Items(self.define))
+        #return self.db.delete_one(condition)
+
+    def remove_by(self, condition = None):
+        pass
+        #Update.parse(condition, Items(self.define))
+        #return self.db.delete_many(condition)
 
     def total(self, condition):
+
+        Query.parse(condition, Items(self.define))
+
         return self.db.count(filter=condition)
 
-    def increment(self):
-        pass
+    def increment(self, condition = None, update = None):
+
+        #if isinstance(condition, str):
+        #    condition = {'_id': ObjectId(condition)}
+        #elif isinstance(condition, ObjectId):
+        #    condition = {'_id': condition}
+        #elif isinstance(condition, dict):
+        #    Query.parse(condition, Items(self.define))
+
+        if isinstance(condition, dict):
+            Query.parse(condition, Items(self.define))
+        else:
+            if isinstance(condition, ObjectId):
+                condition = {'_id': condition}
+            else:
+                condition = {'_id': ObjectId(str(condition))}
+
+        Update.parse(update, Items(self.define))
+
+        return self.db.find_one_and_update(filter=condition, update=update)
 
     def write_file_to_grid(self, file):
         grid = GridFS(self.db)
@@ -135,7 +204,7 @@ class Model:
 
         grid = GridFS(self.db).get(fid)
 
-        f = open(str(file), 'wb')
+        f = open(file, 'wb')
         f.write(grid.read())
         f.close()
 

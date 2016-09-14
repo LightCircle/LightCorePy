@@ -11,30 +11,65 @@ class TestModel(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         os.environ[CONST.ENV_LIGHT_DB_HOST] = 'localhost'
-        os.environ[CONST.ENV_LIGHT_DB_PORT] = '57017'
-        os.environ[CONST.ENV_LIGHT_DB_USER] = 'light'
-        os.environ[CONST.ENV_LIGHT_DB_PASS] = '2e35501c2b7e'
-
-    def setUp(self):
-        pass
+        os.environ[CONST.ENV_LIGHT_DB_PORT] = '27017'
+        # os.environ[CONST.ENV_LIGHT_DB_USER] = 'light'
+        # os.environ[CONST.ENV_LIGHT_DB_PASS] = '2e35501c2b7e'
 
     def test_add(self):
-        model = Model('LightDB', 'light', 'unittest')
-        a = model.add({'a': 'a', 'b': 1})
-        print(a)
+        model = Model('LightDB', 'light', 'unittest', self.define)
+        #model.add({'schema': 'a', 'nestsii.fields.nestarray.0.date': '2001/01/01', 'valid': '1'})
+        model.add({'schema': 'a', 'nestsii':[{
+            'fields':[{
+                'nestarray':[{'date': '2003/01/01'}, {'date': '2004/01/01'}]
+            }]
+        }], 'valid': '1'})
+        model.add({'schema': 'b', 'nestsii':[{
+            'fields':[{
+                'nestarray':[{'date': '2005/01/01'}, {'date': '2006/01/01'}]
+            }]
+        }], 'valid': '2'})
+        model.add({'schema': 'f', 'nestsii':[{
+            'fields':[{
+                'nestarray':[{'date': '2007/01/01'}, {'date': '2008/01/01'}]
+            }]
+        }], 'valid': '6'})
+        model.add({'schema': 'f', 'nestsii':[{
+            'fields':[{
+                'nestarray':[{'date': '2009/01/01'}, {'date': '2010/01/01'}]
+            }]
+        }], 'valid': '6'})
 
     def test_get(self):
-        model = Model('LightDB', 'light', 'unittest')
-        model.get()
+        model = Model('LightDB', 'light', 'unittest', self.define)
+        print(model.get({'valid': 2}))
 
     def test_get_by(self):
-        model = Model('LightDB', 'light', 'unittest')
-        pa = model.get_by()
-        print(pa)
+        model = Model('LightDB', 'light', 'unittest', self.define)
+        print(model.get_by({'valid': 6}))
+
+    def test_update(self):
+        model = Model('LightDB', 'light', 'unittest', self.define)
+        model.update({'valid': 1}, {'$inc': {'valid': 2}})
+
+    def test_update_by(self):
+        model = Model('LightDB', 'light', 'unittest', self.define)
+        model.update_by({'valid': 6}, {'$inc': {'valid': 3}})
+
+    def test_remove(self):
+        model = Model('LightDB', 'light', 'unittest', self.define)
+        #model.remove({'valid': 3})
+
+    def test_remove_by(self):
+        model = Model('LightDB', 'light', 'unittest', self.define)
+        #model.remove_by({'valid': -1})
+
+    def test_increment(self):
+        model = Model('LightDB', 'light', 'unittest', self.define)
+        model.increment({'valid': 2}, {'$inc': {'valid': 2}})
 
     def test_total(self):
-        model = Model('LightDB', 'light', 'unittest')
-        self.assertGreater(model.total({'b': 1}), 1)
+        model = Model('LightDB', 'light', 'unittest', self.define)
+        self.assertGreater(model.total({'valid': 9}), 0)
 
     def test_write_file_to_grid(self):
         in_file = 'test_model.py'
@@ -66,3 +101,202 @@ class TestModel(unittest.TestCase):
         self.assertEqual(in_file, result['name'])
         self.assertTrue(os.path.isfile(out_file))
         os.remove(out_file)
+
+    def setUp(self):
+        self.define = {
+            # ObjectID type
+            "_id": {
+                "reserved": 1,
+                "type": "ObjectID",
+                "name": "ID"
+            },
+            # Number type
+            "valid": {
+                "reserved": 1,
+                "type": "Number",
+                "name": "有效标识",
+                "description": "1:有效 0:无效"
+            },
+            # Boolean type
+            "flag": {
+                "reserved": 1,
+                "type": "Boolean",
+                "name": "Flag"
+            },
+            # Date type
+            "createAt": {
+                "reserved": 1,
+                "type": "Date",
+                "name": "创建时间"
+            },
+            # String type
+            "schema": {
+                "type": "String",
+                "name": "Schema名",
+                "default": "",
+                "description": "",
+                "reserved": 2
+            },
+            # Array basic type
+            "fields": {
+                "type": "Array",
+                "name": "附加项 关联后选择的字段",
+                "default": "",
+                "description": "",
+                "reserved": 2,
+                "contents": "String"
+            },
+            # Array Object type
+            "general": {
+                "type": "Array",
+                "name": "附加项 关联后选择的字段",
+                "default": "",
+                "description": "",
+                "reserved": 2,
+                "contents": "Object"
+            },
+            # Array type
+            "selects": {
+                "contents": {
+                    "select": {
+                        "type": "Boolean",
+                        "name": "选中",
+                        "default": "false",
+                        "description": "",
+                        "reserved": 2
+                    },
+                    "fields": {
+                        "type": "Array",
+                        "name": "附加项 关联后选择的字段",
+                        "default": "",
+                        "description": "",
+                        "reserved": 2,
+                        "contents": "String"
+                    },
+                    "valid": {
+                        "reserved": 1,
+                        "type": "Number",
+                        "name": "有效标识",
+                        "description": "1:有效 0:无效"
+                    }
+                },
+                "type": "Array",
+                "name": "选择字段",
+                "default": "",
+                "description": "",
+                "reserved": 2
+            },
+            # Array-Nest type
+            "nests": {
+                "contents": {
+                    "select": {
+                        "type": "Boolean",
+                        "name": "选中",
+                        "default": "false",
+                        "description": "",
+                        "reserved": 2
+                    },
+                    "fields": {
+                        "type": "Array",
+                        "name": "附加项 关联后选择的字段",
+                        "default": "",
+                        "description": "",
+                        "reserved": 2,
+                        "contents": {
+                            "valid": {
+                                "reserved": 1,
+                                "type": "Number",
+                                "name": "有效标识",
+                                "description": "1:有效 0:无效"
+                            },
+                            "nestins": {
+                                "type": "String",
+                                "name": "嵌套",
+                                "default": "",
+                                "description": "",
+                                "reserved": 2
+                            },
+                            "nestarray": {
+                                "type": "Array",
+                                "name": "附加项 关联后选择的字段",
+                                "default": "",
+                                "description": "",
+                                "reserved": 2,
+                                "contents": "String"
+                            }
+                        }
+                    }
+                },
+                "type": "Array",
+                "name": "选择字段",
+                "default": "",
+                "description": "",
+                "reserved": 2
+            },
+            # Array-Nest-II type
+            "nestsii": {
+                "contents": {
+                    "select": {
+                        "type": "Boolean",
+                        "name": "选中",
+                        "default": "false",
+                        "description": "",
+                        "reserved": 2
+                    },
+                    "fields": {
+                        "type": "Array",
+                        "name": "附加项 关联后选择的字段",
+                        "default": "",
+                        "description": "",
+                        "reserved": 2,
+                        "contents": {
+                            "nestarray": {
+                                "type": "Array",
+                                "name": "附加项 关联后选择的字段",
+                                "default": "",
+                                "description": "",
+                                "reserved": 2,
+                                "contents": {
+                                    "date": {
+                                        "type": "Date",
+                                        "name": "备份截止日",
+                                        "default": "",
+                                        "description": "",
+                                        "reserved": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "type": "Array",
+                "name": "选择字段",
+                "default": "",
+                "description": "",
+                "reserved": 2
+            },
+            # Object type
+            "limit": {
+                "contents": {
+                    "date": {
+                        "type": "Date",
+                        "name": "备份截止日",
+                        "default": "",
+                        "description": "",
+                        "reserved": 2
+                    },
+                    "count": {
+                        "type": "Number",
+                        "name": "备份次数",
+                        "default": "",
+                        "description": "",
+                        "reserved": 2
+                    }
+                },
+                "type": "Object",
+                "name": "限制",
+                "default": "",
+                "description": "",
+                "reserved": 2
+            }
+        }

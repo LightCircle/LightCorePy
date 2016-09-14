@@ -171,12 +171,19 @@ class TestMapping(unittest.TestCase):
 
         #
         data = {'$addToSet': {"nestsii": {'$each': [
-            {'fields': {'nestarray': [{'date': '2000/01/01'}, {'date': '2001/01/01'}]}, 'select': 1}
+            {'fields': {'nestarray': [{'date': '2000/01/01'}, {'date': '2001/01/01'}]}, 'select': 1},
+            {'fields': [{'nestarray': [{'date': '2002/01/01'}, {'date': '2003/01/01'}]}
+                        ,{'nestarray': [{'date': '2004/01/01'}, {'date': '2005/01/01'}]}], 'select': 0}
         ]}}}
         Update.parse(data, Items(self.define))
         self.assertEqual(data['$addToSet']['nestsii']['$each'][0]['fields']['nestarray'][0]['date'], \
                          datetime(2000, 1, 1, 0, 0))
         self.assertTrue(data['$addToSet']['nestsii']['$each'][0]['select'])
+        self.assertEqual(data['$addToSet']['nestsii']['$each'][1]['fields'][0]['nestarray'][0]['date'], \
+                         datetime(2002, 1, 1, 0, 0))
+        self.assertEqual(data['$addToSet']['nestsii']['$each'][1]['fields'][1]['nestarray'][1]['date'], \
+                         datetime(2005, 1, 1, 0, 0))
+        self.assertFalse(data['$addToSet']['nestsii']['$each'][1]['select'])
 
         # $pullAll
         data = {'$pullAll': {'fields': [1, 2, 3]}}

@@ -21,14 +21,17 @@ class Data(object):
         data, error = Controller(handler=handler, table=self.table).add()
         return data, error
 
-    def update(self):
-        return {}, None
+    def update(self, handler):
+        data, error = Controller(handler=handler, table=self.table).update()
+        return data, error
 
-    def remove(self):
-        return {}, None
+    def remove(self, handler):
+        data, error = Controller(handler=handler, table=self.table).remove()
+        return data, error
 
-    def count(self):
-        return {}, None
+    def count(self, handler):
+        data, error = Controller(handler=handler, table=self.table).count()
+        return data, error
 
     def search(self):
         return {}, None

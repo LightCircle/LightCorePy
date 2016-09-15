@@ -104,7 +104,7 @@ def add_api_rule(app, api, clazz, action, method):
         handler = Context()
         handler.extend_params(kwargs)
         data, error = getattr(clazz, action)(handler)
-        return response.send(data, error)
+        return response.send(handler, data, error)
 
     api = re.sub('/:(\w+)', '/<\\1>', api)
     app.add_url_rule(api, endpoint=api, view_func=func, methods=[METHODS[method]])

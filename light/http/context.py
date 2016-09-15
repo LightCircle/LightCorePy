@@ -10,6 +10,7 @@ class Context(object):
         self._code = code
         self._user = None
         self._params = Params()
+        self._res = None
 
         # If uid is specified, then that is created manually
         if not uid:
@@ -83,6 +84,13 @@ class Context(object):
         self._code = code
 
     code = property(fget=get_code, fset=set_code)
+
+    def get_res(self):
+        if self._res is None:
+            self._res = flask.Response()
+        return self._res
+
+    res = property(fget=get_res)
 
     def get_user(self):
         if self._user:

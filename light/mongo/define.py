@@ -2,6 +2,9 @@ class Items(object):
     def __init__(self, items):
         self._items = {}
 
+        if items is None:
+            return
+
         for key, item in items.items():
             self._items[key] = Item(key, item)
 

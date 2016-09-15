@@ -22,7 +22,7 @@ class Update(object):
 
         for datum in data:
             for key, val in datum.items():
-                #define = defines.get(key)
+                # define = defines.get(key)
                 define = ReadDotDefine.dotparse(key, defines)
 
                 # Parse sub items
@@ -63,7 +63,7 @@ class Query(object):
                 QueryOperator().parse(key, val, defines)
                 continue
 
-            #define = defines.get(key)
+            # define = defines.get(key)
             define = ReadDotDefine.dotparse(key, defines)
 
             # Parse struct ex. {field: {$set: val, $exist: val, ...}}

@@ -64,29 +64,34 @@ class Model:
         print('{domain} / {code}'.format(domain=self.domain, code=self.code))
 
     def get(self, condition=None, select=None):
+        """
+        Get a single document from the database.
+        :param condition:
+        :param select:
+        :return:
+        """
 
-        # Convert string or object id to dict
-        #if isinstance(condition, str):
-        #    condition = {'_id': ObjectId(condition)}
-        #elif isinstance(condition, ObjectId):
-        #    condition = {'_id': condition}
-        #elif isinstance(condition, dict):
-        #    Query.parse(condition, Items(self.define))
+        # Convert string to dict : a,b,c -> {'a': 1, 'b': 1, 'c': 1}
+        if isinstance(select, str):
+            select = re.split(r'[, ]', select)
+            select = {select[i]: 1 for i in range(0, len(select))}
 
-        if isinstance(condition, dict):
-            Query.parse(condition, Items(self.define))
-        else:
-            if isinstance(condition, ObjectId):
-                condition = {'_id': condition}
-            else:
-                condition = {'_id': ObjectId(str(condition))}
+        # Convert string or object id to filter
+        if isinstance(condition, str):
+            condition = {'_id': ObjectId(condition)}
+        elif isinstance(condition, ObjectId):
+            condition = {'_id': condition}
 
-
-        Query.parse(select, Items(self.define))
-
+        Query.parse(condition, Items(self.define))
         return self.db.find_one(filter=condition, projection=select)
 
     def get_by(self, condition=None, select=None):
+        """
+        Query the database.
+        :param condition:
+        :param select:
+        :return:
+        """
 
         # Convert string to dict : a,b,c -> {'a': 1, 'b': 1, 'c': 1}
         if isinstance(select, str):
@@ -94,54 +99,57 @@ class Model:
             select = {select[i]: 1 for i in range(0, len(select))}
 
         Query.parse(condition, Items(self.define))
-        Query.parse(select, Items(self.define))
-
         return list(self.db.find(filter=condition, projection=select))
 
     def add(self, data=None):
+        """
+        Insert a document(s) into this collection.
+        :param data:
+        :return:
+        """
 
         Update.parse(data, Items(self.define))
+        return self.db.insert_one(data).inserted_id
 
-        data = self.db.insert_one(data)
-        return data.inserted_id
+    def update(self, condition=None, update=None):
+        """
+        Update a single document in this collection.
+        :param condition:
+        :param update:
+        :return:
+        """
 
-    def update(self, condition = None, update = None):
-
-        #if isinstance(condition, str):
-        #    condition = {'_id': ObjectId(condition)}
-        #elif isinstance(condition, ObjectId):
-        #    condition = {'_id': condition}
-        #elif isinstance(condition, dict):
-        #    Query.parse(condition, Items(self.define))
-
-        if isinstance(condition, dict):
-            Query.parse(condition, Items(self.define))
-        else:
-            if isinstance(condition, ObjectId):
-                condition = {'_id': condition}
-            else:
-                condition = {'_id': ObjectId(str(condition))}
-
-        Update.parse(update, Items(self.define))
-
-        return self.db.update_one(filter=condition, update=update)
-
-    def update_by(self, condition = None, update = None):
+        # Convert string or object id to filter
+        if isinstance(condition, str):
+            condition = {'_id': ObjectId(condition)}
+        elif isinstance(condition, ObjectId):
+            condition = {'_id': condition}
 
         Query.parse(condition, Items(self.define))
         Update.parse(update, Items(self.define))
+        return self.db.update_one(filter=condition, update=update)
 
+    def update_by(self, condition=None, update=None):
+        """
+        Update a document(s) in this collection.
+        :param condition:
+        :param update:
+        :return:
+        """
+
+        Query.parse(condition, Items(self.define))
+        Update.parse(update, Items(self.define))
         return self.db.update_many(filter=condition, update=update)
 
-    def remove(self, condition = None):
+    def remove(self, condition=None):
         pass
-        #Update.parse(condition, Items(self.define))
-        #return self.db.delete_one(condition)
+        # Update.parse(condition, Items(self.define))
+        # return self.db.delete_one(condition)
 
-    def remove_by(self, condition = None):
+    def remove_by(self, condition=None):
         pass
-        #Update.parse(condition, Items(self.define))
-        #return self.db.delete_many(condition)
+        # Update.parse(condition, Items(self.define))
+        # return self.db.delete_many(condition)
 
     def total(self, condition):
 
@@ -149,13 +157,13 @@ class Model:
 
         return self.db.count(filter=condition)
 
-    def increment(self, condition = None, update = None):
+    def increment(self, condition=None, update=None):
 
-        #if isinstance(condition, str):
+        # if isinstance(condition, str):
         #    condition = {'_id': ObjectId(condition)}
-        #elif isinstance(condition, ObjectId):
+        # elif isinstance(condition, ObjectId):
         #    condition = {'_id': condition}
-        #elif isinstance(condition, dict):
+        # elif isinstance(condition, dict):
         #    Query.parse(condition, Items(self.define))
 
         if isinstance(condition, dict):

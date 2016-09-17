@@ -115,6 +115,6 @@ class Const(object):
     VALID = property(get_valid)
 
     def get_invalid(self):
-        return 1
+        return 0
 
     INVALID = property(get_invalid)

@@ -25,22 +25,23 @@ class Controller(object):
 
         self.uid = handler.uid
         self.model = Model(domain=handler.domain, code=handler.code, table=table, define=define)
-        self.condition = handler.params.condition
+        self.condition = handler.params.condition or {}
         self.id = handler.params.id
         self.select = handler.params.select
         self.data = handler.params.data
         self.files = handler.params.files
 
     def get(self):
-        if self.id:
-            condition = self.id
-        else:
-            condition = self.condition
+        if 'valid' not in self.condition:
+            self.condition['valid'] = CONST.VALID
 
-        data = self.model.get(condition=condition, select=self.select)
+        data = self.model.get(condition=self.id or self.condition, select=self.select)
         return data, None
 
     def list(self):
+        if 'valid' not in self.condition:
+            self.condition['valid'] = CONST.VALID
+
         count = self.model.total(condition=self.condition)
         data = self.model.get_by(condition=self.condition, select=self.select)
         return {'totalItems': count, 'items': data}, None
@@ -63,6 +64,11 @@ class Controller(object):
         self.data.update(regular)
 
         data = self.model.update(condition=self.id or self.condition, data=self.data)
+        return {'_id': data}, None
+
+    def remove(self):
+        regular = {'updateAt': datetime.now(), 'updateBy': self.uid, 'valid': CONST.INVALID}
+        data = self.model.update(condition=self.id or self.condition, data=regular)
         return {'_id': data}, None
 
     def create_user(self):

@@ -108,3 +108,13 @@ class Const(object):
         return 'LIGHTAPP_WEBSOCKET'
 
     ENV_LIGHT_APP_WEBSOCKET = property(get_env_light_app_websocket)
+
+    def get_valid(self):
+        return 1
+
+    VALID = property(get_valid)
+
+    def get_invalid(self):
+        return 1
+
+    INVALID = property(get_invalid)

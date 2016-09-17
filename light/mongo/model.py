@@ -111,11 +111,11 @@ class Model:
         Update.parse(data, Items(self.define))
         return self.db.insert_one(data).inserted_id
 
-    def update(self, condition=None, update=None):
+    def update(self, condition=None, data=None):
         """
         Update a single document in this collection.
         :param condition:
-        :param update:
+        :param data:
         :return:
         """
 
@@ -126,20 +126,20 @@ class Model:
             condition = {'_id': condition}
 
         Query.parse(condition, Items(self.define))
-        Update.parse(update, Items(self.define))
-        return self.db.update_one(filter=condition, update=update)
+        Update.parse(data, Items(self.define))
+        return self.db.update_one(filter=condition, update={'$set': data}).modified_count
 
-    def update_by(self, condition=None, update=None):
+    def update_by(self, condition=None, data=None):
         """
         Update a document(s) in this collection.
         :param condition:
-        :param update:
+        :param data:
         :return:
         """
 
         Query.parse(condition, Items(self.define))
-        Update.parse(update, Items(self.define))
-        return self.db.update_many(filter=condition, update=update)
+        Update.parse(data, Items(self.define))
+        return self.db.update_many(filter=condition, update={'$set': data}).modified_count
 
     def remove(self, condition=None):
         pass

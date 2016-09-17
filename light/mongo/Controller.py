@@ -1,5 +1,6 @@
 import os
 import light.helper
+from datetime import datetime
 
 from light.mongo.model import Model
 from light.constant import Const
@@ -22,6 +23,7 @@ class Controller(object):
         if table:
             define = getattr(Structure.instance(), table)['items']
 
+        self.uid = handler.uid
         self.model = Model(domain=handler.domain, code=handler.code, table=table, define=define)
         self.condition = handler.params.condition
         self.id = handler.params.id
@@ -44,7 +46,23 @@ class Controller(object):
         return {'totalItems': count, 'items': data}, None
 
     def add(self):
+        regular = {
+            'createAt': datetime.now(),
+            'createBy': self.uid,
+            'updateAt': datetime.now(),
+            'updateBy': self.uid,
+            'valid': CONST.VALID
+        }
+        self.data.update(regular)
+
         data = self.model.add(data=self.data)
+        return {'_id': data}, None
+
+    def update(self):
+        regular = {'updateAt': datetime.now(), 'updateBy': self.uid}
+        self.data.update(regular)
+
+        data = self.model.update(condition=self.id or self.condition, data=self.data)
         return {'_id': data}, None
 
     def create_user(self):

@@ -8,7 +8,7 @@ class Schedule(object):
         self.scheduler = BackgroundScheduler()
 
     def tick(self):
-        print('>>>>')
+        pass
 
     def start(self):
         self.scheduler.add_job(self.tick, 'interval', seconds=3)

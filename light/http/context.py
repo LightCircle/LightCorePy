@@ -92,6 +92,13 @@ class Context(object):
 
     res = property(fget=get_res)
 
+    def get_corp(self):
+        if self.session and 'corp' in self.session:
+            return self.session['corp']
+        return None
+
+    corp = property(fget=get_corp)
+
     def get_user(self):
         if self._user:
             return self._user

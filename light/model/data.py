@@ -9,11 +9,15 @@ class Data(object):
         self.board = board
         self.table = self.board['class']
 
-    def get(self, handler):
+    def get(self, handler, params=None):
+        if params is not None:
+            handler.set_params(params)
         data, error = Controller(handler=handler, table=self.table).get()
         return data, error
 
-    def list(self, handler):
+    def list(self, handler, params=None):
+        if params is not None:
+            handler.set_params(params)
         data, error = Controller(handler=handler, table=self.table).list()
         return data, error
 

@@ -32,6 +32,14 @@ class Context(object):
     def get_params(self):
         return self._params
 
+    def set_params(self, objects):
+        """
+        Clear old content, create a new parameter
+        :param objects:
+        :return:
+        """
+        self._params = Params(objects)
+
     def add_params(self, key, val):
         self._params.add(key, val)
 
@@ -41,7 +49,7 @@ class Context(object):
     def extend_params(self, objects):
         self._params.update(objects)
 
-    params = property(fget=get_params)
+    params = property(fget=get_params, fset=set_params)
 
     def get_uid(self):
         if self._uid:

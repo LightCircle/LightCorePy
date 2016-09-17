@@ -9,6 +9,9 @@ def send(handler, data, error=None):
     if error is not None:
         return send_error(handler, data, error)
 
+    if data is None:
+        data = {}
+
     # return json
     if isinstance(data, dict):
         return send_json(handler, data)

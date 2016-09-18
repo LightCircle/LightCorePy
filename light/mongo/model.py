@@ -7,6 +7,7 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from light.constant import Const
 from gridfs import GridFS, GridFSBucket
+from gridfs.errors import NoFile
 
 from light.mongo.mapping import Update, Query
 from light.mongo.define import Items
@@ -210,7 +211,10 @@ class Model:
         if isinstance(fid, str):
             fid = ObjectId(fid)
 
-        grid = GridFS(self.db).get(fid)
+        try:
+            grid = GridFS(self.db).get(fid)
+        except NoFile:
+            return None
 
         f = open(file, 'wb')
         f.write(grid.read())

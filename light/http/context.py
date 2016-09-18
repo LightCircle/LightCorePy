@@ -11,6 +11,8 @@ class Context(object):
         self._user = None
         self._params = Params()
         self._res = None
+        self.req = None
+        self.session = None
 
         # If uid is specified, then that is created manually
         if not uid:

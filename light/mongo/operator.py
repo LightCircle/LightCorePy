@@ -1,6 +1,7 @@
 from light.mongo.type import *
 from light.mongo.define import Items
 
+
 class Type(object):
     @staticmethod
     def convert(val):
@@ -50,6 +51,13 @@ class Type(object):
     @staticmethod
     def parse(data):
         return Type.convert(data)
+
+    @staticmethod
+    def compare(operator, field=None, value=None):
+        if operator == '$or':
+            return {'$or': value}
+
+        return {field: {operator: value}}
 
 
 class ReadDotDefine(object):
@@ -124,7 +132,7 @@ class UpdateOperator(object):
         #           e.x. {'$set': {'selects': [{'select': 0, 'fields': [{'nest': 2}, {'nest': 3}]}, {'select': 1}]}}
         #           e.x. {'$set': {'selects': [{'select': 0, 'fields': [1, 2]}, {'select': 1}]}}
         for key, val in data.items():
-            #define = defines.get(key)
+            # define = defines.get(key)
             define = ReadDotDefine.dotparse(key, defines)
             if define is not None and not isinstance(define.contents, Items):
                 if define.type != 'Array':
@@ -152,7 +160,7 @@ class UpdateOperator(object):
     def _min(data, defines):
         # { $min: { <field1>: <value1>, ... } }
         for key, val in data.items():
-            #define = defines.get(key)
+            # define = defines.get(key)
             define = ReadDotDefine.dotparse(key, defines)
             data[key] = globals()[define.type].parse(val)
 
@@ -160,7 +168,7 @@ class UpdateOperator(object):
     def _max(data, defines):
         # { $max: { <field1>: <value1>, ... } }
         for key, val in data.items():
-            #define = defines.get(key)
+            # define = defines.get(key)
             define = ReadDotDefine.dotparse(key, defines)
             data[key] = globals()[define.type].parse(val)
 
@@ -168,7 +176,7 @@ class UpdateOperator(object):
     def _currentDate(data, defines):
         # { $currentDate: { <field1>: <typeSpecification1>, ... } }
         for key, val in data.items():
-            #define = defines.get(key)
+            # define = defines.get(key)
             define = ReadDotDefine.dotparse(key, defines)
             if isinstance(val, dict):
                 for k, v in val.items():
@@ -188,7 +196,7 @@ class UpdateOperator(object):
         # { $addToSet: { <field1>: <value1>, ... } }
         # { $addToSet: { <field1>: { <modifier1>: <value1>, ... }, ... } }
         for key, val in data.items():
-            #define = defines.get(key)
+            # define = defines.get(key)
             define = ReadDotDefine.dotparse(key, defines)
             # support modifier
             if isinstance(val, dict):
@@ -208,7 +216,7 @@ class UpdateOperator(object):
     def _pullAll(data, defines):
         # { $pullAll: { <field1>: [ <value1>, <value2> ... ], ... } }
         for key, val in data.items():
-            #define = defines.get(key)
+            # define = defines.get(key)
             define = ReadDotDefine.dotparse(key, defines)
             data[key] = globals()[define.contents].parse(val)
 
@@ -221,7 +229,7 @@ class UpdateOperator(object):
         #           { $pull: { results: { $elemMatch: { score: 8 , item: "B" } } } }
         #           { $pull: { results: { answers: { $elemMatch: { q: 2, a: { $gte: 8 } } } } } }
         for key, val in data.items():
-            #define = defines.get(key)
+            # define = defines.get(key)
             define = ReadDotDefine.dotparse(key, defines)
             if define is not None and isinstance(define.contents, Items):
                 for k, v in val.items():
@@ -250,7 +258,7 @@ class UpdateOperator(object):
         # { $pushAll: { <field>: [ <value1>, <value2>, ... ] } }
         # Update.parse_data(data)
         for key, val in data.items():
-            #define = defines.get(key)
+            # define = defines.get(key)
             define = ReadDotDefine.dotparse(key, defines)
             data[key] = globals()[define.contents].parse(val)
 
@@ -259,7 +267,7 @@ class UpdateOperator(object):
         # { $push: { <field1>: <value1>, ... } }
         # { $push: { <field1>: { <modifier1>: <value1>, ... }, ... } }
         for key, val in data.items():
-            #define = defines.get(key)
+            # define = defines.get(key)
             define = ReadDotDefine.dotparse(key, defines)
             # support modifier
             if isinstance(val, dict):
@@ -415,7 +423,7 @@ class QueryOperator(object):
         # { $or: [ { <expression1> }, { <expression2> }, ... , { <expressionN> } ] }
         for datum in data:
             for key, val in datum.items():
-                #define = defines.get(key)
+                # define = defines.get(key)
                 define = ReadDotDefine.dotparse(key, defines)
                 if isinstance(val, dict):
                     for k, v in val.items():
@@ -438,7 +446,7 @@ class QueryOperator(object):
                     getattr(QueryOperator, key.replace('$', '_'))(val, defines)
                     continue
 
-                #define = defines.get(key)
+                # define = defines.get(key)
                 define = ReadDotDefine.dotparse(key, defines)
                 if isinstance(val, dict):
                     for k, v in val.items():
@@ -469,7 +477,7 @@ class QueryOperator(object):
         for datum in data:
             for key, val in datum.items():
 
-                #define = defines.get(key)
+                # define = defines.get(key)
                 define = ReadDotDefine.dotparse(key, defines)
 
                 if isinstance(val, dict):
@@ -594,38 +602,38 @@ class QueryOperator(object):
 
                 val[index] = globals()[defines.type].parse(datum)
 
-        # Method I:
-        # for key, val in data.items():
-        #     for datum in val:
-        #         # { <field>: { $all: [ <value1> , <value2>, ... ] } }
-        #         if not isinstance(datum, dict) and not isinstance(datum, list):
-        #             globals()[defines.type].parse(val)
-        #             return
-        #         # { <field>: { $all: [ [ <value1>, <value2> ], ... ] } }
-        #         if isinstance(datum, list) and datum and not isinstance(datum[0], dict):
-        #             globals()[defines.type].parse(datum)
-        #             continue
-        #         # {<field>: { $all: [ [ { <contents_value1> }, { <contents_value2> }, ... ] , ... ] } }
-        #         if isinstance(datum, list) and datum and isinstance(datum[0], dict):
-        #             for datum_sub in datum:
-        #                 for k_sub, v_sub in datum_sub.items():
-        #                     if defines is not None and isinstance(defines.contents, Items):
-        #                         define = defines.contents.get(k_sub)
-        #                         datum_sub[k_sub] = globals()[define.type].parse(v_sub)
-        #                         continue
-        #             continue
-        #         if isinstance(datum, dict):
-        #             for k, v in datum.items():
-        #                 # $all + $elemMatch
-        #                 # {<field>: { $all: [{ $elemMatch: { <query1>, <query2>, ... }]}}
-        #                 if k is not None and k.startswith('$'):
-        #                     getattr(QueryOperator, k.replace('$', '_'))(datum, defines)
-        #                     continue
-        #                 # {<field>: { $all: [ { <contents_value1> }, { <contents_value2> }, ... ]}}
-        #                 if defines is not None and isinstance(defines.contents, Items):
-        #                     define = defines.contents.get(k)
-        #                     datum[k] = globals()[define.type].parse(v)
-        #                     continue
+                # Method I:
+                # for key, val in data.items():
+                #     for datum in val:
+                #         # { <field>: { $all: [ <value1> , <value2>, ... ] } }
+                #         if not isinstance(datum, dict) and not isinstance(datum, list):
+                #             globals()[defines.type].parse(val)
+                #             return
+                #         # { <field>: { $all: [ [ <value1>, <value2> ], ... ] } }
+                #         if isinstance(datum, list) and datum and not isinstance(datum[0], dict):
+                #             globals()[defines.type].parse(datum)
+                #             continue
+                #         # {<field>: { $all: [ [ { <contents_value1> }, { <contents_value2> }, ... ] , ... ] } }
+                #         if isinstance(datum, list) and datum and isinstance(datum[0], dict):
+                #             for datum_sub in datum:
+                #                 for k_sub, v_sub in datum_sub.items():
+                #                     if defines is not None and isinstance(defines.contents, Items):
+                #                         define = defines.contents.get(k_sub)
+                #                         datum_sub[k_sub] = globals()[define.type].parse(v_sub)
+                #                         continue
+                #             continue
+                #         if isinstance(datum, dict):
+                #             for k, v in datum.items():
+                #                 # $all + $elemMatch
+                #                 # {<field>: { $all: [{ $elemMatch: { <query1>, <query2>, ... }]}}
+                #                 if k is not None and k.startswith('$'):
+                #                     getattr(QueryOperator, k.replace('$', '_'))(datum, defines)
+                #                     continue
+                #                 # {<field>: { $all: [ { <contents_value1> }, { <contents_value2> }, ... ]}}
+                #                 if defines is not None and isinstance(defines.contents, Items):
+                #                     define = defines.contents.get(k)
+                #                     datum[k] = globals()[define.type].parse(v)
+                #                     continue
 
     @staticmethod
     def _elemMatch(data, defines):
@@ -636,7 +644,7 @@ class QueryOperator(object):
         #           e.x. { results: { $elemMatch: { $gte: 80, $lt: 85 } } }
         for key, val in data.items():
             if isinstance(defines, Items):
-                #define = defines.get(key)
+                # define = defines.get(key)
                 define = ReadDotDefine.dotparse(key, defines)
                 if define is not None and isinstance(define.contents, Items):
                     getattr(QueryOperator, '_elemMatch')(val, define.contents)
@@ -651,9 +659,9 @@ class QueryOperator(object):
                     continue
 
                 data[key] = globals()[define.type].parse(val)
-                #if define.type != 'Array':
+                # if define.type != 'Array':
                 #    data[key] = globals()[define.type].parse(val)
-                #else:
+                # else:
                 #    data[key] = globals()[define.contents].parse(val)
                 continue
 
@@ -668,22 +676,22 @@ class QueryOperator(object):
                     val[k] = dict_cache[k]
 
 
-            #if define.type != 'Array':
-            #    data[key] = globals()[define.type].parse(val)
-            #else:
-            #    data[key] = globals()[define.contents].parse(val)
+                    # if define.type != 'Array':
+                    #    data[key] = globals()[define.type].parse(val)
+                    # else:
+                    #    data[key] = globals()[define.contents].parse(val)
 
-            # Mathod I:
-            # for k, v in val.items():
-            #     # e.x. { results: { $elemMatch: { $gte: 80, $lt: 85 } } }
-            #     if k is not None and k.startswith('$'):
-            #         val[k] = globals()[defines.type].parse(v)
-            #         continue
-            #     # e.x. { results: { $elemMatch: { product: "xyz", score: { $gte: 8 } } } }
-            #     if isinstance(defines.contents, Items):
-            #         define = defines.contents.get(k)
-            #         val[k] = globals()[define.type].parse(v)
-            #         continue
+                    # Mathod I:
+                    # for k, v in val.items():
+                    #     # e.x. { results: { $elemMatch: { $gte: 80, $lt: 85 } } }
+                    #     if k is not None and k.startswith('$'):
+                    #         val[k] = globals()[defines.type].parse(v)
+                    #         continue
+                    #     # e.x. { results: { $elemMatch: { product: "xyz", score: { $gte: 8 } } } }
+                    #     if isinstance(defines.contents, Items):
+                    #         define = defines.contents.get(k)
+                    #         val[k] = globals()[define.type].parse(v)
+                    #         continue
 
     @staticmethod
     def _size(data, defines):

@@ -12,7 +12,14 @@ class Rider(object):
         boards = Cache.instance().get(CONST.SYSTEM_DB_BOARD)
 
         for board in boards:
-            setattr(self, board['class'], Data(board))
+            schema = board['class']
+            action = board['action']
+            if not hasattr(self, schema):
+                setattr(self, schema, Schema())
+
+            data = Data(board)
+            if hasattr(data, action):
+                setattr(getattr(self, schema), action, getattr(data, action))
 
     @staticmethod
     def instance():
@@ -50,3 +57,11 @@ class Rider(object):
     @staticmethod
     def increment(handler):
         return Controller(handler=handler).increment()
+
+    @staticmethod
+    def read_file_from_grid(handler):
+        return Controller(handler=handler).read_file_from_grid()
+
+
+class Schema(object):
+    pass

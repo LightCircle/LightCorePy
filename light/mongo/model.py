@@ -10,8 +10,18 @@ from gridfs import GridFS, GridFSBucket
 
 from light.mongo.mapping import Update, Query
 from light.mongo.define import Items
+from light.mongo.type import *
 
 CONST = Const()
+
+
+# 检测Update Operators such as $***
+def add_set_operator(update):
+    for key, val in update.items():
+        if key.startswith('$'):
+            return update
+        else:
+            return {'$set': update}
 
 
 class Model:
@@ -65,14 +75,6 @@ class Model:
 
     def get(self, condition=None, select=None):
 
-        # Convert string or object id to dict
-        #if isinstance(condition, str):
-        #    condition = {'_id': ObjectId(condition)}
-        #elif isinstance(condition, ObjectId):
-        #    condition = {'_id': condition}
-        #elif isinstance(condition, dict):
-        #    Query.parse(condition, Items(self.define))
-
         if isinstance(condition, dict):
             Query.parse(condition, Items(self.define))
         else:
@@ -81,8 +83,11 @@ class Model:
             else:
                 condition = {'_id': ObjectId(str(condition))}
 
+        if isinstance(select, str):
+            select = re.split(r'[, ]', select)
+            select = {select[i]: 1 for i in range(0, len(select))}
 
-        Query.parse(select, Items(self.define))
+        Boolean.parse(select)
 
         return self.db.find_one(filter=condition, projection=select)
 
@@ -93,8 +98,9 @@ class Model:
             select = re.split(r'[, ]', select)
             select = {select[i]: 1 for i in range(0, len(select))}
 
+        Boolean.parse(select)
+
         Query.parse(condition, Items(self.define))
-        Query.parse(select, Items(self.define))
 
         return list(self.db.find(filter=condition, projection=select))
 
@@ -102,17 +108,14 @@ class Model:
 
         Update.parse(data, Items(self.define))
 
-        data = self.db.insert_one(data)
+        if isinstance(data, list):
+            data = self.db.insert_many(data)
+        else:
+            data = self.db.insert_one(data)
+
         return data.inserted_id
 
     def update(self, condition = None, update = None):
-
-        #if isinstance(condition, str):
-        #    condition = {'_id': ObjectId(condition)}
-        #elif isinstance(condition, ObjectId):
-        #    condition = {'_id': condition}
-        #elif isinstance(condition, dict):
-        #    Query.parse(condition, Items(self.define))
 
         if isinstance(condition, dict):
             Query.parse(condition, Items(self.define))
@@ -123,25 +126,54 @@ class Model:
                 condition = {'_id': ObjectId(str(condition))}
 
         Update.parse(update, Items(self.define))
+        update = add_set_operator(update)
 
         return self.db.update_one(filter=condition, update=update)
 
     def update_by(self, condition = None, update = None):
 
-        Query.parse(condition, Items(self.define))
+        if isinstance(condition, dict):
+            Query.parse(condition, Items(self.define))
+        else:
+            if isinstance(condition, ObjectId):
+                condition = {'_id': condition}
+            else:
+                condition = {'_id': ObjectId(str(condition))}
+
         Update.parse(update, Items(self.define))
+        update = add_set_operator(update)
 
         return self.db.update_many(filter=condition, update=update)
 
     def remove(self, condition = None):
-        pass
-        #Update.parse(condition, Items(self.define))
-        #return self.db.delete_one(condition)
+
+        if isinstance(condition, dict):
+            Query.parse(condition, Items(self.define))
+        else:
+            if isinstance(condition, ObjectId):
+                condition = {'_id': condition}
+            else:
+                condition = {'_id': ObjectId(str(condition))}
+
+        #To be updated
+        update = {'$set': {'valid': 0}}
+
+        return self.db.update_one(filter=condition, update=update)
 
     def remove_by(self, condition = None):
-        pass
-        #Update.parse(condition, Items(self.define))
-        #return self.db.delete_many(condition)
+
+        if isinstance(condition, dict):
+            Query.parse(condition, Items(self.define))
+        else:
+            if isinstance(condition, ObjectId):
+                condition = {'_id': condition}
+            else:
+                condition = {'_id': ObjectId(str(condition))}
+
+        # To be updated
+        update = {'$set': {'valid': 0}}
+
+        return self.db.update_many(filter=condition, update=update)
 
     def total(self, condition):
 
@@ -150,13 +182,6 @@ class Model:
         return self.db.count(filter=condition)
 
     def increment(self, condition = None, update = None):
-
-        #if isinstance(condition, str):
-        #    condition = {'_id': ObjectId(condition)}
-        #elif isinstance(condition, ObjectId):
-        #    condition = {'_id': condition}
-        #elif isinstance(condition, dict):
-        #    Query.parse(condition, Items(self.define))
 
         if isinstance(condition, dict):
             Query.parse(condition, Items(self.define))

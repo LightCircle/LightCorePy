@@ -1,7 +1,10 @@
 import os
 import unittest
+from datetime import datetime, date
+
 from light.mongo.model import Model
 from light.constant import Const
+from bson.objectid import ObjectId
 
 CONST = Const()
 
@@ -18,11 +21,11 @@ class TestModel(unittest.TestCase):
     def test_add(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
         #model.add({'schema': 'a', 'nestsii.fields.nestarray.0.date': '2001/01/01', 'valid': '1'})
-        model.add({'schema': 'a', 'nestsii':[{
+        model.add({'schema': 'h', 'nestsii':[{
             'fields':[{
                 'nestarray':[{'date': '2003/01/01'}, {'date': '2004/01/01'}]
             }]
-        }], 'valid': '1'})
+        }], 'valid': '11'})
         model.add({'schema': 'b', 'nestsii':[{
             'fields':[{
                 'nestarray':[{'date': '2005/01/01'}, {'date': '2006/01/01'}]
@@ -32,40 +35,55 @@ class TestModel(unittest.TestCase):
             'fields':[{
                 'nestarray':[{'date': '2007/01/01'}, {'date': '2008/01/01'}]
             }]
-        }], 'valid': '6'})
+        }], 'valid': '16'})
         model.add({'schema': 'f', 'nestsii':[{
             'fields':[{
                 'nestarray':[{'date': '2009/01/01'}, {'date': '2010/01/01'}]
             }]
-        }], 'valid': '6'})
+        }], 'valid': '16'})
+        model.add([
+            {'schema': 'i', 'nestsii': [{
+            'fields': [{
+                'nestarray': [{'date': '2003/01/01'}, {'date': '2004/01/01'}]
+            }]
+        }], 'valid': '12'},
+            {'schema': 'j', 'nestsii': [{
+                'fields': [{
+                    'nestarray': [{'date': '2003/01/01'}, {'date': '2004/01/01'}]
+                }]
+            }], 'valid': '13'}
+        ])
 
     def test_get(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
-        print(model.get({'valid': 2}))
+        print(model.get({'nestsii.fields.nestarray.date': datetime(2003, 1, 1, 0, 0)}))
+        print(model.get("57d8f5661d41c826171820aa"))
+        print(model.get(ObjectId("57d8f5661d41c826171820aa")))
 
     def test_get_by(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
-        print(model.get_by({'valid': 6}))
+        print(model.get_by({'nestsii.fields.nestarray.date': datetime(2003, 1, 1, 0, 0)}))
+        print(model.get_by({'nestsii.fields.nestarray.date': datetime(2003, 1, 1, 0, 0)}, 'valid'))
 
     def test_update(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
-        model.update({'valid': 1}, {'$inc': {'valid': 2}})
+        model.update({'valid': 1}, {'valid': 20})
 
     def test_update_by(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
-        model.update_by({'valid': 6}, {'$inc': {'valid': 3}})
+        model.update_by({'valid': 12}, {'$inc': {'valid': 3}})
 
     def test_remove(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
-        #model.remove({'valid': 3})
+        model.remove('57d8f5661d41c826171820aa')
 
     def test_remove_by(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
-        #model.remove_by({'valid': -1})
+        model.remove_by({'nestsii.fields.nestarray.date': datetime(2003, 1, 1, 0, 0)})
 
     def test_increment(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
-        model.increment({'valid': 2}, {'$inc': {'valid': 2}})
+        model.increment({'valid': 3}, {'$inc': {'valid': 2}})
 
     def test_total(self):
         model = Model('LightDB', 'light', 'unittest', self.define)

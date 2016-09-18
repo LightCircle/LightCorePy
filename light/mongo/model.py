@@ -112,11 +112,12 @@ class Model:
         Update.parse(data, Items(self.define))
         return self.db.insert_one(data).inserted_id
 
-    def update(self, condition=None, data=None):
+    def update(self, condition=None, data=None, upsert=False):
         """
         Update a single document in this collection.
         :param condition:
         :param data:
+        :param upsert:
         :return:
         """
 
@@ -128,7 +129,7 @@ class Model:
 
         Query.parse(condition, Items(self.define))
         Update.parse(data, Items(self.define))
-        return self.db.update_one(filter=condition, update={'$set': data}).modified_count
+        return self.db.update_one(filter=condition, update=data, upsert=upsert).modified_count
 
     def update_by(self, condition=None, data=None):
         """
@@ -140,7 +141,7 @@ class Model:
 
         Query.parse(condition, Items(self.define))
         Update.parse(data, Items(self.define))
-        return self.db.update_many(filter=condition, update={'$set': data}).modified_count
+        return self.db.update_many(filter=condition, update=data).modified_count
 
     def remove(self, condition=None):
         pass
@@ -153,9 +154,12 @@ class Model:
         # return self.db.delete_many(condition)
 
     def total(self, condition):
-
+        """
+        Get the number of documents in this collection.
+        :param condition:
+        :return:
+        """
         Query.parse(condition, Items(self.define))
-
         return self.db.count(filter=condition)
 
     def increment(self, condition=None, update=None):

@@ -14,6 +14,9 @@ class Data(object):
     def get(self, handler, params=None):
         if params is not None:
             handler.set_params(params)
+
+        handler.params.condition = get_filter(handler, self.board)
+
         data, error = Controller(handler=handler, table=self.table).get()
         return data, error
 
@@ -30,11 +33,24 @@ class Data(object):
         data, error = Controller(handler=handler, table=self.table).add()
         return data, error
 
-    def update(self, handler):
-        data, error = Controller(handler=handler, table=self.table).update()
+    def update(self, handler, params=None, upsert=False):
+        if params is not None:
+            handler.set_params(params)
+
+        handler.params.condition = get_filter(handler, self.board)
+
+        data, error = Controller(handler=handler, table=self.table).update(upsert)
         return data, error
 
-    def remove(self, handler):
+    def upsert(self, handler, params=None):
+        return self.update(handler, params, True)
+
+    def remove(self, handler, params=None):
+        if params is not None:
+            handler.set_params(params)
+
+        handler.params.condition = get_filter(handler, self.board)
+
         data, error = Controller(handler=handler, table=self.table).remove()
         return data, error
 
@@ -42,11 +58,13 @@ class Data(object):
         if params is not None:
             handler.set_params(params)
 
+        handler.params.condition = get_filter(handler, self.board)
+
         data, error = Controller(handler=handler, table=self.table).count()
         return data, error
 
-    def search(self):
-        return {}, None
+    def search(self, handler, params=None):
+        raise NotImplementedError
 
 
 def get_filter(handler, board):
@@ -86,9 +104,14 @@ def get_filter(handler, board):
         compare = Type.compare(operator, key, value)
         and_condition.update(compare)
 
+    # No condition to return empty
+    or_condition = list(or_condition.values())
+    if len(or_condition) < 1:
+        return {}
+
     # If only one condition or group, are removed or comparison operators
     if len(or_condition) == 1:
-        return list(or_condition.values())[0]
+        return or_condition[0]
 
     # Removing empty condition
     return Type.compare('$or', value=or_condition)

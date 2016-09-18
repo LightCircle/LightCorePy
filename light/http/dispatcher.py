@@ -70,8 +70,8 @@ def bind_api(app):
                 continue
 
         # try lookup data rider
-        clazz = getattr(rider, class_name)
-        if clazz:
+        if hasattr(rider, class_name):
+            clazz = getattr(rider, class_name)
             if hasattr(clazz, action):
                 add_api_rule(app, api, clazz, action, method)
                 continue

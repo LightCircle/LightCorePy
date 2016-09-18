@@ -26,25 +26,25 @@ class Controller(object):
         self.uid = handler.uid
         self.model = Model(domain=handler.domain, code=handler.code, table=table, define=define)
         self.condition = handler.params.condition or {}
+        self.data = handler.params.data or {}
         self.id = handler.params.id
         self.select = handler.params.select
-        self.data = handler.params.data
         self.files = handler.params.files
 
     def get(self):
         if 'valid' not in self.condition:
             self.condition['valid'] = CONST.VALID
 
-        data = self.model.get(condition=self.id or self.condition, select=self.select)
-        return data, None
+        result = self.model.get(condition=self.id or self.condition, select=self.select)
+        return result, None
 
     def list(self):
         if 'valid' not in self.condition:
             self.condition['valid'] = CONST.VALID
 
         count = self.model.total(condition=self.condition)
-        data = self.model.get_by(condition=self.condition, select=self.select)
-        return {'totalItems': count, 'items': data}, None
+        result = self.model.get_by(condition=self.condition, select=self.select)
+        return {'totalItems': count, 'items': result}, None
 
     def add(self):
         regular = {
@@ -56,20 +56,36 @@ class Controller(object):
         }
         self.data.update(regular)
 
-        data = self.model.add(data=self.data)
-        return {'_id': data}, None
+        result = self.model.add(data=self.data)
+        return {'_id': result}, None
 
-    def update(self):
+    def total(self):
+        if 'valid' not in self.condition:
+            self.condition['valid'] = CONST.VALID
+
+        count = self.model.total(condition=self.condition)
+        return count, None
+
+    def count(self):
+        return self.total()
+
+    def update(self, upsert=False):
         regular = {'updateAt': datetime.now(), 'updateBy': self.uid}
         self.data.update(regular)
 
-        data = self.model.update(condition=self.id or self.condition, data=self.data)
-        return {'_id': data}, None
+        # If the update operation does not result in an insert, $setOnInsert does nothing.
+        data = {
+            '$set': self.data,
+            '$setOnInsert': {'createAt': datetime.now(), 'createBy': self.uid, 'valid': CONST.VALID}
+        }
+
+        result = self.model.update(condition=self.id or self.condition, data=data, upsert=upsert)
+        return {'_id': result}, None
 
     def remove(self):
         regular = {'updateAt': datetime.now(), 'updateBy': self.uid, 'valid': CONST.INVALID}
-        data = self.model.update(condition=self.id or self.condition, data=regular)
-        return {'_id': data}, None
+        result = self.model.update(condition=self.id or self.condition, data=regular)
+        return {'_id': result}, None
 
     def create_user(self):
         raise NotImplementedError

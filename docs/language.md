@@ -107,3 +107,7 @@
 
  启动
  $ uwsgi --http localhost:7000 --http-websockets --greenlet  --master  --asyncio 100 --wsgi wsgi:application --python-autoreload 1 --pyargv '-local'
+ 
+## map, reduce
+  a = [{'key': list(item.keys())[0], 'select': True} for item in [{'a': 1}, {'b': 2}]]
+  a = [{'key': k, 'select': True} for k, v in {'a': 1, 'b': 2}.items()]

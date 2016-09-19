@@ -165,7 +165,7 @@ class Model:
         Query.parse(condition, Items(self.define))
         return self.db.count(filter=condition)
 
-    def increment(self, condition=None, update=None):
+    def increment(self, condition=None, update=None, upsert=True):
         """
         Accumulation
         :param condition:
@@ -180,7 +180,7 @@ class Model:
         Query.parse(condition, Items(self.define))
         Update.parse(update, Items(self.define))
 
-        return self.db.find_one_and_update(filter=condition, update=update)
+        return self.db.find_one_and_update(filter=condition, update=update, upsert=upsert)
 
     def distinct(self, key=None, condition=None):
         """

@@ -11,6 +11,7 @@ from gridfs.errors import NoFile
 
 from light.mongo.mapping import Update, Query
 from light.mongo.define import Items
+from light.mongo.type import Boolean
 
 CONST = Const()
 
@@ -75,7 +76,9 @@ class Model:
         # Convert string to dict : a,b,c -> {'a': 1, 'b': 1, 'c': 1}
         if isinstance(select, str):
             select = re.split(r'[, ]', select)
-            select = {select[i]: 1 for i in range(0, len(select))}
+            select = {select[i]: True for i in range(0, len(select))}
+        else:
+            Boolean.parse(select)
 
         # Convert string or object id to filter
         if isinstance(condition, str):
@@ -97,7 +100,9 @@ class Model:
         # Convert string to dict : a,b,c -> {'a': 1, 'b': 1, 'c': 1}
         if isinstance(select, str):
             select = re.split(r'[, ]', select)
-            select = {select[i]: 1 for i in range(0, len(select))}
+            select = {select[i]: True for i in range(0, len(select))}
+        else:
+            Boolean.parse(select)
 
         Query.parse(condition, Items(self.define))
         return list(self.db.find(filter=condition, projection=select))
@@ -110,14 +115,17 @@ class Model:
         """
 
         Update.parse(data, Items(self.define))
-        return self.db.insert_one(data).inserted_id
 
-    def update(self, condition=None, data=None, upsert=False):
+        if isinstance(data, list):
+            return self.db.insert_many(data).inserted_ids
+        else:
+            return self.db.insert_one(data).inserted_id
+
+    def update_by(self, condition=None, data=None, upsert=False):
         """
-        Update a single document in this collection.
+        Update a document(s) in this collection.
         :param condition:
         :param data:
-        :param upsert:
         :return:
         """
 
@@ -129,29 +137,23 @@ class Model:
 
         Query.parse(condition, Items(self.define))
         Update.parse(data, Items(self.define))
-        return self.db.update_one(filter=condition, update=data, upsert=upsert).modified_count
+        return self.db.update_many(filter=condition, update=data, upsert=upsert).modified_count
 
-    def update_by(self, condition=None, data=None):
+    def remove_by(self, condition=None):
         """
-        Update a document(s) in this collection.
+        Remove a document(s) in this collection.
         :param condition:
-        :param data:
         :return:
         """
 
+        # Convert string or object id to filter
+        if isinstance(condition, str):
+            condition = {'_id': ObjectId(condition)}
+        elif isinstance(condition, ObjectId):
+            condition = {'_id': condition}
+
         Query.parse(condition, Items(self.define))
-        Update.parse(data, Items(self.define))
-        return self.db.update_many(filter=condition, update=data).modified_count
-
-    def remove(self, condition=None):
-        pass
-        # Update.parse(condition, Items(self.define))
-        # return self.db.delete_one(condition)
-
-    def remove_by(self, condition=None):
-        pass
-        # Update.parse(condition, Items(self.define))
-        # return self.db.delete_many(condition)
+        return self.db.delete_many(filter=condition).deleted_count
 
     def total(self, condition):
         """
@@ -159,26 +161,23 @@ class Model:
         :param condition:
         :return:
         """
+
         Query.parse(condition, Items(self.define))
         return self.db.count(filter=condition)
 
     def increment(self, condition=None, update=None):
+        """
+        Accumulation
+        :param condition:
+        :param update:
+        :return:
+        """
+        if isinstance(condition, str):
+           condition = {'_id': ObjectId(condition)}
+        elif isinstance(condition, ObjectId):
+           condition = {'_id': condition}
 
-        # if isinstance(condition, str):
-        #    condition = {'_id': ObjectId(condition)}
-        # elif isinstance(condition, ObjectId):
-        #    condition = {'_id': condition}
-        # elif isinstance(condition, dict):
-        #    Query.parse(condition, Items(self.define))
-
-        if isinstance(condition, dict):
-            Query.parse(condition, Items(self.define))
-        else:
-            if isinstance(condition, ObjectId):
-                condition = {'_id': condition}
-            else:
-                condition = {'_id': ObjectId(str(condition))}
-
+        Query.parse(condition, Items(self.define))
         Update.parse(update, Items(self.define))
 
         return self.db.find_one_and_update(filter=condition, update=update)

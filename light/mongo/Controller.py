@@ -47,14 +47,18 @@ class Controller(object):
         return {'totalItems': count, 'items': result}, None
 
     def add(self):
-        regular = {
-            'createAt': datetime.now(),
-            'createBy': self.uid,
-            'updateAt': datetime.now(),
-            'updateBy': self.uid,
-            'valid': CONST.VALID
-        }
-        self.data.update(regular)
+        if not isinstance(self.data, list):
+            self.data = [self.data]
+
+        for data in self.data:
+            regular = {
+                'createAt': datetime.now(),
+                'createBy': self.uid,
+                'updateAt': datetime.now(),
+                'updateBy': self.uid,
+                'valid': CONST.VALID
+            }
+            data.update(regular)
 
         result = self.model.add(data=self.data)
         return {'_id': result}, None
@@ -79,12 +83,12 @@ class Controller(object):
             '$setOnInsert': {'createAt': datetime.now(), 'createBy': self.uid, 'valid': CONST.VALID}
         }
 
-        result = self.model.update(condition=self.id or self.condition, data=data, upsert=upsert)
+        result = self.model.update_by(condition=self.id or self.condition, data=data, upsert=upsert)
         return {'_id': result}, None
 
     def remove(self):
         regular = {'updateAt': datetime.now(), 'updateBy': self.uid, 'valid': CONST.INVALID}
-        result = self.model.update(condition=self.id or self.condition, data=regular)
+        result = self.model.update_by(condition=self.id or self.condition, data=regular)
         return {'_id': result}, None
 
     def create_user(self):

@@ -21,7 +21,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.2',
+    version='0.0.3',
 
     description='Light Core for Python',
     long_description=long_description,
@@ -72,7 +72,17 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['Flask==0.11.1', 'pymongo==3.3.0', 'Jinja2==2.8', 'inflect==0.2.5'],
+    install_requires=[
+        'Flask==0.11.1',
+        'pymongo==3.3.0',
+        'Jinja2==2.8',
+        'inflect==0.2.5',
+        'PyCrypto==2.6.1',
+        'apscheduler==3.2.0',
+        'python-dateutil==2.5.3',
+        'uwsig=2.0.13.1',
+        'Flask-uWSGI-WebSocket=0.5.3'
+    ],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

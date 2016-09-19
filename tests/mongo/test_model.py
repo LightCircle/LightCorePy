@@ -1,6 +1,6 @@
 import os
 import unittest
-from datetime import datetime, date
+from datetime import datetime
 
 from light.mongo.model import Model
 from light.constant import Const
@@ -10,7 +10,6 @@ CONST = Const()
 
 
 class TestModel(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         os.environ[CONST.ENV_LIGHT_DB_HOST] = 'localhost'
@@ -20,33 +19,32 @@ class TestModel(unittest.TestCase):
 
     def test_add(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
-        #model.add({'schema': 'a', 'nestsii.fields.nestarray.0.date': '2001/01/01', 'valid': '1'})
-        model.add({'schema': 'h', 'nestsii':[{
-            'fields':[{
-                'nestarray':[{'date': '2003/01/01'}, {'date': '2004/01/01'}]
+        model.add({'schema': 'h', 'nestsii': [{
+            'fields': [{
+                'nestarray': [{'date': '2003/01/01'}, {'date': '2004/01/01'}]
             }]
         }], 'valid': '11'})
-        model.add({'schema': 'b', 'nestsii':[{
-            'fields':[{
-                'nestarray':[{'date': '2005/01/01'}, {'date': '2006/01/01'}]
+        model.add({'schema': 'b', 'nestsii': [{
+            'fields': [{
+                'nestarray': [{'date': '2005/01/01'}, {'date': '2006/01/01'}]
             }]
         }], 'valid': '2'})
-        model.add({'schema': 'f', 'nestsii':[{
-            'fields':[{
-                'nestarray':[{'date': '2007/01/01'}, {'date': '2008/01/01'}]
+        model.add({'schema': 'f', 'nestsii': [{
+            'fields': [{
+                'nestarray': [{'date': '2007/01/01'}, {'date': '2008/01/01'}]
             }]
         }], 'valid': '16'})
-        model.add({'schema': 'f', 'nestsii':[{
-            'fields':[{
-                'nestarray':[{'date': '2009/01/01'}, {'date': '2010/01/01'}]
+        model.add({'schema': 'f', 'nestsii': [{
+            'fields': [{
+                'nestarray': [{'date': '2009/01/01'}, {'date': '2010/01/01'}]
             }]
         }], 'valid': '16'})
         model.add([
             {'schema': 'i', 'nestsii': [{
-            'fields': [{
-                'nestarray': [{'date': '2003/01/01'}, {'date': '2004/01/01'}]
-            }]
-        }], 'valid': '12'},
+                'fields': [{
+                    'nestarray': [{'date': '2003/01/01'}, {'date': '2004/01/01'}]
+                }]
+            }], 'valid': '12'},
             {'schema': 'j', 'nestsii': [{
                 'fields': [{
                     'nestarray': [{'date': '2003/01/01'}, {'date': '2004/01/01'}]

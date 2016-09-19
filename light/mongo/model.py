@@ -11,6 +11,7 @@ from gridfs.errors import NoFile
 
 from light.mongo.mapping import Update, Query
 from light.mongo.define import Items
+from light.mongo.type import Boolean
 
 CONST = Const()
 
@@ -75,7 +76,9 @@ class Model:
         # Convert string to dict : a,b,c -> {'a': 1, 'b': 1, 'c': 1}
         if isinstance(select, str):
             select = re.split(r'[, ]', select)
-            select = {select[i]: 1 for i in range(0, len(select))}
+            select = {select[i]: True for i in range(0, len(select))}
+        else:
+            Boolean.parse(select)
 
         # Convert string or object id to filter
         if isinstance(condition, str):

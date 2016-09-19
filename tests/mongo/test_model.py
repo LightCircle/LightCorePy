@@ -66,6 +66,11 @@ class TestModel(unittest.TestCase):
         model = Model('LightDB', 'light', 'unittest', self.define)
         self.assertGreater(model.total({'valid': '1'}), 0)
 
+    def test_distinct(self):
+        model = Model('LightDB', 'light', 'unittest', self.define)
+        print(model.distinct('valid'))
+        print(model.distinct('valid', {'nestsii.fields.nestarray.date': datetime(2003, 1, 1, 0, 0)}))
+
     def test_write_file_to_grid(self):
         in_file = 'test_model.py'
         out_file = in_file + '.temp'

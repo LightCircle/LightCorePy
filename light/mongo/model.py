@@ -182,6 +182,17 @@ class Model:
 
         return self.db.find_one_and_update(filter=condition, update=update)
 
+    def distinct(self, key=None, condition=None):
+        """
+        Finds the distinct values for a specified field across a single collection
+        :param condition:
+        :param data:
+        :return:
+        """
+
+        Query.parse(condition, Items(self.define))
+        return self.db.distinct(key=key, filter=condition)
+
     def write_file_to_grid(self, file):
         grid = GridFS(self.db)
         f = open(file, 'rb')

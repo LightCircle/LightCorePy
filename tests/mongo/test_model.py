@@ -51,8 +51,10 @@ class TestModel(unittest.TestCase):
     def test_get(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
         print(model.get({'nestsii.fields.nestarray.date': datetime(2003, 1, 1, 0, 0)}))
-        print(model.get('57e0a9a01d41c810e8828dca'))
-        print(model.get(ObjectId('57e0a9a01d41c810e8828dca')))
+        print(model.get('57e0b76f1d41c81776ced8ca'))
+        print(model.get(ObjectId('57e0b76f1d41c81776ced8ca')))
+        print(model.get({'nestsii.fields.nestarray.date': datetime(2003, 1, 1, 0, 0)}, 'valid'))
+        print(model.get({'nestsii.fields.nestarray.date': datetime(2003, 1, 1, 0, 0)}, {'valid': 1, 'schema': 1}))
 
     def test_get_by(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
@@ -63,14 +65,20 @@ class TestModel(unittest.TestCase):
     def test_update_by(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
         print(model.update_by({'valid': 5}, {'$inc': {'valid': 3}}))
+        print(model.update_by('57e0b76f1d41c81776ced8ca', {'$inc': {'valid': 30}}))
+        print(model.update_by(ObjectId('57e0b76f1d41c81776ced8ca'), {'$inc': {'valid': 30}}))
 
     def test_remove_by(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
         print(model.remove_by({'nestsii.fields.nestarray.date': datetime(2005, 1, 1, 0, 0)}))
+        print(model.remove_by('57e0b76f1d41c81776ced8cc'))
+        print(model.remove_by(ObjectId('57e0b76f1d41c81776ced8cc')))
 
     def test_increment(self):
         model = Model('LightDB', 'light', 'unittest', self.define)
         print(model.increment({'valid': 3}, {'$inc': {'valid': 2}}))
+        print(model.increment('123457791d41c817b4a09b37', {'$inc': {'valid': 57}}))
+        print(model.increment(ObjectId('678907791d41c817b4a09b37'), {'$inc': {'valid': 68}}))
 
     def test_distinct(self):
         model = Model('LightDB', 'light', 'unittest', self.define)

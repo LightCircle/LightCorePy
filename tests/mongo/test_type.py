@@ -99,7 +99,7 @@ class TestType(unittest.TestCase):
 
         result = Boolean.parse('')
         self.assertEqual(result, False)
-        result = Boolean.parse("")
+        result = Boolean.parse('')
         self.assertEqual(result, False)
         result = Boolean.parse('FALSE')
         self.assertEqual(result, False)

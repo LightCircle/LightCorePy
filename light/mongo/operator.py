@@ -6,45 +6,45 @@ class Type(object):
     @staticmethod
     def convert(val):
         if val == 1 or val == '1':
-            return "double"
+            return 'double'
         elif val == 2 or val == '2':
-            return "string"
+            return 'string'
         elif val == 3 or val == '3':
-            return "object"
+            return 'object'
         elif val == 4 or val == '4':
-            return "array"
+            return 'array'
         elif val == 5 or val == '5':
-            return "binData"
+            return 'binData'
         elif val == 6 or val == '6':
-            return "undefined"
+            return 'undefined'
         elif val == 7 or val == '7':
-            return "objectId"
+            return 'objectId'
         elif val == 8 or val == '8':
-            return "bool"
+            return 'bool'
         elif val == 9 or val == '9':
-            return "date"
+            return 'date'
         elif val == 10 or val == '10':
-            return "null"
+            return 'null'
         elif val == 11 or val == '11':
-            return "regex"
+            return 'regex'
         elif val == 12 or val == '12':
-            return "dbPointer"
+            return 'dbPointer'
         elif val == 13 or val == '13':
-            return "javascript"
+            return 'javascript'
         elif val == 14 or val == '14':
-            return "symbol"
+            return 'symbol'
         elif val == 15 or val == '15':
-            return "javascriptWithScope"
+            return 'javascriptWithScope'
         elif val == 16 or val == '16':
-            return "int"
+            return 'int'
         elif val == 17 or val == '17':
-            return "timestamp"
+            return 'timestamp'
         elif val == 18 or val == '18':
-            return "long"
+            return 'long'
         elif val == -1 or val == '-1':
-            return "minKey"
+            return 'minKey'
         elif val == 127 or val == '127':
-            return "maxKey"
+            return 'maxKey'
         else:
             return val
 
@@ -66,7 +66,7 @@ class ReadDotDefine(object):
         if not isinstance(key, str):
             return None
 
-        if key.count(".") == 0:
+        if key.count('.') == 0:
             return define.get(key)
 
         datum = key.split('.')
@@ -152,7 +152,7 @@ class UpdateOperator(object):
 
     @staticmethod
     def _unset(data, defines):
-        # { $unset: { <field1>: "", ... } }
+        # { $unset: { <field1>: '', ... } }
         for key, val in data.items():
             data[key] = ''
 
@@ -224,9 +224,9 @@ class UpdateOperator(object):
     def _pull(data, defines):
         # { $pull: { <field1>: <value|condition>, <field2>: <value|condition>, ... } }
         # case I:   defines.get(key).contents is val
-        #           { $pull: { fruits: { $ in: ["apples", "oranges"]}, vegetables: "carrots"}}
+        #           { $pull: { fruits: { $ in: ['apples', 'oranges']}, vegetables: 'carrots'}}
         # case II:  defines.get(key).contents is Items
-        #           { $pull: { results: { $elemMatch: { score: 8 , item: "B" } } } }
+        #           { $pull: { results: { $elemMatch: { score: 8 , item: 'B' } } } }
         #           { $pull: { results: { answers: { $elemMatch: { q: 2, a: { $gte: 8 } } } } } }
         for key, val in data.items():
             # define = defines.get(key)
@@ -639,7 +639,7 @@ class QueryOperator(object):
     def _elemMatch(data, defines):
         # { <field>: { $elemMatch: { <query1>, <query2>, ... } } }
         # case I:   defines.contents == Items
-        #           e.x. { results: { $elemMatch: { product: "xyz", score: { $gte: 8 } } } }
+        #           e.x. { results: { $elemMatch: { product: 'xyz', score: { $gte: 8 } } } }
         # case II:  defines.contents == Var
         #           e.x. { results: { $elemMatch: { $gte: 80, $lt: 85 } } }
         for key, val in data.items():
@@ -675,19 +675,13 @@ class QueryOperator(object):
                     getattr(QueryOperator, k.replace('$', '_'))(dict_cache, defines)
                     val[k] = dict_cache[k]
 
-
-                    # if define.type != 'Array':
-                    #    data[key] = globals()[define.type].parse(val)
-                    # else:
-                    #    data[key] = globals()[define.contents].parse(val)
-
                     # Mathod I:
                     # for k, v in val.items():
                     #     # e.x. { results: { $elemMatch: { $gte: 80, $lt: 85 } } }
                     #     if k is not None and k.startswith('$'):
                     #         val[k] = globals()[defines.type].parse(v)
                     #         continue
-                    #     # e.x. { results: { $elemMatch: { product: "xyz", score: { $gte: 8 } } } }
+                    #     # e.x. { results: { $elemMatch: { product: 'xyz', score: { $gte: 8 } } } }
                     #     if isinstance(defines.contents, Items):
                     #         define = defines.contents.get(k)
                     #         val[k] = globals()[define.type].parse(v)

@@ -87,6 +87,7 @@ class Model:
             condition = {'_id': condition}
 
         Query.parse(condition, Items(self.define))
+
         return self.db.find_one(filter=condition, projection=select)
 
     def get_by(self, condition=None, select=None):
@@ -105,6 +106,7 @@ class Model:
             Boolean.parse(select)
 
         Query.parse(condition, Items(self.define))
+
         return list(self.db.find(filter=condition, projection=select))
 
     def add(self, data=None):
@@ -137,6 +139,7 @@ class Model:
 
         Query.parse(condition, Items(self.define))
         Update.parse(data, Items(self.define))
+
         return self.db.update_many(filter=condition, update=data, upsert=upsert).modified_count
 
     def remove_by(self, condition=None):
@@ -153,6 +156,7 @@ class Model:
             condition = {'_id': condition}
 
         Query.parse(condition, Items(self.define))
+
         return self.db.delete_many(filter=condition).deleted_count
 
     def total(self, condition):
@@ -163,6 +167,7 @@ class Model:
         """
 
         Query.parse(condition, Items(self.define))
+
         return self.db.count(filter=condition)
 
     def increment(self, condition=None, update=None, upsert=True):
@@ -172,10 +177,11 @@ class Model:
         :param update:
         :return:
         """
+
         if isinstance(condition, str):
-           condition = {'_id': ObjectId(condition)}
+            condition = {'_id': ObjectId(condition)}
         elif isinstance(condition, ObjectId):
-           condition = {'_id': condition}
+            condition = {'_id': condition}
 
         Query.parse(condition, Items(self.define))
         Update.parse(update, Items(self.define))
@@ -191,6 +197,7 @@ class Model:
         """
 
         Query.parse(condition, Items(self.define))
+
         return self.db.distinct(key=key, filter=condition)
 
     def write_file_to_grid(self, file):
@@ -208,12 +215,14 @@ class Model:
         }
 
         f.close()
+
         return result
 
     def write_buffer_to_grid(self):
         raise NotImplementedError
 
     def write_stream_to_grid(self, name, stream, content_type):
+
         return {
             'name': name,
             'contentType': content_type,
@@ -250,6 +259,7 @@ class Model:
             fid = ObjectId(fid)
 
         grid = GridFSBucket(self.db).open_download_stream(fid)
+
         return {
             'name': grid.filename,
             'contentType': grid.content_type,

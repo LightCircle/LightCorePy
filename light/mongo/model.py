@@ -128,6 +128,7 @@ class Model:
         Update a document(s) in this collection.
         :param condition:
         :param data:
+        :param upsert:
         :return:
         """
 
@@ -175,6 +176,7 @@ class Model:
         Accumulation
         :param condition:
         :param update:
+        :param upsert:
         :return:
         """
 
@@ -191,8 +193,8 @@ class Model:
     def distinct(self, key=None, condition=None):
         """
         Finds the distinct values for a specified field across a single collection
+        :param key:
         :param condition:
-        :param data:
         :return:
         """
 

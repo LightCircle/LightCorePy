@@ -57,6 +57,9 @@ def load_config_from_ini():
     if 'app' in config:
         os.environ[CONST.ENV_LIGHT_APP_PORT] = config['app']['port']
         os.environ[CONST.ENV_LIGHT_APP_DOMAIN] = config['app']['domain']
+        os.environ[CONST.ENV_LIGHT_APP_DEV] = config['app']['dev']
+        os.environ[CONST.ENV_LIGHT_APP_MASTER] = config['app']['master']
+        os.environ[CONST.ENV_LIGHT_APP_LOCAL] = config['app']['local']
 
     # mongodb config
     if 'mongodb' in config:

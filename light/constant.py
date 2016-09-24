@@ -109,6 +109,21 @@ class Const(object):
 
     ENV_LIGHT_APP_WEBSOCKET = property(get_env_light_app_websocket)
 
+    def get_env_light_app_dev(self):
+        return 'LIGHTAPP_DEV'
+
+    ENV_LIGHT_APP_DEV = property(get_env_light_app_dev)
+
+    def get_env_light_app_master(self):
+        return 'LIGHTAPP_MASTER'
+
+    ENV_LIGHT_APP_MASTER = property(get_env_light_app_master)
+
+    def get_env_light_app_local(self):
+        return 'LIGHTAPP_LOCAL'
+
+    ENV_LIGHT_APP_LOCAL = property(get_env_light_app_local)
+
     def get_valid(self):
         return 1
 

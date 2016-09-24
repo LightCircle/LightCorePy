@@ -1,5 +1,6 @@
 from light.constant import Const
 from light.cache import Cache
+from light.mongo import type
 
 CONST = Const()
 CONFIG_INSTANCE = None
@@ -74,10 +75,10 @@ class Item(object):
         if target['valueType'] == 'number':
             if '.' in target['value']:
                 return float(target['value'])
-            return int(target['value'])
+            return type.Number.parse(target['value'])
 
         if target['valueType'] == 'boolean':
-            return bool(target['value'])
+            return type.Boolean.convert(target['value'])
 
         if target['valueType'] == 'array':
             return target['value']

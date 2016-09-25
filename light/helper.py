@@ -1,4 +1,5 @@
 import os
+import re
 import string
 import random
 import jinja2
@@ -56,3 +57,26 @@ def random_guid(size=4, upper=False):
     if upper:
         base = string.ascii_uppercase + string.digits
     return ''.join(random.SystemRandom().choice(base) for _ in range(size))
+
+
+def is_mobile(headers):
+    ua = headers['user-agent'] or ''
+
+    is_apple = re.match('iPhone', ua) or re.match('', ua) or re.match('', ua)
+    if is_apple:
+        return True
+
+    is_android = re.match('(?=.*\bAndroid\b)(?=.*\bMobile\b)', ua) or re.match('Android', ua)
+    if is_android:
+        return True
+
+    is_windows = re.match('IEMobile', ua) or re.match('(?=.*\bWindows\b)(?=.*\bARM\b)', ua)
+    if is_windows:
+        return True
+
+    return False
+
+
+def is_browser(headers):
+    ua = headers['user-agent'] or ''
+    return re.match('mozilla.*', ua.lower())

@@ -122,6 +122,7 @@ def add_html_rule(app, url, clazz, action, template):
         data['conf'] = Config()
         data['environ'] = os.environ
         data['dynamic'] = func_dynamic
+        data['csrftoken'] = flask.g.csrftoken
 
         if clazz:
             data['data'] = getattr(clazz, action)(handler)

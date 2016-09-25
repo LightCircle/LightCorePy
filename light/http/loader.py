@@ -3,7 +3,7 @@ import flask
 import configparser
 
 from light import helper
-from light.http import dispatcher
+from light.http import dispatcher, middleware
 from light.cache import Cache
 from light.constant import Const
 from light.model.datarider import Rider
@@ -47,6 +47,9 @@ def setup_flask(app, db):
     # analyse static resource
     app.static_folder = helper.project_path('public') + Config.instance().app.static
     app.static_url_path = Config.instance().app.static
+
+    # setup middleware
+    middleware.setup(app)
 
 
 def load_config_from_ini():

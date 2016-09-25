@@ -1,6 +1,7 @@
 import flask
 import re
 
+from flask import request, session
 from light.configuration import Config
 from light import helper
 
@@ -10,17 +11,17 @@ def setup(app):
 
     @app.before_request
     def authenticate():
-        if flask.request.path.startswith('/static/'):
+        if request.path.startswith('/static/'):
             return
 
         for ignore in config.ignore.auth:
-            if re.match(ignore, flask.request.path):
+            if re.match(ignore, request.path):
                 return
 
-        if 'user' in flask.session:
+        if 'user' in session:
             return
 
-        if helper.is_browser(flask.request.headers):
+        if helper.is_browser(request.headers):
             return flask.redirect(config.app.home)
 
         flask.abort(401)
@@ -29,12 +30,15 @@ def setup(app):
     def csrftoken():
         flask.g.csrftoken = generate_csrf_token()
 
-        if flask.request.method not in ['POST', 'PUT', 'DELETE']:
+        if request.method not in ['POST', 'PUT', 'DELETE']:
             return
 
         for ignore in config.ignore.csrf:
-            if re.match(ignore, flask.request.path):
+            if re.match(ignore, request.path):
                 return
+
+        if request.values['_csrf'] == session['csrftoken']:
+            return
 
         flask.abort(403)
 
@@ -52,8 +56,8 @@ def setup(app):
 
 
 def generate_csrf_token():
-    if 'csrftoken' in flask.session:
-        return flask.session['csrftoken']
+    if 'csrftoken' in session:
+        return session['csrftoken']
 
-    flask.session['csrftoken'] = helper.random_guid(size=12)
-    return flask.session['csrftoken']
+    session['csrftoken'] = helper.random_guid(size=12)
+    return session['csrftoken']

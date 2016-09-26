@@ -74,6 +74,9 @@ class Controller(object):
         return self.total()
 
     def update(self, upsert=False):
+        if 'valid' not in self.condition:
+            self.condition['valid'] = CONST.VALID
+
         regular = {'updateAt': datetime.now(), 'updateBy': self.uid}
         self.data.update(regular)
 
@@ -96,7 +99,7 @@ class Controller(object):
 
     def remove(self):
         regular = {'updateAt': datetime.now(), 'updateBy': self.uid, 'valid': CONST.INVALID}
-        result = self.model.update_by(condition=self.id or self.condition, data=regular)
+        result = self.model.update_by(condition=self.id or self.condition, data={'$set': regular})
         return {'_id': result}, None
 
     def delete(self):

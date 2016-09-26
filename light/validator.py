@@ -1,30 +1,42 @@
-import light.helper
-
-def is_number(data):
-
-    if isinstance(data, int):
-        return True
-
-    if isinstance(data, float):
-        return True
-
-    return False
+import jmespath
 
 
-def is_string(data):
-    if isinstance(data, str):
-        return True
+class Validator(object):
+    def __init__(self, handler):
+        self.handler = handler
 
-    # if isinstance(data, list):
-    #     for d in data:
-    #         if not d:
-    #             return False
+    def is_valid(self, check, validation=None):
+        method = [item for item in validation if item['name'] == check[0]]
+        if len(method) <= 0:
+            return
 
-    a = light.helper.random_guid(4)
-    if len(a) > 4:
+        rule = method[0]['rule']
+        data = jmespath.search(method[0]['key'], {'data': self.handler.params.data})
+
+        result = getattr(Rule(), rule)(data)
+        if not result:
+            return method[0]['message']
+
+
+class Rule(object):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def is_number(data):
+        print(data)
+
+        if isinstance(data, int):
+            return True
+
+        if isinstance(data, float):
+            return True
+
         return False
 
-    return False
+    @staticmethod
+    def is_string(data):
+        if isinstance(data, str):
+            return True
 
-
-is_number(1)
+        return False

@@ -16,6 +16,18 @@ def setup(app):
     config = Config.instance()
 
     @app.before_request
+    def lang():
+        # The cookie takes precedence
+        ua_lang = request.cookies.get(COOKIE_KEY_LANG)
+
+        if not ua_lang:
+            # Ping flask for available languages
+            ua_lang = request.headers.get(COOKIE_KEY_ACCEPT_LANGUAGE).split(',')[0]
+
+        I18n.instance().lang = ua_lang
+        flask.g.lang = ua_lang
+
+    @app.before_request
     def authenticate():
         if request.path.startswith('/static/'):
             return
@@ -49,23 +61,6 @@ def setup(app):
         flask.abort(403)
 
     @app.before_request
-    def lang():
-        # The cookie takes precedence
-        ua_lang = request.cookies.get(COOKIE_KEY_LANG)
-
-        if not ua_lang:
-            # Ping flask for available languages
-            ua_lang = request.headers.get(COOKIE_KEY_ACCEPT_LANGUAGE).split(',')[0]
-
-        I18n.instance().lang = ua_lang
-        flask.g.lang = ua_lang
-
-    @app.after_request
-    def set_lang(response):
-        response.set_cookie(COOKIE_KEY_LANG, flask.g.lang)
-        return response
-
-    @app.before_request
     def policy():
         pass
 
@@ -76,6 +71,11 @@ def setup(app):
     @app.before_request
     def permission():
         pass
+
+    @app.after_request
+    def set_lang(response):
+        response.set_cookie(COOKIE_KEY_LANG, flask.g.lang)
+        return response
 
 
 def generate_csrf_token():

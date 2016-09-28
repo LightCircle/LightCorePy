@@ -1,3 +1,4 @@
+from operator import itemgetter
 from datetime import datetime, date
 from light.constant import Const
 from light.mongo.controller import Controller
@@ -65,6 +66,20 @@ class Data(object):
 
     def search(self, handler, params=None):
         raise NotImplementedError
+
+
+def get_order(handler, board):
+    sorts = sorted(board.sorts, key=itemgetter('index'))
+
+    def parse(item):
+        key = item['key'], order = item['order']
+        if item.dynamic == 'fix':
+            return {key: order}
+
+        dynamic = handler.params.sort or handler.params.order
+        return {dynamic[key]: order}
+
+    return map(parse(item) for item in sorts)
 
 
 def get_filter(handler, board):

@@ -29,6 +29,7 @@ class Controller(object):
         self.data = handler.params.data or {}
         self.id = handler.params.id
         self.select = handler.params.select or handler.params.field
+        self.sort = handler.params.sort
         self.files = handler.params.files
 
     def get(self):
@@ -43,7 +44,7 @@ class Controller(object):
             self.condition['valid'] = CONST.VALID
 
         count = self.model.total(condition=self.condition)
-        result = self.model.get_by(condition=self.condition, select=self.select)
+        result = self.model.get_by(condition=self.condition, select=self.select, sort=self.sort)
         return {'totalItems': count, 'items': result}, None
 
     def add(self):

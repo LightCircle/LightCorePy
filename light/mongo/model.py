@@ -3,7 +3,7 @@ import re
 import inflect
 import mimetypes
 
-from pymongo import MongoClient
+from pymongo import MongoClient, DESCENDING, ASCENDING
 from bson.objectid import ObjectId
 from light.constant import Const
 from gridfs import GridFS, GridFSBucket
@@ -73,6 +73,7 @@ class Model:
         :return:
         """
 
+        # TODO: 移到Operator里
         # Convert string to dict : a,b,c -> {'a': 1, 'b': 1, 'c': 1}
         if isinstance(select, str):
             select = re.split(r'[, ]', select)
@@ -80,6 +81,7 @@ class Model:
         else:
             Boolean.parse(select)
 
+        # TODO: 简化写法, 共同化
         # Convert string or object id to filter
         if isinstance(condition, str):
             condition = {'_id': ObjectId(condition)}
@@ -90,7 +92,7 @@ class Model:
 
         return self.db.find_one(filter=condition, projection=select)
 
-    def get_by(self, condition=None, select=None):
+    def get_by(self, condition=None, select=None, sort=None):
         """
         Query the database.
         :param condition:
@@ -105,9 +107,21 @@ class Model:
         else:
             Boolean.parse(select)
 
+        # TODO: 移到operator里
+        # Convert string list to sort list : [a, b] -> [{'a': DESCENDING, 'b': DESCENDING, '}]
+        # Convert dict to sort list : {a: 'asc', b: 'desc'] -> [{'a': ASCENDING, 'b': DESCENDING, '}]
+        if isinstance(sort, list):
+            sort = [{item: DESCENDING} for item in list]
+        elif isinstance(sort, dict):
+            def parse(val):
+                if val.lower() == 'asc':
+                    return ASCENDING
+                return DESCENDING
+            sort = [{k: parse(v)} for k, v in sort.items()]
+
         Query.parse(condition, Items(self.define))
 
-        return list(self.db.find(filter=condition, projection=select))
+        return list(self.db.find(filter=condition, projection=select, sort=sort))
 
     def add(self, data=None):
         """

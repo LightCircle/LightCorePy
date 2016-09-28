@@ -4,6 +4,12 @@ import re
 from flask import request, session
 from light.configuration import Config
 from light import helper
+from light.i18n import I18n
+
+COOKIE_KEY_LANG = 'light.lang'
+COOKIE_KEY_ACCEPT_LANGUAGE = 'Accept-Language'
+SESSION_KEY_CSRF_TOKEN = 'csrftoken'
+SESSION_KEY_USER = 'user'
 
 
 def setup(app):
@@ -18,7 +24,7 @@ def setup(app):
             if re.match(ignore, request.path):
                 return
 
-        if 'user' in session:
+        if SESSION_KEY_USER in session:
             return
 
         if helper.is_browser(request.headers):
@@ -37,10 +43,27 @@ def setup(app):
             if re.match(ignore, request.path):
                 return
 
-        if request.values['_csrf'] == session['csrftoken']:
+        if request.values['_csrf'] == session[SESSION_KEY_CSRF_TOKEN]:
             return
 
         flask.abort(403)
+
+    @app.before_request
+    def lang():
+        # The cookie takes precedence
+        ua_lang = request.cookies.get(COOKIE_KEY_LANG)
+
+        if not ua_lang:
+            # Ping flask for available languages
+            ua_lang = request.headers.get(COOKIE_KEY_ACCEPT_LANGUAGE).split(',')[0]
+
+        I18n.instance().lang = ua_lang
+        flask.g.lang = ua_lang
+
+    @app.after_request
+    def set_lang(response):
+        response.set_cookie(COOKIE_KEY_LANG, flask.g.lang)
+        return response
 
     @app.before_request
     def policy():
@@ -56,8 +79,8 @@ def setup(app):
 
 
 def generate_csrf_token():
-    if 'csrftoken' in session:
-        return session['csrftoken']
+    if SESSION_KEY_CSRF_TOKEN in session:
+        return session[SESSION_KEY_CSRF_TOKEN]
 
-    session['csrftoken'] = helper.random_guid(size=12)
-    return session['csrftoken']
+    session[SESSION_KEY_CSRF_TOKEN] = helper.random_guid(size=12)
+    return session[SESSION_KEY_CSRF_TOKEN]

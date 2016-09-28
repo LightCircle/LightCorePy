@@ -9,6 +9,7 @@ from light.model.datarider import Rider
 from light.http.context import Context
 from light.configuration import Config
 from light.http import response, websocket
+from light.i18n import I18n
 
 CONST = Const()
 METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'GET', 'GET', 'GET', 'GET']
@@ -123,6 +124,7 @@ def add_html_rule(app, url, clazz, action, template):
         data['environ'] = os.environ
         data['dynamic'] = func_dynamic
         data['csrftoken'] = flask.g.csrftoken
+        data['i'] = I18n.instance().i
 
         if clazz:
             data['data'] = getattr(clazz, action)(handler)

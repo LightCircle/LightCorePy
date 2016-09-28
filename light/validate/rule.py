@@ -9,8 +9,6 @@ class Rule(object):
 
     @staticmethod
     def is_number(data):
-        print(data)
-
         if isinstance(data, int):
             return True
 
@@ -26,11 +24,10 @@ class Rule(object):
 
         return False
 
-    #@staticmethod
-    #def range(data, start, end, inclusive=True):
-    #    if inclusive:
-    #        return start <= data <= end
-    #    else:
-    #        return start < data < end
-
-    # create new ...
+    @staticmethod
+    def range(data, option, inclusive=True):
+        min_len, max_len = [int(x) for x in option]
+        if inclusive:
+            return min_len <= len(data) <= max_len
+        else:
+            return min_len < len(data) < max_len

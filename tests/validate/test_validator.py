@@ -8,7 +8,11 @@ from light.validate.define import Items
 class TestValidator(unittest.TestCase):
     def test_is_valid(self):
         self.handler.params.data['age'] = '1'
-        result = self.validator.is_valid(['a11'], Items(self.validation))
+        result = self.validator.is_valid(['a1'], Items(self.validation))
+        print(result)
+
+        self.handler.params.data['password'] = '123'
+        result = self.validator.is_valid(['be49d0f4'], Items(self.validation))
         print(result)
 
         # self.assertTrue(validator.is_number(1))

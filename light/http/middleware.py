@@ -26,8 +26,8 @@ def setup(app):
             if ua_lang:
                 ua_lang = ua_lang.split(',')[0]
 
-        I18n.instance().lang = ua_lang
-        flask.g.lang = ua_lang
+        I18n.instance().lang = ua_lang or 'zh'
+        flask.g.lang = ua_lang or 'zh'
 
     @app.before_request
     def authenticate():

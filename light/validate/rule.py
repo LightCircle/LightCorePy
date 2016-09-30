@@ -3,8 +3,75 @@ rule.py
 """
 
 import json
+import re
 
 from datetime import datetime, date
+
+"""
+email Regular Expression
+"""
+email_user_regex = re.compile(
+    # dot-atom
+    r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+"
+    r"(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*$"
+    # quoted-string
+    r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|'
+    r"""\\[\001-\011\013\014\016-\177])*"$)""",
+    re.IGNORECASE
+)
+email_domain_regex = re.compile(
+    # domain
+    r'(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+'
+    r'(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?$)'
+    # literal form, ipv4 address (SMTP 4.1.3)
+    r'|^\[(25[0-5]|2[0-4]\d|[0-1]?\d?\d)'
+    r'(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}\]$',
+    re.IGNORECASE)
+
+
+"""
+url Regular Expression
+"""
+url_ip_middle_octet = u"(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5]))"
+url_ip_last_octet = u"(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))"
+url_regex = re.compile(
+    u"^"
+    # protocol identifier
+    u"(?:(?:https?|ftp)://)"
+    # user:pass authentication
+    u"(?:\S+(?::\S*)?@)?"
+    u"(?:"
+    u"(?P<private_ip>"
+    # IP address exclusion
+    # private & local networks
+    u"(?:(?:10|127)" + url_ip_middle_octet + u"{2}" + url_ip_last_octet + u")|"
+    u"(?:(?:169\.254|192\.168)" + url_ip_middle_octet + url_ip_last_octet + u")|"
+    u"(?:172\.(?:1[6-9]|2\d|3[0-1])" + url_ip_middle_octet + url_ip_last_octet + u"))"
+    u"|"
+    # IP address dotted notation octets
+    # excludes loopback network 0.0.0.0
+    # excludes reserved space >= 224.0.0.0
+    # excludes network & broadcast addresses
+    # (first & last IP address of each class)
+    u"(?P<public_ip>"
+    u"(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])"
+    u"" + url_ip_middle_octet + u"{2}"
+    u"" + url_ip_last_octet + u")"
+    u"|"
+    # host name
+    u"(?:(?:[a-z\u00a1-\uffff0-9]-?)*[a-z\u00a1-\uffff0-9]+)"
+    # domain name
+    u"(?:\.(?:[a-z\u00a1-\uffff0-9]-?)*[a-z\u00a1-\uffff0-9]+)*"
+    # TLD identifier
+    u"(?:\.(?:[a-z\u00a1-\uffff]{2,}))"
+    u")"
+    # port number
+    u"(?::\d{2,5})?"
+    # resource path
+    u"(?:/\S*)?"
+    u"$",
+    re.UNICODE | re.IGNORECASE
+)
 
 
 class Rule(object):
@@ -61,6 +128,9 @@ class Rule(object):
 
     @staticmethod
     def is_json(data):
+        if not isinstance(data, str):
+            return False
+
         try:
             json.loads(data)
         except ValueError:
@@ -75,3 +145,53 @@ class Rule(object):
     @staticmethod
     def is_empty(data):
         return data is None
+
+    @staticmethod
+    def is_email(data):
+        if not data or '@' not in data:
+            return False
+
+        user_part, domain_part = data.rsplit('@', 1)
+        if not email_user_regex.match(user_part) or not email_domain_regex.match(domain_part):
+            return False
+
+        return True
+
+    @staticmethod
+    def is_url(data):
+        if not url_regex.match(data):
+            return False
+
+        return True
+
+    @staticmethod
+    def is_ip(data, option):
+        if int(option) == 4:
+            parts = data.split('.')
+            if len(parts) == 4 and all(x.isdigit() for x in parts):
+                numbers = list(int(x) for x in parts)
+                return all(0 <= num < 256 for num in numbers)
+        elif int(option) == 6:
+            parts = data.split(':')
+            if len(parts) > 8:
+                return False
+
+            num_blank = 0
+            for part in parts:
+                if not part:
+                    num_blank += 1
+                else:
+                    try:
+                        value = int(part, 16)
+                    except ValueError:
+                        return False
+                    else:
+                        if value < 0 or value >= 65536:
+                            return False
+
+            if num_blank < 2:
+                return True
+            elif num_blank == 2 and not parts[0] and not parts[1]:
+                return True
+
+        return False

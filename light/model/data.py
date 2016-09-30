@@ -1,3 +1,10 @@
+"""
+排序的设计:
+    排序结果是 handler.params.sort + board.sort
+    参数中指定的sort优先
+    sort的写法是 { a: 'asc', b: 'desc' } 或 { a: 1, b: -1 }
+"""
+
 from operator import itemgetter
 from datetime import datetime, date
 from light.constant import Const
@@ -26,6 +33,8 @@ class Data(object):
             handler.set_params(params)
 
         handler.params.condition = get_filter(handler, self.board)
+        handler.params.sort = get_order(handler, self.board)
+        print(handler.params.sort)
 
         data, error = Controller(handler=handler, table=self.table).list()
         return data, error
@@ -69,17 +78,15 @@ class Data(object):
 
 
 def get_order(handler, board):
-    sorts = sorted(board.sorts, key=itemgetter('index'))
 
-    def parse(item):
-        key = item['key'], order = item['order']
-        if item.dynamic == 'fix':
-            return {key: order}
+    # Sort by index item
+    sorts = sorted(board['sorts'], key=itemgetter('index'))
 
-        dynamic = handler.params.sort or handler.params.order
-        return {dynamic[key]: order}
+    # Convert data format, and combined with user-specified content
+    order = handler.params.sort or {}
+    sorts = {i['key']: i['order'] for i in sorts if i['key'] not in order}
 
-    return map(parse(item) for item in sorts)
+    return {**order, **sorts}
 
 
 def get_filter(handler, board):
@@ -145,4 +152,4 @@ def get_reserved(handler, keyword):
     if keyword == '$corp':
         return handler.corp
 
-    return keyword;
+    return keyword

@@ -108,16 +108,16 @@ class Model:
             Boolean.parse(select)
 
         # TODO: 移到operator里
-        # Convert string list to sort list : [a, b] -> [{'a': DESCENDING, 'b': DESCENDING, '}]
-        # Convert dict to sort list : {a: 'asc', b: 'desc'] -> [{'a': ASCENDING, 'b': DESCENDING, '}]
+        # Convert string list to sort list : [a, b] -> [('a', DESCENDING), ('b', DESCENDING)]
+        # Convert dict to sort list : {a: 'asc', b: 'desc'] -> [('a': ASCENDING), ('b': DESCENDING)]
         if isinstance(sort, list):
-            sort = [{item: DESCENDING} for item in list]
+            sort = [[item, DESCENDING] for item in list]
         elif isinstance(sort, dict):
             def parse(val):
                 if val.lower() == 'asc':
                     return ASCENDING
                 return DESCENDING
-            sort = [{k: parse(v)} for k, v in sort.items()]
+            sort = [[k, parse(v)] for k, v in sort.items()]
 
         Query.parse(condition, Items(self.define))
 

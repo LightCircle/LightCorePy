@@ -1,5 +1,7 @@
 import flask
 import os
+
+from light.http import unparam
 from light.constant import Const
 
 
@@ -22,7 +24,7 @@ class Context(object):
         if param is not None:
             self._params = Params(param)
         else:
-            self._params = Params(flask.request.values.to_dict(), flask.request.get_json())
+            self._params = Params(flask.request.form.to_dict(), unparam.query(), flask.request.get_json())
 
     def copy(self, params):
         handler = Context(param=params)
@@ -125,10 +127,10 @@ class Context(object):
 
 
 class Params(object):
-    def __init__(self, values=None, data=None):
-        self.values = {}
-        if values:
-            self.values = values
+    def __init__(self, form=None, query=None, data=None):
+        self.values = form or {}
+        if query:
+            self.values = query
         if data:
             self.values.update(data)
 

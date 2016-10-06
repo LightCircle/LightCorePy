@@ -11,7 +11,7 @@ from gridfs.errors import NoFile
 
 from light.mongo.mapping import Update, Query
 from light.mongo.define import Items
-from light.mongo.type import Boolean
+from light.mongo.type import Boolean, Number
 
 CONST = Const()
 
@@ -92,7 +92,7 @@ class Model:
 
         return self.db.find_one(filter=condition, projection=select)
 
-    def get_by(self, condition=None, select=None, sort=None):
+    def get_by(self, condition=None, select=None, sort=None, skip=0, limit=100):
         """
         Query the database.
         :param condition:
@@ -119,9 +119,11 @@ class Model:
                 return DESCENDING
             sort = [[k, parse(v)] for k, v in sort.items()]
 
-        Query.parse(condition, Items(self.define))
+        skip = Number.convert(skip)
+        limit = Number.convert(limit)
 
-        return list(self.db.find(filter=condition, projection=select, sort=sort))
+        Query.parse(condition, Items(self.define))
+        return list(self.db.find(filter=condition, projection=select, sort=sort, skip=skip, limit=limit))
 
     def add(self, data=None):
         """

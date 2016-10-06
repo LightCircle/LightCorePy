@@ -1,3 +1,5 @@
+import sys
+
 class Const(object):
     def get_system_db(self):
         return 'LightDB'
@@ -133,3 +135,8 @@ class Const(object):
         return 0
 
     INVALID = property(get_invalid)
+
+    def get_max_int(self):
+        return sys.maxsize
+
+    MAX_INT = property(get_max_int)

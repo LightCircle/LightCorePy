@@ -34,7 +34,6 @@ class Data(object):
 
         handler.params.condition = get_filter(handler, self.board)
         handler.params.sort = get_order(handler, self.board)
-        print(handler.params.sort)
 
         data, error = Controller(handler=handler, table=self.table).list()
         return data, error

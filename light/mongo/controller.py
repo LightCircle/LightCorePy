@@ -31,6 +31,11 @@ class Controller(object):
         self.select = handler.params.select or handler.params.field
         self.sort = handler.params.sort
         self.files = handler.params.files
+        self.skip = handler.params.skip
+        self.limit = handler.params.limit or 100
+
+        if self.skip is None:
+            self.skip = 0
 
     def get(self):
         if 'valid' not in self.condition:
@@ -44,7 +49,9 @@ class Controller(object):
             self.condition['valid'] = CONST.VALID
 
         count = self.model.total(condition=self.condition)
-        result = self.model.get_by(condition=self.condition, select=self.select, sort=self.sort)
+        result = self.model.get_by(
+            condition=self.condition, select=self.select, sort=self.sort, skip=self.skip, limit=self.limit
+        )
         return {'totalItems': count, 'items': result}, None
 
     def add(self):

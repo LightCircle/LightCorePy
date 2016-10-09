@@ -1,5 +1,10 @@
 import jmespath
 
+from light.mongo.model import Model
+from light.constant import Const
+
+CONST = Const()
+
 
 class Validator(object):
     def __init__(self, handler):
@@ -12,8 +17,9 @@ class Validator(object):
 
         rule = method[0]['rule']
         data = jmespath.search(method[0]['key'], {'data': self.handler.params.data})
+        option = method[0]['option']
 
-        result = getattr(Rule(), rule)(data)
+        result = getattr(Rule(), rule)(self.handler, data, option)
         if not result:
             return method[0]['message']
 
@@ -23,7 +29,7 @@ class Rule(object):
         pass
 
     @staticmethod
-    def is_number(data):
+    def is_number(handler, data, option):
         print(data)
 
         if isinstance(data, int):
@@ -35,8 +41,14 @@ class Rule(object):
         return False
 
     @staticmethod
-    def is_string(data):
+    def is_string(handler, data, option):
         if isinstance(data, str):
             return True
 
         return False
+
+    @staticmethod
+    def is_unique(handler, data, option):
+        model = Model(domain=handler.domain, code=handler.code, table=option['table'])
+        count = model.total(condition=option['condition'])
+        return count <= 0

@@ -25,9 +25,6 @@ class Validator(object):
             rule = validator.rule
             data = jmespath.search(validator.key, {'data': self.handler.params.data})
 
-            if validator.option is None:
-                result = getattr(Rule(), rule)(data)
-            else:
-                result = getattr(Rule(), rule)(data, validator.option)
+            result = getattr(Rule(), rule)(self.handler, data, validator.option)
             if not result:
                 return validator.message

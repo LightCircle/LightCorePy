@@ -1,10 +1,14 @@
+import os
 import unittest
 import json
 
+from datetime import datetime
 from light.validate.validator import Validator
 from light.http.context import Context
 from light.validate.define import Items
-from datetime import datetime
+from light.constant import Const
+
+CONST = Const()
 
 
 class TestValidator(unittest.TestCase):
@@ -101,14 +105,21 @@ class TestValidator(unittest.TestCase):
         result = self.validator.is_valid(['h'], Items(self.validation))
         print(result)
 
-        # self.assertTrue(validator.is_number(1))
-        # self.assertFalse(validator.is_number('1'))
-        # self.assertTrue(validator.is_number(1.0))
-        # self.assertFalse(validator.is_number(None))
-        # self.assertFalse(validator.is_number(True))
+        result = self.validator.is_valid(['cd49d0f4'], Items(self.validation))
+        print(result)
+
+        result = self.validator.is_valid(['af49d0f4'], Items(self.validation))
+        print(result)
 
     def setUp(self):
-        self.handler = Context(uid='000000000000000000000001', domain='LightDB', code='light', param={'data': {}})
+        os.environ[CONST.ENV_LIGHT_DB_HOST] = 'localhost'
+        os.environ[CONST.ENV_LIGHT_DB_PORT] = '27017'
+        # os.environ[CONST.ENV_LIGHT_DB_HOST] = 'db.alphabets.cn'
+        # os.environ[CONST.ENV_LIGHT_DB_PORT] = '57017'
+        # os.environ[CONST.ENV_LIGHT_DB_USER] = 'light'
+        # os.environ[CONST.ENV_LIGHT_DB_PASS] = '2e35501c2b7e'
+
+        self.handler = Context(uid='000000000000000000000001', domain='LightDBII', code='light', param={'data': {}})
         self.validator = Validator(self.handler)
         self.validation = [
             {
@@ -116,36 +127,40 @@ class TestValidator(unittest.TestCase):
                 'name': 'a1',
                 'rule': 'is_number',
                 'key': 'data.age',
-                'message': 'number not correct'
+                'message': 'number not correct',
+                'option': []
             },
             {
                 'group': 'date_test',
                 'name': 'b',
                 'rule': 'is_date',
                 'key': 'data.date',
-                'message': 'date not correct'
+                'message': 'date not correct',
+                'option': []
             },
             {
-                'group': 'dcontains_test',
+                'group': 'contains_test',
                 'name': 'c',
                 'rule': 'contains',
                 'key': 'data.list',
                 'option': ['1', '2', '3'],
-                'message': '[\'1\', \'2\', \'3\'] not contains'
+                'message': '[\'1\', \'2\', \'3\'] not contains',
             },
             {
                 'group': 'email_test',
                 'name': 'd',
                 'rule': 'is_email',
                 'key': 'data.email',
-                'message': 'email not correct'
+                'message': 'email not correct',
+                'option': []
             },
             {
                 'group': 'url_test',
                 'name': 'e',
                 'rule': 'is_url',
                 'key': 'data.url',
-                'message': 'url not correct'
+                'message': 'url not correct',
+                'option': []
             },
             {
                 'group': 'ip_test',
@@ -160,7 +175,8 @@ class TestValidator(unittest.TestCase):
                 'name': 'h',
                 'rule': 'is_json',
                 'key': 'data.json',
-                'message': 'json not correct'
+                'message': 'json not correct',
+                'option': []
             },
             {
                 'group': '/api/access/add',
@@ -171,15 +187,29 @@ class TestValidator(unittest.TestCase):
                 'message': '密码长度需要在4-16位'
             },
             {
-                'group': '',
-                'name': 'staff_check_10',
-                'rule': 'exists',
-                'key': 'data.project',
+                'group': 'exists_test',
+                'name': 'cd49d0f4',
+                'rule': 'is_exists',
+                'key': 'data.id',
                 'option': {
-                    'table': 'group',
-                    'conditions': {
-                        '_id': '$data.project'
+                    'table': 'user',
+                    'condition': {
+                        'id': {'$in': ['she', 'luoha']}
                     }
-                }
+                },
+                'message': '值不存在表里'
+            },
+            {
+                'group': 'unique_test',
+                'name': 'af49d0f4',
+                'rule': 'is_unique',
+                'key': 'data.id',
+                'option': {
+                    'table': 'user',
+                    'condition': {
+                        'id': 'shen'
+                    }
+                },
+                'message': '用户名已经存在'
             }
         ]

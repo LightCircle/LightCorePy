@@ -6,6 +6,7 @@ import json
 import re
 
 from datetime import datetime, date
+from light.mongo.model import Model
 
 """
 email Regular Expression
@@ -79,55 +80,52 @@ class Rule(object):
         pass
 
     @staticmethod
-    def is_number(data):
+    def is_number(handler, data, option):
         return isinstance(data, int) or isinstance(data, float)
 
     @staticmethod
-    def is_string(data):
+    def is_string(handler, data, option):
         return isinstance(data, str)
 
     @staticmethod
-    def range(data, option, inclusive=True):
+    def range(handler, data, option):
         min_len, max_len = [int(x) for x in option]
-        if inclusive:
-            return min_len <= len(data) <= max_len
-        else:
-            return min_len < len(data) < max_len
+        return min_len <= len(data) <= max_len
 
     @staticmethod
-    def is_boolean(data):
+    def is_boolean(handler, data, option):
         return isinstance(data, bool)
 
     @staticmethod
-    def is_date(data):
+    def is_date(handler, data, option):
         return isinstance(data, date) or isinstance(data, datetime)
 
     @staticmethod
-    def is_array(data):
+    def is_array(handler, data, option):
         return isinstance(data, (list, tuple))
 
     @staticmethod
-    def equals(data, option):
+    def equals(handler, data, option):
         return data == option
 
     @staticmethod
-    def gt(data, option):
+    def gt(handler, data, option):
         return data > option
 
     @staticmethod
-    def gte(data, option):
+    def gte(handler, data, option):
         return data >= option
 
     @staticmethod
-    def lt(data, option):
+    def lt(handler, data, option):
         return data < option
 
     @staticmethod
-    def lte(data, option):
+    def lte(handler, data, option):
         return data <= option
 
     @staticmethod
-    def is_json(data):
+    def is_json(handler, data, option):
         if not isinstance(data, str):
             return False
 
@@ -139,15 +137,15 @@ class Rule(object):
         return True
 
     @staticmethod
-    def contains(data, option):
+    def contains(handler, data, option):
         return data in option
 
     @staticmethod
-    def is_empty(data):
+    def is_empty(handler, data, option):
         return data is None
 
     @staticmethod
-    def is_email(data):
+    def is_email(handler, data, option):
         if not data or '@' not in data:
             return False
 
@@ -158,14 +156,14 @@ class Rule(object):
         return True
 
     @staticmethod
-    def is_url(data):
+    def is_url(handler, data, option):
         if not url_regex.match(data):
             return False
 
         return True
 
     @staticmethod
-    def is_ip(data, option):
+    def is_ip(handler, data, option):
         if int(option) == 4:
             parts = data.split('.')
             if len(parts) == 4 and all(x.isdigit() for x in parts):
@@ -195,3 +193,15 @@ class Rule(object):
                 return True
 
         return False
+
+    @staticmethod
+    def is_unique(handler, data, option):
+        model = Model(domain=handler.domain, code=handler.code, table=option['table'])
+        count = model.total(condition=option['condition'])
+        return count <= 0
+
+    @staticmethod
+    def is_exists(handler, data, option):
+        model = Model(domain=handler.domain, code=handler.code, table=option['table'])
+        count = model.total(condition=option['condition'])
+        return count > 0

@@ -432,97 +432,97 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(query['flag']['$exists'], True)
 
         # $type
-        query = {'elem': {'$type': 1}}
+        query = {'abstract': {'$type': 1}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'double')
+        self.assertEqual(query['abstract']['$type'], 'double')
 
-        query = {'elem': {'$type': '1'}}
+        query = {'abstract': {'$type': '1'}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'double')
+        self.assertEqual(query['abstract']['$type'], 'double')
 
-        query = {'elem': {'$type': 2}}
+        query = {'abstract': {'$type': 2}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'string')
+        self.assertEqual(query['abstract']['$type'], 'string')
 
-        query = {'elem': {'$type': '3'}}
+        query = {'abstract': {'$type': '3'}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'object')
+        self.assertEqual(query['abstract']['$type'], 'object')
 
-        query = {'elem': {'$type': 4}}
+        query = {'abstract': {'$type': 4}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'array')
+        self.assertEqual(query['abstract']['$type'], 'array')
 
-        query = {'elem': {'$type': '5'}}
+        query = {'abstract': {'$type': '5'}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'binData')
+        self.assertEqual(query['abstract']['$type'], 'binData')
 
-        query = {'elem': {'$type': 6}}
+        query = {'abstract': {'$type': 6}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'undefined')
+        self.assertEqual(query['abstract']['$type'], 'undefined')
 
-        query = {'elem': {'$type': '7'}}
+        query = {'abstract': {'$type': '7'}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'objectId')
+        self.assertEqual(query['abstract']['$type'], 'objectId')
 
-        query = {'elem': {'$type': 8}}
+        query = {'abstract': {'$type': 8}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'bool')
+        self.assertEqual(query['abstract']['$type'], 'bool')
 
-        query = {'elem': {'$type': '9'}}
+        query = {'abstract': {'$type': '9'}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'date')
+        self.assertEqual(query['abstract']['$type'], 'date')
 
-        query = {'elem': {'$type': 10}}
+        query = {'abstract': {'$type': 10}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'null')
+        self.assertEqual(query['abstract']['$type'], 'null')
 
-        query = {'elem': {'$type': '11'}}
+        query = {'abstract': {'$type': '11'}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'regex')
+        self.assertEqual(query['abstract']['$type'], 'regex')
 
-        query = {'elem': {'$type': 12}}
+        query = {'abstract': {'$type': 12}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'dbPointer')
+        self.assertEqual(query['abstract']['$type'], 'dbPointer')
 
-        query = {'elem': {'$type': '13'}}
+        query = {'abstract': {'$type': '13'}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'javascript')
+        self.assertEqual(query['abstract']['$type'], 'javascript')
 
-        query = {'elem': {'$type': 14}}
+        query = {'abstract': {'$type': 14}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'symbol')
+        self.assertEqual(query['abstract']['$type'], 'symbol')
 
-        query = {'elem': {'$type': '15'}}
+        query = {'abstract': {'$type': '15'}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'javascriptWithScope')
+        self.assertEqual(query['abstract']['$type'], 'javascriptWithScope')
 
-        query = {'elem': {'$type': 16}}
+        query = {'abstract': {'$type': 16}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'int')
+        self.assertEqual(query['abstract']['$type'], 'int')
 
-        query = {'elem': {'$type': '17'}}
+        query = {'abstract': {'$type': '17'}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'timestamp')
+        self.assertEqual(query['abstract']['$type'], 'timestamp')
 
-        query = {'elem': {'$type': 18}}
+        query = {'abstract': {'$type': 18}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'long')
+        self.assertEqual(query['abstract']['$type'], 'long')
 
-        query = {'elem': {'$type': '-1'}}
+        query = {'abstract': {'$type': '-1'}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'minKey')
+        self.assertEqual(query['abstract']['$type'], 'minKey')
 
-        query = {'elem': {'$type': -1}}
+        query = {'abstract': {'$type': -1}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'minKey')
+        self.assertEqual(query['abstract']['$type'], 'minKey')
 
-        query = {'elem': {'$type': '127'}}
+        query = {'abstract': {'$type': '127'}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'maxKey')
+        self.assertEqual(query['abstract']['$type'], 'maxKey')
 
-        query = {'elem': {'$type': 127}}
+        query = {'abstract': {'$type': 127}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['elem']['$type'], 'maxKey')
+        self.assertEqual(query['abstract']['$type'], 'maxKey')
 
         """
         test mongodb operator : Evaluation
@@ -605,9 +605,9 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(query['fields']['$elemMatch']['$lt'], '5')
 
         # $size
-        query = {'item': {'$size': '1'}}
+        query = {'fields': {'$size': '1'}}
         Query.parse(query, Items(self.define))
-        self.assertEqual(query['item']['$size'], 1)
+        self.assertEqual(query['fields']['$size'], 1)
 
     def test_default_item(self):
         define = Items(self.define)
@@ -665,6 +665,14 @@ class TestMapping(unittest.TestCase):
                 'description': '',
                 'reserved': 2,
                 'contents': 'Object'
+            },
+            # Object type
+            'abstract': {
+                'type': 'Object',
+                'name': 'Abstract名',
+                'default': '',
+                'description': '',
+                'reserved': 2,
             },
             # Array type
             'selects': {

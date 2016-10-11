@@ -66,6 +66,10 @@ class Query(object):
             # define = defines.get(key)
             define = ReadDotDefine.dotparse(key, defines)
 
+            # If define not found, then parse next
+            if define is None:
+                continue
+
             # Parse struct ex. {field: {$set: val, $exist: val, ...}}
             if isinstance(val, dict):
                 for k, v in val.items():
@@ -73,10 +77,6 @@ class Query(object):
                         dict_cache = {k: v}
                         QueryOperator().parse(k, dict_cache, define)
                         val[k] = dict_cache[k]
-                continue
-
-            # If define not found, then parse next
-            if define is None:
                 continue
 
             # Parse basic type

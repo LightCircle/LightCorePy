@@ -105,9 +105,11 @@ class TestValidator(unittest.TestCase):
         result = self.validator.is_valid(['h'], Items(self.validation))
         print(result)
 
+        self.handler.params.data['email'] = ['h.luo@alphabets.cn', 'h.shen@alphabets.cn']
         result = self.validator.is_valid(['cd49d0f4'], Items(self.validation))
         print(result)
 
+        self.handler.params.data['email'] = 'h.shen@alphabets.cn'
         result = self.validator.is_valid(['af49d0f4'], Items(self.validation))
         print(result)
 
@@ -194,7 +196,8 @@ class TestValidator(unittest.TestCase):
                 'option': {
                     'table': 'user',
                     'condition': {
-                        'id': {'$in': ['she', 'luoha']}
+                        'id': {'$in': ['shen', 'luohao']},
+                        'email': '$data.email'
                     }
                 },
                 'message': '值不存在表里'
@@ -207,7 +210,8 @@ class TestValidator(unittest.TestCase):
                 'option': {
                     'table': 'user',
                     'condition': {
-                        'id': 'shen'
+                        'id': 'shen',
+                        'email': '$data.email'
                     }
                 },
                 'message': '用户名已经存在'

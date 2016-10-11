@@ -4,6 +4,7 @@ rule.py
 
 import json
 import re
+import jmespath
 
 from datetime import datetime, date
 from light.mongo.model import Model
@@ -197,11 +198,20 @@ class Rule(object):
     @staticmethod
     def is_unique(handler, data, option):
         model = Model(domain=handler.domain, code=handler.code, table=option['table'])
+        for key, val in option['condition'].items():
+            if isinstance(val, str) and val.count('$') == 1:
+                option['condition'][key] = jmespath.search(val.replace('$', ''), {'data': handler.params.data})
         count = model.total(condition=option['condition'])
         return count <= 0
 
     @staticmethod
     def is_exists(handler, data, option):
         model = Model(domain=handler.domain, code=handler.code, table=option['table'])
+        for key, val in option['condition'].items():
+            if isinstance(val, str) and val.count('$') == 1:
+                condition_data = jmespath.search(val.replace('$', ''), {'data': handler.params.data})
+                if not isinstance(condition_data, list):
+                    condition_data = list(condition_data)
+                option['condition'][key] = {'$in': condition_data}
         count = model.total(condition=option['condition'])
         return count > 0

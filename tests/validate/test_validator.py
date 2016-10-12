@@ -113,6 +113,10 @@ class TestValidator(unittest.TestCase):
         result = self.validator.is_valid(['af49d0f4'], Items(self.validation))
         print(result)
 
+        self.handler.params.data['id'] = ''
+        result = self.validator.is_valid(['zx49d0f4'], Items(self.validation))
+        print(result)
+
     def setUp(self):
         os.environ[CONST.ENV_LIGHT_DB_HOST] = 'localhost'
         os.environ[CONST.ENV_LIGHT_DB_PORT] = '27017'
@@ -215,5 +219,13 @@ class TestValidator(unittest.TestCase):
                     }
                 },
                 'message': '用户名已经存在'
+            },
+            {
+                'group': 'required_test',
+                'name': 'zx49d0f4',
+                'rule': 'is_required',
+                'key': 'data.id',
+                'option': '',
+                'message': '这是必填字段'
             }
         ]

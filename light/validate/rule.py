@@ -46,31 +46,31 @@ url_regex = re.compile(
     # IP address exclusion
     # private & local networks
     u"(?:(?:10|127)" + url_ip_middle_octet + u"{2}" + url_ip_last_octet + u")|"
-                                                                          u"(?:(?:169\.254|192\.168)" + url_ip_middle_octet + url_ip_last_octet + u")|"
-                                                                                                                                                  u"(?:172\.(?:1[6-9]|2\d|3[0-1])" + url_ip_middle_octet + url_ip_last_octet + u"))"
-                                                                                                                                                                                                                               u"|"
+    u"(?:(?:169\.254|192\.168)" + url_ip_middle_octet + url_ip_last_octet + u")|"
+    u"(?:172\.(?:1[6-9]|2\d|3[0-1])" + url_ip_middle_octet + url_ip_last_octet + u"))"
+    u"|"
     # IP address dotted notation octets
     # excludes loopback network 0.0.0.0
     # excludes reserved space >= 224.0.0.0
     # excludes network & broadcast addresses
     # (first & last IP address of each class)
-                                                                                                                                                                                                                               u"(?P<public_ip>"
-                                                                                                                                                                                                                               u"(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])"
-                                                                                                                                                                                                                               u"" + url_ip_middle_octet + u"{2}"
-                                                                                                                                                                                                                                                           u"" + url_ip_last_octet + u")"
-                                                                                                                                                                                                                                                                                     u"|"
+    u"(?P<public_ip>"
+    u"(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])"
+    u"" + url_ip_middle_octet + u"{2}"
+    u"" + url_ip_last_octet + u")"
+    u"|"
     # host name
-                                                                                                                                                                                                                                                                                     u"(?:(?:[a-z\u00a1-\uffff0-9]-?)*[a-z\u00a1-\uffff0-9]+)"
+    u"(?:(?:[a-z\u00a1-\uffff0-9]-?)*[a-z\u00a1-\uffff0-9]+)"
     # domain name
-                                                                                                                                                                                                                                                                                     u"(?:\.(?:[a-z\u00a1-\uffff0-9]-?)*[a-z\u00a1-\uffff0-9]+)*"
+    u"(?:\.(?:[a-z\u00a1-\uffff0-9]-?)*[a-z\u00a1-\uffff0-9]+)*"
     # TLD identifier
-                                                                                                                                                                                                                                                                                     u"(?:\.(?:[a-z\u00a1-\uffff]{2,}))"
-                                                                                                                                                                                                                                                                                     u")"
+    u"(?:\.(?:[a-z\u00a1-\uffff]{2,}))"
+    u")"
     # port number
-                                                                                                                                                                                                                                                                                     u"(?::\d{2,5})?"
+    u"(?::\d{2,5})?"
     # resource path
-                                                                                                                                                                                                                                                                                     u"(?:/\S*)?"
-                                                                                                                                                                                                                                                                                     u"$",
+    u"(?:/\S*)?"
+    u"$",
     re.UNICODE | re.IGNORECASE
 )
 
@@ -218,3 +218,15 @@ class Rule(object):
                 option['condition'][key] = {'$in': condition_data}
         count = model.total(condition=option['condition'])
         return count > 0
+
+    @staticmethod
+    def to_number(handler, data, option):
+        assert isinstance(data, str)
+        int_regex = re.compile(r'^(\-|\+)?\d+$')
+        float_regex = re.compile(r'^(\-|\+)?\d+(\.\d+){1}$')
+        if int_regex.match(data):
+            return int(data)
+        elif float_regex.match(data):
+            return float(data)
+
+        return False

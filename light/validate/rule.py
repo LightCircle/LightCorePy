@@ -5,6 +5,7 @@ rule.py
 import json
 import re
 import jmespath
+import dateutil.parser
 
 from datetime import datetime, date
 from light.mongo.model import Model
@@ -220,8 +221,10 @@ class Rule(object):
         return count > 0
 
     @staticmethod
-    def to_number(handler, data, option):
-        assert isinstance(data, str)
+    def to_number(data):
+        if not isinstance(data, str):
+            return data
+
         int_regex = re.compile(r'^(\-|\+)?\d+$')
         float_regex = re.compile(r'^(\-|\+)?\d+(\.\d+){1}$')
         if int_regex.match(data):
@@ -229,4 +232,27 @@ class Rule(object):
         elif float_regex.match(data):
             return float(data)
 
-        return False
+        return data
+
+    @staticmethod
+    def to_date(data):
+        if not isinstance(data, str):
+            return data
+
+        return dateutil.parser.parse(data)
+
+    @staticmethod
+    def to_boolean(data):
+        if data == 'true' or data == 'True' or data == '1':
+            return True
+        if data == 'false' or data == 'False' or data == '0' or data == '':
+            return False
+
+        return data
+
+    @staticmethod
+    def to_string(data):
+        if data is None:
+            return ''
+
+        return str(data)

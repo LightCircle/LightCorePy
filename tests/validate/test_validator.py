@@ -17,12 +17,32 @@ class TestValidator(unittest.TestCase):
         result = self.validator.is_valid(['a1'], Items(self.validation))
         print(result)
 
+        self.handler.params.data['age'] = '1w'
+        result = self.validator.is_valid(['a1'], Items(self.validation))
+        print(result)
+
+        self.handler.params.data['age'] = '1.1'
+        result = self.validator.is_valid(['a1'], Items(self.validation))
+        print(result)
+
         self.handler.params.data['date'] = '2000/01/01'
+        result = self.validator.is_valid(['b'], Items(self.validation))
+        print(result)
+
+        self.handler.params.data['date'] = '2000-01-01'
         result = self.validator.is_valid(['b'], Items(self.validation))
         print(result)
 
         self.handler.params.data['date'] = datetime(2000, 1, 1, 0, 0)
         result = self.validator.is_valid(['b'], Items(self.validation))
+        print(result)
+
+        self.handler.params.data['boolean'] = 'abc'
+        result = self.validator.is_valid(['bt'], Items(self.validation))
+        print(result)
+
+        self.handler.params.data['boolean'] = 'true'
+        result = self.validator.is_valid(['bt'], Items(self.validation))
         print(result)
 
         self.handler.params.data['list'] = '4'
@@ -132,6 +152,7 @@ class TestValidator(unittest.TestCase):
                 'group': 'number_test',
                 'name': 'a1',
                 'rule': 'is_number',
+                'prerule': ['to_number'],
                 'key': 'data.age',
                 'message': 'number not correct',
                 'option': []
@@ -140,14 +161,25 @@ class TestValidator(unittest.TestCase):
                 'group': 'date_test',
                 'name': 'b',
                 'rule': 'is_date',
+                'prerule': ['to_date'],
                 'key': 'data.date',
                 'message': 'date not correct',
+                'option': []
+            },
+            {
+                'group': 'boolean_test',
+                'name': 'bt',
+                'rule': 'is_boolean',
+                'prerule': ['to_boolean'],
+                'key': 'data.boolean',
+                'message': 'boolean not correct',
                 'option': []
             },
             {
                 'group': 'contains_test',
                 'name': 'c',
                 'rule': 'contains',
+                'prerule': [],
                 'key': 'data.list',
                 'option': ['1', '2', '3'],
                 'message': '[\'1\', \'2\', \'3\'] not contains',
@@ -156,6 +188,7 @@ class TestValidator(unittest.TestCase):
                 'group': 'email_test',
                 'name': 'd',
                 'rule': 'is_email',
+                'prerule': [],
                 'key': 'data.email',
                 'message': 'email not correct',
                 'option': []
@@ -164,6 +197,7 @@ class TestValidator(unittest.TestCase):
                 'group': 'url_test',
                 'name': 'e',
                 'rule': 'is_url',
+                'prerule': [],
                 'key': 'data.url',
                 'message': 'url not correct',
                 'option': []
@@ -172,6 +206,7 @@ class TestValidator(unittest.TestCase):
                 'group': 'ip_test',
                 'name': 'f',
                 'rule': 'is_ip',
+                'prerule': [],
                 'key': 'data.ip',
                 'option': '4',
                 'message': 'ip not correct'
@@ -180,6 +215,7 @@ class TestValidator(unittest.TestCase):
                 'group': 'json_test',
                 'name': 'h',
                 'rule': 'is_json',
+                'prerule': [],
                 'key': 'data.json',
                 'message': 'json not correct',
                 'option': []
@@ -188,6 +224,7 @@ class TestValidator(unittest.TestCase):
                 'group': '/api/access/add',
                 'name': 'be49d0f4',
                 'rule': 'range',
+                'prerule': [],
                 'key': 'data.password',
                 'option': ['4', '16'],
                 'message': '密码长度需要在4-16位'
@@ -196,6 +233,7 @@ class TestValidator(unittest.TestCase):
                 'group': 'exists_test',
                 'name': 'cd49d0f4',
                 'rule': 'is_exists',
+                'prerule': [],
                 'key': 'data.id',
                 'option': {
                     'table': 'user',
@@ -210,6 +248,7 @@ class TestValidator(unittest.TestCase):
                 'group': 'unique_test',
                 'name': 'af49d0f4',
                 'rule': 'is_unique',
+                'prerule': [],
                 'key': 'data.id',
                 'option': {
                     'table': 'user',
@@ -224,6 +263,7 @@ class TestValidator(unittest.TestCase):
                 'group': 'required_test',
                 'name': 'zx49d0f4',
                 'rule': 'is_required',
+                'prerule': [],
                 'key': 'data.id',
                 'option': '',
                 'message': '这是必填字段'

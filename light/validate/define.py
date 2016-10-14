@@ -26,10 +26,13 @@ class Item(object):
         self._name = item['name']
         self._rule = item['rule']
         self._key = item['key']
+        self._prerule = None
         self._group = None
         self._message = None
         self._option = None
 
+        if 'prerule' in item:
+            self._prerule = item['prerule']
         if 'group' in item:
             self._group = item['group']
         if 'message' in item:
@@ -48,6 +51,10 @@ class Item(object):
     @property
     def key(self):
         return self._key
+
+    @property
+    def prerule(self):
+        return self._prerule
 
     @property
     def group(self):

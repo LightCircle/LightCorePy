@@ -22,9 +22,16 @@ class Validator(object):
 
         # result <- list?
         for validator in method:
-            rule = validator.rule
             data = jmespath.search(validator.key, {'data': self.handler.params.data})
 
+            for sanitizer in validator.prerule:
+                if not hasattr(Rule(), sanitizer):
+                    continue
+                data = getattr(Rule(), sanitizer)(data)
+                # k, v = validator.key.split('.')
+                # data = self.handler.params.data[v]  =  getattr(Rule(), sanitizer)(data)
+
+            rule = validator.rule
             result = getattr(Rule(), rule)(self.handler, data, validator.option)
             if not result:
                 return validator.message

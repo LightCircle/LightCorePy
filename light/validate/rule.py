@@ -256,3 +256,31 @@ class Rule(object):
             return ''
 
         return str(data)
+
+    @staticmethod
+    def ltrim(data, chars=''):
+        if not isinstance(data, str):
+            return data
+
+        pattern = re.compile(r'^[' + chars + ']+') if chars else re.compile(r'^\s+')
+        return re.sub(pattern, '', data)
+
+    @staticmethod
+    def rtrim(data, chars=''):
+        if not isinstance(data, str):
+            return data
+
+        pattern = re.compile(r'[' + chars + ']') if chars else re.compile(r'\s')
+        idx = len(data) - 1
+        for idx in range(len(data) - 1, 0, -1):
+            if not pattern.match(data[idx]):
+                break
+
+        return data[0:(idx + 1)]
+
+    @staticmethod
+    def trim(data, chars=''):
+        if not isinstance(data, str):
+            return data
+
+        return Rule.ltrim(Rule.ltrim(data, chars), chars)

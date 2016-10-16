@@ -226,7 +226,7 @@ class Rule(object):
             return data
 
         int_regex = re.compile(r'^(\-|\+)?\d+$')
-        float_regex = re.compile(r'^(\-|\+)?\d+(\.\d+){1}$')
+        float_regex = re.compile(r'^(\-|\+)?\d?(\.\d+){1}$')
         if int_regex.match(data):
             return int(data)
         elif float_regex.match(data):
@@ -283,4 +283,20 @@ class Rule(object):
         if not isinstance(data, str):
             return data
 
-        return Rule.ltrim(Rule.ltrim(data, chars), chars)
+        return Rule.rtrim(Rule.ltrim(data, chars), chars)
+
+    @staticmethod
+    def escape(data):
+        if not isinstance(data, str):
+            return data
+
+        return data.replace(r'&', r'&amp;').replace(r'"', r'&quot;').replace(r"'", r'&#x27;').replace(r'<', r'&lt;') \
+            .replace(r'>', r'&gt;').replace(r'/', r'&#x2F;').replace(r'`', r'&#96;')
+
+    @staticmethod
+    def unescape(data):
+        if not isinstance(data, str):
+            return data
+
+        return data.replace(r'&amp;', r'&').replace(r'&quot;', r'"').replace(r'&#x27;', r"'").replace(r'&lt;', r'<') \
+            .replace(r'&gt;', r'>').replace(r'&#x2F;', r'/').replace(r'&#96;', r'`')

@@ -25,10 +25,5 @@ class Sanitizer(object):
             rule = sanitizer.rule
             data = jmespath.search(sanitizer.key, {'data': self.handler.params.data})
 
-            result = getattr(Rule(), rule)(self.handler, data, sanitizer.option)
-            if result is False:
-                return sanitizer.message
-            else:
-                k, v = sanitizer.key.split('.')
-                self.handler.params.data[v] = result
-                return True
+            result = getattr(Rule(), rule)(data)
+            return result

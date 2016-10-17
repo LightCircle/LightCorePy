@@ -13,15 +13,15 @@ CONST = Const()
 
 class TestValidator(unittest.TestCase):
     def test_is_valid(self):
-        self.handler.params.data['age'] = '1'
+        self.handler.params.data['age'] = '  1  '
         result = self.validator.is_valid(['a1'], Items(self.validation))
         print(result)
 
-        self.handler.params.data['age'] = '1w'
+        self.handler.params.data['age'] = '-.'
         result = self.validator.is_valid(['a1'], Items(self.validation))
         print(result)
 
-        self.handler.params.data['age'] = '1.1'
+        self.handler.params.data['age'] = '-12.345'
         result = self.validator.is_valid(['a1'], Items(self.validation))
         print(result)
 
@@ -137,11 +137,11 @@ class TestValidator(unittest.TestCase):
         result = self.validator.is_valid(['zx49d0f4'], Items(self.validation))
         print(result)
 
-        self.handler.params.data['id'] = '  '
+        self.handler.params.data['id'] = '  \t\n  '
         result = self.validator.is_valid(['zx49d0f4'], Items(self.validation))
         print(result)
 
-        self.handler.params.data['id'] = 'NaN'
+        self.handler.params.data['id'] = '-NaN'
         result = self.validator.is_valid(['zx49d0f4'], Items(self.validation))
         print(result)
 
@@ -164,7 +164,7 @@ class TestValidator(unittest.TestCase):
                 'group': 'number_test',
                 'name': 'a1',
                 'rule': 'is_number',
-                'prerule': ['to_number'],
+                'prerule': ['to_number', 'trim'],
                 'key': 'data.age',
                 'message': 'number not correct',
                 'option': []

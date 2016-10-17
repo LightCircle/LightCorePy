@@ -6,6 +6,7 @@ import json
 import re
 import jmespath
 import dateutil.parser
+import math
 
 from datetime import datetime, date
 from light.mongo.model import Model
@@ -143,7 +144,23 @@ class Rule(object):
 
     @staticmethod
     def is_empty(handler, data, option):
-        return data is None
+        blank_regex = re.compile(r'^\s*$')
+        naninf_regex = re.compile(r'(^[N,n][A,a][N,n]$)|(^[I,i][N,n][F,f]$)')
+        if data is None:
+            return True
+        elif len(data) == 0:
+            return True
+        elif isinstance(data, str) and blank_regex.match(data):
+            return True
+        elif isinstance(data, str) and naninf_regex.match(data) \
+                and (math.isnan(float(data)) or math.isinf(float(data))):
+            return True
+
+        return False
+
+    @staticmethod
+    def is_required(handler, data, option):
+        return not Rule.is_empty(handler, data, option)
 
     @staticmethod
     def is_email(handler, data, option):
@@ -196,10 +213,6 @@ class Rule(object):
         return False
 
     @staticmethod
-    def is_required(handler, data, option):
-        return bool(data)
-
-    @staticmethod
     def is_unique(handler, data, option):
         model = Model(domain=handler.domain, code=handler.code, table=option['table'])
         for key, val in option['condition'].items():
@@ -226,7 +239,7 @@ class Rule(object):
             return data
 
         int_regex = re.compile(r'^(\-|\+)?\d+$')
-        float_regex = re.compile(r'^(\-|\+)?\d?(\.\d+){1}$')
+        float_regex = re.compile(r'^(\-|\+)?(\d+)?(\.\d+){1}$')
         if int_regex.match(data):
             return int(data)
         elif float_regex.match(data):

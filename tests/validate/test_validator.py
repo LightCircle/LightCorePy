@@ -133,7 +133,19 @@ class TestValidator(unittest.TestCase):
         result = self.validator.is_valid(['af49d0f4'], Items(self.validation))
         print(result)
 
-        self.handler.params.data['id'] = ''
+        self.handler.params.data['id'] = {}
+        result = self.validator.is_valid(['zx49d0f4'], Items(self.validation))
+        print(result)
+
+        self.handler.params.data['id'] = '  '
+        result = self.validator.is_valid(['zx49d0f4'], Items(self.validation))
+        print(result)
+
+        self.handler.params.data['id'] = 'NaN'
+        result = self.validator.is_valid(['zx49d0f4'], Items(self.validation))
+        print(result)
+
+        self.handler.params.data['id'] = '  1   '
         result = self.validator.is_valid(['zx49d0f4'], Items(self.validation))
         print(result)
 

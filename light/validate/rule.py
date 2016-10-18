@@ -83,7 +83,7 @@ class Rule(object):
 
     @staticmethod
     def is_number(handler, data, option):
-        return isinstance(data, int) or isinstance(data, float)
+        return isinstance(data, (int, float))
 
     @staticmethod
     def is_string(handler, data, option):
@@ -100,7 +100,7 @@ class Rule(object):
 
     @staticmethod
     def is_date(handler, data, option):
-        return isinstance(data, date) or isinstance(data, datetime)
+        return isinstance(data, (date, datetime))
 
     @staticmethod
     def is_array(handler, data, option):

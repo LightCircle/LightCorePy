@@ -144,8 +144,8 @@ class Rule(object):
 
     @staticmethod
     def is_empty(handler, data, option):
-        blank_regex = re.compile(r'^\s*$')
-        naninf_regex = re.compile(r'(^(\-|\+)?[N,n][A,a][N,n]$)|(^(\-|\+)?[I,i][N,n][F,f]$)')
+        blank_regex = re.compile(r'^(?:\s*)$')
+        naninf_regex = re.compile(r'(^(?:[-+])?(?:[N,n])(?:[A,a])(?:[N,n])$)|(^(?:[-+])?(?:[I,i])(?:[N,n])(?:[F,f])$)')
         if not data:
             return True
         elif isinstance(data, str) and blank_regex.match(data):
@@ -239,8 +239,11 @@ class Rule(object):
         if not isinstance(data, str):
             return data
 
-        int_regex = re.compile(r'^(\-|\+)?\d+$')
-        float_regex = re.compile(r'^(\-|\+)?(\d+)?(\.\d+){1}$')
+        # int_regex = re.compile(r'^(?:[-+]?(?:0|[1-9][0-9]*))$')
+        # float_regex = re.compile(r'^(\-|\+)?(\d+)?(\.\d+){1}$')
+        int_regex = re.compile(r'^(?:[-+])?(?:\d+)$')
+        float_regex = re.compile(r'^(?:[-+])?(?:\d+)?(?:\.\d+)(?:[eE][\+\-]?(?:\d+))?$')
+
         if int_regex.match(data):
             return int(data)
         elif float_regex.match(data):

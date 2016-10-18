@@ -146,14 +146,15 @@ class Rule(object):
     def is_empty(handler, data, option):
         blank_regex = re.compile(r'^\s*$')
         naninf_regex = re.compile(r'(^(\-|\+)?[N,n][A,a][N,n]$)|(^(\-|\+)?[I,i][N,n][F,f]$)')
-        if data is None:
+        if not data:
             return True
         elif isinstance(data, str) and blank_regex.match(data):
             return True
+        elif isinstance(data, float) \
+                and (math.isnan(data) or math.isinf(data)):
+            return True
         elif isinstance(data, str) and naninf_regex.match(data) \
                 and (math.isnan(float(data)) or math.isinf(float(data))):
-            return True
-        elif not data:
             return True
 
         return False

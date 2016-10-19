@@ -27,15 +27,15 @@ class TestSanitizer(unittest.TestCase):
         result = self.sanitizer.to_valid(['a'], Items(self.sanitization))
         print(result, ':', type(result))
 
-        self.handler.params.data['date'] = 'a'
+        self.handler.params.data['date'] = '2001~01~01'
         result = self.sanitizer.to_valid(['b'], Items(self.sanitization))
         print(result, ':', type(result))
 
-        self.handler.params.data['date'] = '2001-01-01'
+        self.handler.params.data['date'] = '2001/01-01'
         result = self.sanitizer.to_valid(['b'], Items(self.sanitization))
         print(result, ':', type(result))
 
-        self.handler.params.data['date'] = '2001.01.01'
+        self.handler.params.data['date'] = '2001.01,01'
         result = self.sanitizer.to_valid(['b'], Items(self.sanitization))
         print(result, ':', type(result))
 

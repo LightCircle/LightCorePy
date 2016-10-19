@@ -239,14 +239,12 @@ class Rule(object):
         if not isinstance(data, str):
             return data
 
-        # int_regex = re.compile(r'^(?:[-+]?(?:0|[1-9][0-9]*))$')
-        # float_regex = re.compile(r'^(\-|\+)?(\d+)?(\.\d+){1}$')
         int_regex = re.compile(r'^(?:[-+])?(?:\d+)$')
-        float_regex = re.compile(r'^(?:[-+])?(?:\d+)?(?:\.\d+)(?:[eE][\+\-]?(?:\d+))?$')
+        number_regex = re.compile(r'^(?:[-+])?((?:\d+)|((?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+)))(?:[eE][\+\-]?(?:\d+))?$')
 
-        if int_regex.match(data):
-            return int(data)
-        elif float_regex.match(data):
+        if number_regex.match(data):
+            if int_regex.match(data):
+                return int(data)
             return float(data)
 
         return data

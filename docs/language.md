@@ -111,3 +111,6 @@
 ## map, reduce
   a = [{'key': list(item.keys())[0], 'select': True} for item in [{'a': 1}, {'b': 2}]]
   a = [{'key': k, 'select': True} for k, v in {'a': 1, 'b': 2}.items()]
+
+## webpack 监视代码变化
+ $ webpack --watch

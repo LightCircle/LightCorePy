@@ -15,7 +15,7 @@ class TestSanitizer(unittest.TestCase):
         result = self.sanitizer.to_valid(['a'], Items(self.sanitization))
         print(result, ':', type(result))
 
-        self.handler.params.data['age'] = '1.e-1'
+        self.handler.params.data['age'] = '-1.e-1'
         result = self.sanitizer.to_valid(['a'], Items(self.sanitization))
         print(result, ':', type(result))
 
@@ -27,7 +27,7 @@ class TestSanitizer(unittest.TestCase):
         result = self.sanitizer.to_valid(['a'], Items(self.sanitization))
         print(result, ':', type(result))
 
-        self.handler.params.data['date'] = '2001/01/01'
+        self.handler.params.data['date'] = 'a'
         result = self.sanitizer.to_valid(['b'], Items(self.sanitization))
         print(result, ':', type(result))
 

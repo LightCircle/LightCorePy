@@ -17,7 +17,7 @@ class TestValidator(unittest.TestCase):
         result = self.validator.is_valid(['a1'], Items(self.validation))
         print(result)
 
-        self.handler.params.data['age'] = '-.'
+        self.handler.params.data['age'] = '-.123e-1'
         result = self.validator.is_valid(['a1'], Items(self.validation))
         print(result)
 

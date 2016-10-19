@@ -83,7 +83,7 @@ class Rule(object):
 
     @staticmethod
     def is_number(handler, data, option):
-        return isinstance(data, int) or isinstance(data, float)
+        return isinstance(data, (int, float))
 
     @staticmethod
     def is_string(handler, data, option):
@@ -100,7 +100,7 @@ class Rule(object):
 
     @staticmethod
     def is_date(handler, data, option):
-        return isinstance(data, date) or isinstance(data, datetime)
+        return isinstance(data, (date, datetime))
 
     @staticmethod
     def is_array(handler, data, option):
@@ -144,16 +144,17 @@ class Rule(object):
 
     @staticmethod
     def is_empty(handler, data, option):
-        blank_regex = re.compile(r'^\s*$')
-        naninf_regex = re.compile(r'(^(\-|\+)?[N,n][A,a][N,n]$)|(^(\-|\+)?[I,i][N,n][F,f]$)')
-        if data is None:
+        blank_regex = re.compile(r'^(?:\s*)$')
+        naninf_regex = re.compile(r'(^(?:[-+])?(?:[N,n])(?:[A,a])(?:[N,n])$)|(^(?:[-+])?(?:[I,i])(?:[N,n])(?:[F,f])$)')
+        if not data:
             return True
         elif isinstance(data, str) and blank_regex.match(data):
             return True
+        elif isinstance(data, float) \
+                and (math.isnan(data) or math.isinf(data)):
+            return True
         elif isinstance(data, str) and naninf_regex.match(data) \
                 and (math.isnan(float(data)) or math.isinf(float(data))):
-            return True
-        elif not data:
             return True
 
         return False
@@ -238,11 +239,12 @@ class Rule(object):
         if not isinstance(data, str):
             return data
 
-        int_regex = re.compile(r'^(\-|\+)?\d+$')
-        float_regex = re.compile(r'^(\-|\+)?(\d+)?(\.\d+){1}$')
-        if int_regex.match(data):
-            return int(data)
-        elif float_regex.match(data):
+        int_regex = re.compile(r'^(?:[-+])?(?:\d+)$')
+        number_regex = re.compile(r'^(?:[-+])?((?:\d+)|((?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+)))(?:[eE][\+\-]?(?:\d+))?$')
+
+        if number_regex.match(data):
+            if int_regex.match(data):
+                return int(data)
             return float(data)
 
         return data

@@ -11,19 +11,19 @@ CONST = Const()
 
 class TestSanitizer(unittest.TestCase):
     def test_is_valid(self):
-        self.handler.params.data['age'] = '-1.1'
+        self.handler.params.data['age'] = '-123.456'
         result = self.sanitizer.to_valid(['a'], Items(self.sanitization))
         print(result, ':', type(result))
 
-        self.handler.params.data['age'] = '1.'
+        self.handler.params.data['age'] = '1.e-1'
         result = self.sanitizer.to_valid(['a'], Items(self.sanitization))
         print(result, ':', type(result))
 
-        self.handler.params.data['age'] = '-.1'
+        self.handler.params.data['age'] = '-.123e-1'
         result = self.sanitizer.to_valid(['a'], Items(self.sanitization))
         print(result, ':', type(result))
 
-        self.handler.params.data['age'] = '1a'
+        self.handler.params.data['age'] = '-123'
         result = self.sanitizer.to_valid(['a'], Items(self.sanitization))
         print(result, ':', type(result))
 

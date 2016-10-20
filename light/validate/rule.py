@@ -165,6 +165,9 @@ class Rule(object):
 
     @staticmethod
     def is_email(handler, data, option):
+        if not isinstance(data, str):
+            return False
+
         if not data or '@' not in data:
             return False
 
@@ -176,6 +179,9 @@ class Rule(object):
 
     @staticmethod
     def is_url(handler, data, option):
+        if not isinstance(data, str):
+            return False
+
         if not url_regex.match(data):
             return False
 
@@ -183,6 +189,9 @@ class Rule(object):
 
     @staticmethod
     def is_ip(handler, data, option):
+        if not isinstance(data, str):
+            return False
+
         if int(option) == 4:
             parts = data.split('.')
             if len(parts) == 4 and all(x.isdigit() for x in parts):
@@ -217,7 +226,7 @@ class Rule(object):
     def is_unique(handler, data, option):
         model = Model(domain=handler.domain, code=handler.code, table=option['table'])
         for key, val in option['condition'].items():
-            if isinstance(val, str) and val.count('$') == 1:
+            if isinstance(val, str) and val.startswith('$'):
                 option['condition'][key] = jmespath.search(val.replace('$', ''), {'data': handler.params.data})
         count = model.total(condition=option['condition'])
         return count <= 0
@@ -226,7 +235,7 @@ class Rule(object):
     def is_exists(handler, data, option):
         model = Model(domain=handler.domain, code=handler.code, table=option['table'])
         for key, val in option['condition'].items():
-            if isinstance(val, str) and val.count('$') == 1:
+            if isinstance(val, str) and val.startswith('$'):
                 condition_data = jmespath.search(val.replace('$', ''), {'data': handler.params.data})
                 if not isinstance(condition_data, list):
                     condition_data = list(condition_data)
@@ -254,13 +263,18 @@ class Rule(object):
         if not isinstance(data, str):
             return data
 
+        try:
+            dateutil.parser.parse(data)
+        except ValueError:
+            return data
+
         return dateutil.parser.parse(data)
 
     @staticmethod
     def to_boolean(data):
         if data == 'true' or data == 'True' or data == '1':
             return True
-        if data == 'false' or data == 'False' or data == '0' or data == '':
+        if data == 'false' or data == 'False' or data == '0' or data is None:
             return False
 
         return data

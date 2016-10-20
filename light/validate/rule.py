@@ -226,7 +226,7 @@ class Rule(object):
     def is_unique(handler, data, option):
         model = Model(domain=handler.domain, code=handler.code, table=option['table'])
         for key, val in option['condition'].items():
-            if isinstance(val, str) and val.count('$') == 1:
+            if isinstance(val, str) and val.startswith('$'):
                 option['condition'][key] = jmespath.search(val.replace('$', ''), {'data': handler.params.data})
         count = model.total(condition=option['condition'])
         return count <= 0
@@ -235,7 +235,7 @@ class Rule(object):
     def is_exists(handler, data, option):
         model = Model(domain=handler.domain, code=handler.code, table=option['table'])
         for key, val in option['condition'].items():
-            if isinstance(val, str) and val.count('$') == 1:
+            if isinstance(val, str) and val.startswith('$'):
                 condition_data = jmespath.search(val.replace('$', ''), {'data': handler.params.data})
                 if not isinstance(condition_data, list):
                     condition_data = list(condition_data)
@@ -265,8 +265,7 @@ class Rule(object):
 
         try:
             dateutil.parser.parse(data)
-        except:
-            # print(Exception)
+        except ValueError:
             return data
 
         return dateutil.parser.parse(data)

@@ -154,9 +154,10 @@ class Controller(object):
         for file in self.files:
             content_type = file.content_type
             name = file.filename
-            data.append(self.model.write_stream_to_grid(name, file.stream(), content_type))
+            length = file.stream.getbuffer().nbytes
+            data.append(self.model.write_stream_to_grid(name, file.stream, content_type, length))
 
-        return {'totalItems': len(self.files), 'items': data}, None
+        return {'totalItems': len(data), 'items': data}, None
 
     def read_file_from_grid(self):
         folder = self.data['folder']

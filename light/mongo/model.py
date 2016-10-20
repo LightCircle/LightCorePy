@@ -60,7 +60,7 @@ class Model:
                 host=host, port=port, user=user, password=password, db=self.domain, auth=auth))
 
         self.db = self.client[self.domain]
-        if self.code:
+        if self.code and self.table:
             self.db = self.db[self.code]
 
         print('{domain} / {code}'.format(domain=self.domain, code=self.code))
@@ -239,12 +239,12 @@ class Model:
     def write_buffer_to_grid(self):
         raise NotImplementedError
 
-    def write_stream_to_grid(self, name, stream, content_type):
+    def write_stream_to_grid(self, name, stream, content_type, length):
 
         return {
             'name': name,
             'contentType': content_type,
-            'length': 0,
+            'length': length,
             'fileId': GridFSBucket(self.db).upload_from_stream(name, stream, metadata={'contentType': content_type})
         }
 

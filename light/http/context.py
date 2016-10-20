@@ -24,7 +24,9 @@ class Context(object):
         if param is not None:
             self._params = Params(param)
         else:
-            self._params = Params(flask.request.form.to_dict(), unparam.query(), flask.request.get_json())
+            self._params = Params(
+                flask.request.form.to_dict(), unparam.query(), flask.request.get_json(), flask.request.files
+            )
 
     def copy(self, params):
         handler = Context(param=params)
@@ -127,12 +129,14 @@ class Context(object):
 
 
 class Params(object):
-    def __init__(self, form=None, query=None, data=None):
+    def __init__(self, form=None, query=None, data=None, files=None):
         self.values = form or {}
         if query:
             self.values = query
         if data:
             self.values.update(data)
+        if files:
+            self.values['files'] = files.getlist('files')
 
     def __getattr__(self, key):
         if key in self.values:

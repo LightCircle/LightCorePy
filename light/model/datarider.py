@@ -72,8 +72,16 @@ class Rider(object):
         return Controller(handler=handler).read_file_from_grid()
 
     @staticmethod
+    def read_stream_from_grid(handler):
+        return Controller(handler=handler).read_stream_from_grid()
+
+    @staticmethod
     def write_file_to_grid(handler):
         return Controller(handler=handler).write_file_to_grid()
+
+    @staticmethod
+    def write_stream_to_grid(handler):
+        return Controller(handler=handler).write_stream_to_grid()
 
 
 class Schema(object):

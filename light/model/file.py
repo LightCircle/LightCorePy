@@ -1,13 +1,23 @@
 import flask
 import os
 
+from light.model.datarider import Rider
 
-def add():
+
+def add(handler):
     """
-    添加文件, 物理文件保存到 GridFS 中，Meta信息保存到 files 表中
-    :return: Meta信息
+    Add files, save the physical file to GridFS, Meta information to the files table
+    :param handler:
+    :return: Meta information
     """
-    raise NotImplementedError
+
+    rider = Rider.instance()
+    files, error = rider.write_stream_to_grid(handler)
+    if error:
+        return None, error
+
+    handler.params.data = files['items']
+    return rider.file.add(handler)
 
 
 def update():

@@ -16,7 +16,8 @@ def add(handler):
     if error:
         return None, error
 
-    handler.params.data = files['items']
+    meta = handler.params.data or {}
+    handler.params.data = [dict(item, **meta) for item in files['items']]
     return rider.file.add(handler)
 
 

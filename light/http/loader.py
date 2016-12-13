@@ -10,11 +10,15 @@ from light.model.datarider import Rider
 from light.mongo.session import MongoSessionInterface
 from light.configuration import Config
 from light.job import Schedule
+from light.log import Log
 
 CONST = Const()
 
 
 def initialize(app=None, domain=None):
+    # logging
+    Log.init()
+
     # flask
     if not app:
         app = flask.Flask(__name__)

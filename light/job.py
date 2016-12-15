@@ -11,7 +11,7 @@ class Schedule(object):
         pass
 
     def start(self):
-        self.scheduler.add_job(self.tick, 'interval', seconds=3)
+        self.scheduler.add_job(self.tick, 'interval', seconds=3*60*60)
         self.scheduler.start()
         atexit.register(lambda: self.shutdown())
 

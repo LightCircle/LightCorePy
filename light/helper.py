@@ -36,7 +36,7 @@ def core_path(*relate):
     return path
 
 
-def load_template(name, path=None):
+def load_template(name, path=None, suffix='.html'):
     if not path:
         path = project_path('views')
 
@@ -49,7 +49,7 @@ def load_template(name, path=None):
         variable_start_string='<%=',
         variable_end_string='%>')
 
-    return environment.get_template(name + '.html')
+    return environment.get_template(name + suffix)
 
 
 def random_guid(size=4, upper=False):

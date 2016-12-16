@@ -32,7 +32,7 @@ class Controller(object):
         self.sort = handler.params.sort
         self.files = handler.params.files
         self.skip = handler.params.skip
-        self.limit = handler.params.limit or 100
+        self.limit = handler.params.limit or 0
 
         if self.skip is None:
             self.skip = 0

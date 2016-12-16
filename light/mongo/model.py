@@ -92,7 +92,7 @@ class Model:
 
         return self.db.find_one(filter=condition, projection=select)
 
-    def get_by(self, condition=None, select=None, sort=None, skip=0, limit=100):
+    def get_by(self, condition=None, select=None, sort=None, skip=0, limit=0):
         """
         Query the database.
         :param condition:

@@ -78,5 +78,7 @@ def is_mobile(headers):
 
 
 def is_browser(headers):
-    ua = headers['user-agent'] or ''
+    ua = ''
+    if 'user-agent' in headers:
+        ua = headers['user-agent']
     return re.match('mozilla.*', ua.lower())

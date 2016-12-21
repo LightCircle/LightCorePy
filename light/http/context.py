@@ -1,5 +1,7 @@
 import flask
 import os
+import json
+import logging
 
 from light.http import unparam
 from light.constant import Const
@@ -134,7 +136,13 @@ class Params(object):
         if query:
             self.values = query
         if data:
-            self.values.update(data)
+            if isinstance(data, dict):
+                self.values.update(data)
+            else:
+                try:
+                    self.values.update(json.loads(data))
+                except ValueError or TypeError:
+                    logging.error('Unable to parse the parameter.')
         if files:
             self.values['files'] = files.getlist('files')
 

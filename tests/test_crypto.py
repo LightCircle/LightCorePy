@@ -19,5 +19,22 @@ class TestCrypto(unittest.TestCase):
     def test_full_space(self):
         self.assertEqual('1               ', Crypto.full_space('1'))
         self.assertEqual('0123456789012345', Crypto.full_space('0123456789012345'))
-        self.assertEqual('01234567890123456               ',
-                         Crypto.full_space('01234567890123456'))
+        self.assertEqual('01234567890123456               ', Crypto.full_space('01234567890123456'))
+
+    def test_jwt_encode(self):
+        token = Crypto.jwt_encode({'sid': 'abc'}, 'light', 10)
+        decoded = Crypto.jwt_decode(token, 'light')
+
+        self.assertEqual('abc', decoded['sid'])
+        self.assertIsNotNone(decoded['expires'])
+
+    def test_jwt_decode(self):
+        token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHBpcmVzIjoxNDgyMTE3MDg4LCJzaWQiOiJhYmMifQ.gh-' \
+                '9vnt2rccgpj4DfCNqrYluQjxsv_gmIoBP8eTjI78'
+        decoded = Crypto.jwt_decode(token, 'light')
+        self.assertEqual('abc', decoded['sid'])
+        self.assertIsNotNone(decoded['expires'])
+
+        token = 'bad token value'
+        decoded = Crypto.jwt_decode(token, 'light')
+        self.assertEqual({}, decoded)

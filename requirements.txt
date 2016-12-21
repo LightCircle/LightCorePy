@@ -19,7 +19,9 @@ apscheduler==3.2.0
 # dateutil
 python-dateutil==2.5.3
 
-#
+# JSON Web Token
+PyJWT==1.4.2
+
 # uWSGI=2.0.13.1
 
 # websocket - SocketIO based websocket

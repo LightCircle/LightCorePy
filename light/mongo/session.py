@@ -4,6 +4,9 @@ from datetime import datetime, timedelta
 from flask.sessions import SessionInterface, SessionMixin
 from werkzeug.datastructures import CallbackDict
 
+from light.configuration import Config
+from light.crypto import Crypto
+
 
 # By default, Flask stores sessions on the client's side in cookies
 # It uses cryptography to prevent them from tampering with session data
@@ -28,6 +31,15 @@ class MongoSessionInterface(SessionInterface):
     def open_session(self, app, request):
         # Get session id from the cookie
         sid = request.cookies.get(app.session_cookie_name)
+        ignore_timeout = False
+
+        # Try to resolve the token
+        if not sid:
+            secret = Config.instance().app.tokenSecret
+            token = self.get_sid(request, secret)
+            if 'sid' in token:
+                ignore_timeout = (Config.instance().app.tokenExpires <= 0)
+                sid = token['sid']
 
         # If id is given (session was created)
         if sid:
@@ -35,7 +47,7 @@ class MongoSessionInterface(SessionInterface):
             stored_session = self.store.find_one({'sid': sid})
             if stored_session:
                 # Check if the session isn't expired
-                if stored_session.get('expiration') > datetime.utcnow():
+                if stored_session.get('expiration') > datetime.utcnow() or ignore_timeout:
                     return MongoSession(initial=stored_session['data'],
                                         sid=stored_session['sid'])
 
@@ -43,6 +55,17 @@ class MongoSessionInterface(SessionInterface):
         # Generate a random id and create an empty session
         sid = str(uuid4())
         return MongoSession(sid=sid)
+
+    def get_sid(self, request, secret):
+        # Check querystring and body
+        if 'access_token' in request.values:
+            return Crypto.jwt_decode(request.values['access_token'], secret)
+
+        # Check header
+        if 'x-access-token' in request.headers:
+            return Crypto.jwt_decode(request.headers['x-access-token'], secret)
+
+        return {}
 
     def save_session(self, app, session, response):
         domain = self.get_cookie_domain(app)

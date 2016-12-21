@@ -57,8 +57,9 @@ def setup(app):
             if re.match(ignore, request.path):
                 return
 
-        if request.values['_csrf'] == session[SESSION_KEY_CSRF_TOKEN]:
-            return
+        if '_csrf' in request.values:
+            if request.values['_csrf'] == session[SESSION_KEY_CSRF_TOKEN]:
+                return
 
         flask.abort(403)
 

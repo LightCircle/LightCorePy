@@ -1,3 +1,5 @@
+import logging
+
 from light.model.datarider import Rider
 from light.error.db import NotExist, NotCorrect
 from light.crypto import Crypto
@@ -13,9 +15,11 @@ class User(object):
         user, error = self.rider.user.get(handler.copy(condition))
 
         if error:
+            logging.warning('Unable to retrieve the user.')
             return None, error
 
         if user is None:
+            logging.warning('User does not exist.')
             return None, NotExist()
 
         password = handler.params.password
@@ -24,6 +28,7 @@ class User(object):
             hmackey = Config.instance().app.hmackey
 
         if user['password'] != Crypto.sha256(password, hmackey):
+            logging.warning('The user password is not correct.')
             return None, NotCorrect()
 
         del user['password']

@@ -2,8 +2,10 @@ import hmac
 import hashlib
 import binascii
 import math
+import jwt
 
 from Crypto.Cipher import AES
+from datetime import datetime, timedelta
 
 
 class Crypto(object):
@@ -37,3 +39,16 @@ class Crypto(object):
             return string
 
         return string + ' ' * ((int(integer) + 1) * 16 - len(string))
+
+    @staticmethod
+    def jwt_encode(payload, secret, expires):
+        time = datetime.now() + timedelta(seconds=expires)
+        payload['expires'] = int(time.timestamp())
+        return jwt.encode(payload, secret, algorithm='HS256').decode(encoding='UTF-8')
+
+    @staticmethod
+    def jwt_decode(token, secret):
+        try:
+            return jwt.decode(token.encode(encoding='UTF-8'), secret, algorithms=['HS256'])
+        except:
+            return {}

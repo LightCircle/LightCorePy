@@ -48,7 +48,7 @@ class Model:
         port = os.getenv(CONST.ENV_LIGHT_DB_PORT, 27017)
         user = os.getenv(CONST.ENV_LIGHT_DB_USER, self.user)
         password = os.getenv(CONST.ENV_LIGHT_DB_PASS, self.password)
-        auth = os.getenv(CONST.ENV_LIGHT_DB_AUTH, 'MONGODB-CR')
+        auth = os.getenv(CONST.ENV_LIGHT_DB_AUTH, 'SCRAM-SHA-1')
 
         # Initialize database connection
         if user is None:

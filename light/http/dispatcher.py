@@ -22,7 +22,7 @@ def dispatch(app):
 
 
 def bind_websocket(app):
-    if os.getenv(CONST.ENV_LIGHT_APP_WEBSOCKET, 'on') == 'off':
+    if os.getenv(CONST.ENV_LIGHT_APP_WEBSOCKET, 'off') == 'off':
         return
 
     from flask_uwsgi_websocket import AsyncioWebSocket

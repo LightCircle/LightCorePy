@@ -25,4 +25,4 @@ PyJWT==1.4.2
 # uWSGI=2.0.13.1
 
 # websocket - SocketIO based websocket
-Flask-uWSGI-WebSocket=0.5.3
+# Flask-uWSGI-WebSocket=0.5.3

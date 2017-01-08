@@ -24,3 +24,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(len(light.helper.random_guid(8)), 8)
 
         self.assertEqual(len(light.helper.random_guid(12, upper=True)), 12)
+
+    def test_ansi_color_to_black(self):
+        s = 'stream "\x1b[91m../vendor/libxml/encoding.c:2856:12\x1b[0m"'
+        o = light.helper.ansi_color_to_black(s)
+        self.assertEqual('stream "../vendor/libxml/encoding.c:2856:12"', o)

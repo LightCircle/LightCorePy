@@ -82,3 +82,14 @@ def is_browser(headers):
     if 'user-agent' in headers:
         ua = headers['user-agent']
     return re.match('mozilla.*', ua.lower())
+
+
+def ansi_color_to_black(s):
+    """
+    convert ansi color to blank
+    https://github.com/shiena/ansicolor
+    :param s:
+    :return:
+    """
+    escape = re.compile(r'\x1b[^m]*m')
+    return escape.sub('', s)

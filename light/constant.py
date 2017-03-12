@@ -2,7 +2,7 @@ import sys
 
 class Const(object):
     def get_system_db(self):
-        return 'LightDB'
+        return 'light'
 
     SYSTEM_DB = property(get_system_db)
 

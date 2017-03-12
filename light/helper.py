@@ -49,6 +49,9 @@ def load_template(name, path=None, suffix='.html'):
         variable_start_string='<%=',
         variable_end_string='%>')
 
+    if name.endswith(suffix):
+        return environment.get_template(name)
+
     return environment.get_template(name + suffix)
 
 

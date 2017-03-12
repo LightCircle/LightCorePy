@@ -49,7 +49,7 @@ def setup_flask(app, db):
     app.session_interface = MongoSessionInterface(db=db)
 
     # analyse static resource
-    app.static_folder = helper.project_path('public') + Config.instance().app.static
+    app.static_folder = helper.project_path() + Config.instance().app.static
     app.static_url_path = Config.instance().app.static
 
     # setup middleware

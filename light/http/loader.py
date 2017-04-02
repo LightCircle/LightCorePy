@@ -1,6 +1,7 @@
 import os
 import flask
 import configparser
+import engineio
 
 from light import helper
 from light.http import dispatcher, middleware
@@ -33,7 +34,7 @@ def initialize(app=None, domain=None):
     Rider.instance()
 
     # dispatch
-    dispatcher.dispatch(app)
+    eio = dispatcher.dispatch(app)
 
     # TODO: job
     Schedule().start()
@@ -41,6 +42,8 @@ def initialize(app=None, domain=None):
     # setup flask
     setup_flask(app, db)
 
+    if eio:
+        return engineio.Middleware(eio, app)
     return app
 
 

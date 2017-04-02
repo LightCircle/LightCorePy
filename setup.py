@@ -21,7 +21,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.2.0',
+    version='0.2.1',
 
     description='Light Core for Python',
     long_description=long_description,
@@ -82,8 +82,10 @@ setup(
         'apscheduler==3.2.0',
         'python-dateutil==2.5.3',
         'PyJWT==1.4.2',
+        'gevent==1.2.1',
+        'gevent-websocket==0.10.1',
+        'python-engineio==1.3.1',
         'uWSGI==2.0.13.1'
-        # 'Flask-uWSGI-WebSocket==0.5.3'
     ],
 
     # List additional groups of dependencies here (e.g. development

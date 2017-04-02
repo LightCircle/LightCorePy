@@ -2,6 +2,7 @@ import os
 import re
 import flask
 import light.helper
+import engineio
 
 from light.cache import Cache
 from light.constant import Const
@@ -18,27 +19,28 @@ METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'GET', 'GET', 'GET', 'GET']
 def dispatch(app):
     bind_api(app)
     bind_route(app)
-    bind_websocket(app)
+    return bind_websocket()
 
 
-def bind_websocket(app):
-    if os.getenv(CONST.ENV_LIGHT_APP_WEBSOCKET, 'off') == 'off':
+def bind_websocket():
+    if os.getenv(CONST.ENV_LIGHT_APP_WEBSOCKET, 'on') == 'off':
         return
 
-    from flask_uwsgi_websocket import AsyncioWebSocket
-    socket = AsyncioWebSocket(app)
+    eio = engineio.Server(async_mode='gevent')
 
-    async def func(ws):
-        websocket.on_open(ws)
-        websocket.send(ws.id, {'socketid': ws.id})
-        while True:
-            message = await ws.receive()
-            if message is None:
-                websocket.on_close(ws)
-                break
-            websocket.on_message(ws, message)
+    @eio.on('connect')
+    def connect(sid, environ):
+        websocket.connect(sid, eio, environ)
 
-    socket.add_url_rule('/websocket', '/websocket', view_func=func)
+    @eio.on('disconnect')
+    def disconnect(sid):
+        websocket.disconnect(sid)
+
+    @eio.on('message')
+    def message(sid, data):
+        websocket.message(sid, data)
+
+    return eio
 
 
 def bind_api(app):

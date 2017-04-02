@@ -26,3 +26,10 @@ OK
 10. websocket
  实现APP间的消息传递
  未来支持与客户端的连接
+
+
+#### Websocket
+engine.io
+gevent
+gevent-websocket
+uWsgi

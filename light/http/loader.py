@@ -2,6 +2,8 @@ import os
 import flask
 import configparser
 import engineio
+import gevent.pywsgi
+import geventwebsocket.handler
 
 from light import helper
 from light.http import dispatcher, middleware
@@ -57,6 +59,13 @@ def setup_flask(app, db):
 
     # setup middleware
     middleware.setup(app)
+
+
+def start_server(app):
+    host = '0.0.0.0'
+    port = int(os.environ[Const().ENV_LIGHT_APP_PORT])
+    server = gevent.pywsgi.WSGIServer((host, port), app, handler_class=geventwebsocket.handler.WebSocketHandler)
+    server.serve_forever()
 
 
 def load_config_from_ini():

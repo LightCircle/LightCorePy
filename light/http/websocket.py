@@ -7,6 +7,11 @@ client = {}
 path = helper.project_path('controllers')
 clazz = helper.resolve(name='websocket', path=path)
 
+NAME_ACTION = 'action'
+NAME_DATE = 'data'
+NAME_ID = 'sid'
+NAME_OPTION = 'option'
+
 
 def connect(sid, eio, environ=None):
     # TODO: check auth(cookie)
@@ -26,17 +31,31 @@ def disconnect(sid):
 
 
 def message(sid, data):
-    if sid in client and clazz and hasattr(clazz, 'message'):
-        func = getattr(clazz, 'message')
-        func(data, client[sid])
+    action = 'message'
+    if NAME_ACTION in data:
+        action = data[NAME_ACTION]
+
+    if sid in client and clazz and hasattr(clazz, action):
+        handler = {
+            NAME_ACTION: action,
+            NAME_OPTION: client[sid],
+            NAME_ID: sid
+        }
+
+        func = getattr(clazz, action)
+        func(handler, data[NAME_DATE])
         return
 
     print('Client not found')
 
 
-def send(sid, data=None):
+def send(handler=None, data=None):
+    sid = handler[NAME_ID]
     if sid in client:
-        client[sid]['eio'].send(sid, json.dumps(data))
+        client[sid]['eio'].send(
+            sid,
+            json.dumps({NAME_ACTION: handler[NAME_ACTION], NAME_DATE: data})
+        )
         return
 
     print('Client not found')

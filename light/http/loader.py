@@ -35,14 +35,11 @@ def initialize(app=None, domain=None):
     # rider
     Rider.instance()
 
-    # dispatch
-    eio = dispatcher.dispatch(app)
-
     # TODO: job
     Schedule().start()
 
     # setup flask
-    setup_flask(app, db)
+    eio = setup_flask(app, db)
 
     if eio:
         return engineio.Middleware(eio, app)
@@ -53,12 +50,17 @@ def setup_flask(app, db):
     # setup mongodb session
     app.session_interface = MongoSessionInterface(db=db)
 
+    # dispatch
+    eio = dispatcher.dispatch(app)
+
     # analyse static resource
     app.static_folder = helper.project_path() + Config.instance().app.static
     app.static_url_path = Config.instance().app.static
 
     # setup middleware
     middleware.setup(app)
+
+    return eio
 
 
 def start_server(app):

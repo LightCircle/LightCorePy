@@ -1,9 +1,10 @@
 import os
 import re
 import flask
-import light.helper
 import engineio
+import light.helper
 
+from http import cookies
 from light.cache import Cache
 from light.constant import Const
 from light.model.datarider import Rider
@@ -19,10 +20,10 @@ METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'GET', 'GET', 'GET', 'GET']
 def dispatch(app):
     bind_api(app)
     bind_route(app)
-    return bind_websocket()
+    return bind_websocket(app)
 
 
-def bind_websocket():
+def bind_websocket(app):
     if os.getenv(CONST.ENV_LIGHT_APP_WEBSOCKET, 'on') == 'off':
         return
 
@@ -30,7 +31,9 @@ def bind_websocket():
 
     @eio.on('connect')
     def connect(sid, environ):
-        websocket.connect(sid, eio, environ)
+        cookie = cookies.SimpleCookie(environ['HTTP_COOKIE'])
+        session = websocket.create_session(app, cookie)
+        websocket.connect(sid, eio, session, environ)
 
     @eio.on('disconnect')
     def disconnect(sid):

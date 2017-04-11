@@ -47,13 +47,13 @@ def message(sid, data):
 
 def send(handler, data=None):
 
-    for key, client in clients.items():
-        if client['cid'] == handler.cid:
+    for key in list(clients):
+        client = clients[key]
+        if client and client['cid'] == handler.cid:
             client['eio'].send(
                 client['sid'],
                 json.dumps({'action': handler.action, 'data': data})
             )
-            has_client = True
             print('Send message to client : {0}, {1}'.format(handler.cid, client['sid']))
 
 

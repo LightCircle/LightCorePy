@@ -94,5 +94,6 @@ def ansi_color_to_black(s):
     :param s:
     :return:
     """
-    escape = re.compile(r'\x1b[^m]*m')
-    return escape.sub('', s)
+    s = s.replace('\\u001b[91m', '')
+    s = s.replace('\\u001b[0m', '')
+    return s

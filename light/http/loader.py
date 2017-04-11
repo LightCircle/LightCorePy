@@ -41,6 +41,7 @@ def initialize(app=None, domain=None):
     # setup flask
     eio = setup_flask(app, db)
 
+    # If you set the environment variable websocket to off, then eio = null
     if eio:
         return engineio.Middleware(eio, app)
     return app
@@ -50,9 +51,6 @@ def setup_flask(app, db):
     # setup mongodb session
     app.session_interface = MongoSessionInterface(db=db)
 
-    # dispatch
-    eio = dispatcher.dispatch(app)
-
     # analyse static resource
     app.static_folder = helper.project_path() + Config.instance().app.static
     app.static_url_path = Config.instance().app.static
@@ -60,7 +58,8 @@ def setup_flask(app, db):
     # setup middleware
     middleware.setup(app)
 
-    return eio
+    # dispatch
+    return dispatcher.dispatch(app)
 
 
 def start_server(app):

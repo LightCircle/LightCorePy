@@ -27,7 +27,11 @@ def bind_websocket(app):
     if os.getenv(CONST.ENV_LIGHT_APP_WEBSOCKET, 'on') == 'off':
         return
 
-    eio = engineio.Server(async_mode='gevent')
+    async_mode = 'gevent_uwsgi'
+    if os.getenv(CONST.ENV_LIGHT_APP_DEV) == 'true':
+        async_mode = 'gevent'
+
+    eio = engineio.Server(async_mode=async_mode)
 
     @eio.on('connect')
     def connect(sid, environ):
@@ -130,6 +134,7 @@ def add_html_rule(app, url, clazz, action, template):
         data['dynamic'] = func_dynamic
         data['csrftoken'] = flask.g.csrftoken
         data['i'] = I18n.instance().i
+        data['catalog'] = I18n.instance().catalog
 
         if clazz:
             data['data'] = getattr(clazz, action)(handler)

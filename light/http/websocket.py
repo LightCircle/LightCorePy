@@ -1,4 +1,5 @@
 import json
+import gevent
 
 from http import cookies
 from light import helper
@@ -54,6 +55,7 @@ def send(handler, data=None):
                 client['sid'],
                 json.dumps({'action': handler.action, 'data': data})
             )
+            gevent.sleep(0)
             print('Send message to client : {0}, {1}'.format(handler.cid, client['sid']))
 
 

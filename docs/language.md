@@ -114,3 +114,8 @@
 
 ## webpack 监视代码变化
  $ webpack --watch
+
+
+## centos7 安装pip
+  $ curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+  $ python get-pip.py

@@ -35,12 +35,15 @@ def bind_websocket(app):
 
     @eio.on('connect')
     def connect(sid, environ):
+        print('websocket connect')
+
         cookie = cookies.SimpleCookie(environ['HTTP_COOKIE'])
         session = websocket.create_session(app, cookie)
         websocket.connect(sid, eio, session, environ)
 
     @eio.on('disconnect')
     def disconnect(sid):
+        print('websocket disconnect')
         websocket.disconnect(sid)
 
     @eio.on('message')

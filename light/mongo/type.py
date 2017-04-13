@@ -7,11 +7,15 @@ from bson import ObjectId
 
 
 class Object(object):
-    pass
+    @staticmethod
+    def parse(data):
+        return data
 
 
 class Array(object):
-    pass
+    @staticmethod
+    def parse(data):
+        return data
 
 
 class Boolean(object):

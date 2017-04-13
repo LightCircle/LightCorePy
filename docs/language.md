@@ -59,7 +59,7 @@
   使用PyPI的用户名密码进行登陆, 登陆成功的状态会保存在 ~/.pypirc 里
  
  - 上传工程到 PyPI
-  ```$ python setup.py sdist upload```
+  ```$ python3 setup.py sdist upload```
   sdist 会将工程进行打包, 默认为tar.gz格式
   upload 用于上传工程到 PyPI
   install 

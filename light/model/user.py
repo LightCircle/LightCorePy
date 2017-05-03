@@ -43,3 +43,9 @@ class User(object):
         session['user'] = user
         session['code'] = handler.code
         session['domain'] = handler.domain
+
+    @staticmethod
+    def clear_session(handler):
+        del handler.session['user']
+        del handler.session['code']
+        del handler.session['domain']

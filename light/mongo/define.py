@@ -33,9 +33,9 @@ class Item(object):
 
     def __init__(self, key, item):
         self._key = key
-        self._reserved = item['reserved']
+        # self._reserved = item['reserved']
+        # self._name = item['name']
         self._type = item['type']
-        self._name = item['name']
         self._default = None
         self._description = None
         self._contents = None

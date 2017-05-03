@@ -1,5 +1,6 @@
 import json
 
+from flask import redirect
 from werkzeug.wsgi import wrap_file
 from light.mongo.encoder import JsonEncoder
 
@@ -8,6 +9,10 @@ def send(handler, data, error=None):
     # return error
     if error is not None:
         return send_error(handler, data, error)
+
+    # If it is a string, redirect
+    if isinstance(data, str):
+        return redirect(data)
 
     if data is None:
         data = {}

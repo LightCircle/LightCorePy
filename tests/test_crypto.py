@@ -12,8 +12,16 @@ class TestCrypto(unittest.TestCase):
         result = Crypto.encrypt('2e35501c2b7e', 'light')
         self.assertEqual('d654b787987267137e92e49d170cf24c', result)
 
+    def test_encrypt2(self):
+        result = Crypto.encrypt2('2e35501c2b7e', 'light')
+        self.assertEqual('SPvPSa3cTKdfLgE7hKh0Pw==', result)
+
     def test_decrypt(self):
         result = Crypto.decrypt('d654b787987267137e92e49d170cf24c', 'light')
+        self.assertEqual('2e35501c2b7e', result)
+
+    def test_decrypt2(self):
+        result = Crypto.decrypt2('SPvPSa3cTKdfLgE7hKh0Pw==', 'light')
         self.assertEqual('2e35501c2b7e', result)
 
     def test_full_space(self):

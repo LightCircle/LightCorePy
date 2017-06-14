@@ -59,10 +59,11 @@
   使用PyPI的用户名密码进行登陆, 登陆成功的状态会保存在 ~/.pypirc 里
  
  - 上传工程到 PyPI
-  ```$ python3 setup.py sdist upload```
-  sdist 会将工程进行打包, 默认为tar.gz格式
-  upload 用于上传工程到 PyPI
-  install 
+  1. 需要twine，如果没有安装则使用pip安装，$ pip install twine
+  1. 创建 ~/.pypirc 文件，指定PyPI的账户
+  2. 程序打包 $ python setup.py sdist，在dist文件夹下生成zip文件
+  3. 注册包 $ twine register dist/light-core-0.2.5.tar.gz
+  4. 上传包 $ twine upload dist/light-core-0.2.5.tar.gz
 
  - 本地安装
   ```$ python3 setup.py install```

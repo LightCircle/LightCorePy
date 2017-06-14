@@ -97,10 +97,11 @@ def get_filter(handler, board):
 
     for f in board['filters']:
         parameter = f['parameter']
-        default = f['default']
         operator = f['operator']
         key = f['key']
         group = f['group']
+        if 'default' in f:
+            default = f['default']
 
         if group not in or_condition:
             or_condition[group] = {}

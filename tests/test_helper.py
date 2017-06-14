@@ -29,3 +29,7 @@ class TestHelper(unittest.TestCase):
         s = 'stream "\x1b[91m../vendor/libxml/encoding.c:2856:12\x1b[0m"'
         o = light.helper.ansi_color_to_black(s)
         self.assertEqual('stream "../vendor/libxml/encoding.c:2856:12"', o)
+
+    def test_file_md5(self):
+        o = light.helper.file_md5('./__init__.py')
+        self.assertEqual('d41d8cd98f00b204e9800998ecf8427e', o)

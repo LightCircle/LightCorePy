@@ -4,6 +4,7 @@ import string
 import random
 import jinja2
 import importlib.util
+import hashlib
 
 
 def resolve(name, path=''):
@@ -97,3 +98,17 @@ def ansi_color_to_black(s):
     s = s.replace('\\u001b[91m', '')
     s = s.replace('\\u001b[0m', '')
     return s
+
+
+def file_md5(file):
+    """
+    获取文件的MD5，允许获取大文件
+    :param file:
+    :return:
+    """
+    md5 = hashlib.md5()
+    with open(file, 'rb') as f:
+        for chunk in iter(lambda: f.read(2048 * md5.block_size), b''):
+            md5.update(chunk)
+
+    return md5.hexdigest()

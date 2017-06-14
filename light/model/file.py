@@ -69,8 +69,15 @@ def pdf():
     raise NotImplementedError
 
 
-def stream():
-    raise NotImplementedError
+def stream(handler):
+    rider = Rider.instance()
+    file, error = rider.file.get(handler)
+    if error:
+        return None, error
+
+    handler.params.id = file['fileId']
+    result = Rider.read_stream_from_grid(handler)
+    return result['fileStream'], None
 
 
 def zip():

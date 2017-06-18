@@ -10,6 +10,7 @@ COOKIE_KEY_LANG = 'light.lang'
 COOKIE_KEY_ACCEPT_LANGUAGE = 'Accept-Language'
 SESSION_KEY_CSRF_TOKEN = 'csrftoken'
 SESSION_KEY_USER = 'user'
+HEADER_KEY_CSRF_TOKEN = 'csrf-token'
 
 
 def setup(app):
@@ -57,9 +58,13 @@ def setup(app):
             if re.match(ignore, request.path):
                 return
 
-        if '_csrf' in request.values:
-            if request.values['_csrf'] == session[SESSION_KEY_CSRF_TOKEN]:
-                return
+        request_csrf = request.headers.get(HEADER_KEY_CSRF_TOKEN)
+        if not request_csrf:
+            if '_csrf' in request.values:
+                request_csrf = request.values['_csrf']
+
+        if request_csrf == session[SESSION_KEY_CSRF_TOKEN]:
+            return
 
         flask.abort(403)
 

@@ -38,7 +38,10 @@ class Data(object):
         data, error = Controller(handler=handler, table=self.table).list()
         return data, error
 
-    def add(self, handler):
+    def add(self, handler, params=None):
+        if params is not None:
+            handler.set_params(params)
+
         data, error = Controller(handler=handler, table=self.table).add()
         return data, error
 

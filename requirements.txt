@@ -31,3 +31,6 @@ gevent-websocket==0.10.1
 
 # engineio - WebSocket support
 python-engineio==1.3.2
+
+# yaml parser
+PyYAML==3.12

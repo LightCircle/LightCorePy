@@ -5,6 +5,7 @@ import random
 import jinja2
 import importlib.util
 import hashlib
+import yaml
 
 
 def resolve(name, path=''):
@@ -112,3 +113,14 @@ def file_md5(file):
             md5.update(chunk)
 
     return md5.hexdigest()
+
+
+def yaml_loader(file, root=None):
+    f = open(os.path.join(root or os.getcwd(), file), 'r')
+    data = yaml.load(f)
+    f.close()
+    return data
+
+
+def yaml_dumper(data):
+    return yaml.safe_dump(data, default_flow_style=False)

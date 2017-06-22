@@ -1,6 +1,5 @@
 import os
 import flask
-import configparser
 import engineio
 import gevent.pywsgi
 import geventwebsocket.handler
@@ -70,21 +69,20 @@ def start_server(app):
 
 
 def load_config_from_ini():
-    config = configparser.ConfigParser()
-    config.read('config.ini')
+    config = helper.yaml_loader('config.yml')
 
     # app config
     if 'app' in config:
-        os.environ[CONST.ENV_LIGHT_APP_PORT] = config['app']['port']
+        os.environ[CONST.ENV_LIGHT_APP_PORT] = str(config['app']['port'])
         os.environ[CONST.ENV_LIGHT_APP_DOMAIN] = config['app']['domain']
-        os.environ[CONST.ENV_LIGHT_APP_DEV] = config['app']['dev']
-        os.environ[CONST.ENV_LIGHT_APP_MASTER] = config['app']['master']
-        os.environ[CONST.ENV_LIGHT_APP_LOCAL] = config['app']['local']
+        os.environ[CONST.ENV_LIGHT_APP_DEV] = str(config['app']['dev']).lower()
+        os.environ[CONST.ENV_LIGHT_APP_MASTER] = str(config['app']['master']).lower()
+        os.environ[CONST.ENV_LIGHT_APP_LOCAL] = str(config['app']['local']).lower()
 
     # mongodb config
     if 'mongodb' in config:
         os.environ[CONST.ENV_LIGHT_DB_HOST] = config['mongodb']['host']
-        os.environ[CONST.ENV_LIGHT_DB_PORT] = config['mongodb']['port']
+        os.environ[CONST.ENV_LIGHT_DB_PORT] = str(config['mongodb']['port'])
         os.environ[CONST.ENV_LIGHT_DB_USER] = config['mongodb']['user']
         os.environ[CONST.ENV_LIGHT_DB_PASS] = config['mongodb']['pass']
         os.environ[CONST.ENV_LIGHT_DB_AUTH] = config['mongodb']['auth']

@@ -33,3 +33,16 @@ class TestHelper(unittest.TestCase):
     def test_file_md5(self):
         o = light.helper.file_md5('./__init__.py')
         self.assertEqual('d41d8cd98f00b204e9800998ecf8427e', o)
+
+    def test_yaml_loader(self):
+        data = light.helper.yaml_loader('config.yml')
+        self.assertEqual(data['app']['port'], 7000)
+
+        data = light.helper.yaml_loader('config.yml', './')
+        self.assertEqual(data['app']['port'], 7000)
+
+    def test_yaml_dumper(self):
+        data = light.helper.yaml_dumper({'app': {'port': 7000}})
+        self.assertIn('app', data)
+        self.assertIn('port', data)
+        self.assertIn('7000', data)

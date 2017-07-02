@@ -21,10 +21,14 @@ class Controller(object):
     def __init__(self, handler, table=None):
         define = {}
         if table:
-            define = getattr(Structure.instance(), table)['items']
+            define = getattr(Structure.instance(), table)
+
+        self.model = Model(domain=handler.domain,
+                           code=handler.code or CONST.DEFAULT_TENANT,
+                           table=table,
+                           option={'define': define})
 
         self.uid = handler.uid
-        self.model = Model(domain=handler.domain, code=handler.code, table=table, define=define)
         self.condition = handler.params.condition or {}
         self.data = handler.params.data or {}
         self.id = handler.params.id

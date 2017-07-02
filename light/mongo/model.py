@@ -5,15 +5,29 @@ import mimetypes
 
 from pymongo import MongoClient, DESCENDING, ASCENDING
 from bson.objectid import ObjectId
-from light.constant import Const
 from gridfs import GridFS, GridFSBucket
 from gridfs.errors import NoFile
+from light.constant import Const
 
 from light.mongo.mapping import Update, Query
 from light.mongo.define import Items
 from light.mongo.type import Boolean, Number
 
 CONST = Const()
+SYSTEM_TABLE = [
+    'configuration',
+    'validator',
+    'i18n',
+    'structure',
+    'board',
+    'route',
+    'tenant',
+    'setting',
+    'function',
+    'etl',
+    'code',
+    'file'
+]
 
 
 class Model:
@@ -25,27 +39,72 @@ class Model:
     5. 功能包括: 通常的CURD, GridFS操作, 数据库索引操作, 数据库用户操作
     """
 
-    def __init__(self, domain, code=None, table=None, define=None, user=None, password=None):
+    def __init__(self, domain, code=None, table=None, option=None):
         self.domain = domain
-        self.code = code
-        self.define = define
-        self.user = user
-        self.password = password
-        self.table = table
+        self.define = {}
+        self._parse_code(code, table, option)
+        self._parse_db(option)
 
-        if table:
-            # Plural form
-            self.table = inflect.engine().plural(table)
+    def _parse_code(self, code, table, option):
+        """
+        解析表名称
+        :param code:
+        :param table:
+        :param option:
+        :return:
+        """
+        # 数据库用户，索引，文件操作时，不指定table
+        if not table:
+            return
 
-            # When using the system db, table name without the prefix
-            if self.domain == CONST.SYSTEM_DB:
-                self.code = self.table
-            else:
-                self.code = self.code + '.' + self.table
+        if option and 'define' in option:
+            self.define = option['define']
+
+            # 如果设有父表，那么使用父表
+            if 'parent' in self.define:
+                table = self.define['parent']
+
+            self.define = self.define['items']
+
+        # Plural form
+        self.table = inflect.engine().plural(table)
+
+        # When using the system db, table name without the prefix
+        if self.domain == CONST.SYSTEM_DB:
+
+            # 系统DB时，则表名不加前缀
+            self.code = self.table
+        elif self.table in SYSTEM_TABLE:
+
+            # 系统表固定使用light前缀
+            self.code = CONST.SYSTEM_DB_PREFIX + '.' + self.table
+        elif code:
+
+            # 添加指定的前缀
+            self.code = code + '.' + self.table
+        else:
+
+            # 没有指定code，直接使用table名
+            self.code = self.table
+
+    def _parse_db(self, option):
+        """
+        获取数据库连接
+        :param option:
+        :return:
+        """
+
+        self.user = None
+        if option and 'user' in option:
+            self.user = option['user']
+
+        self.password = None
+        if option and 'password' in option:
+            self.password = option['password']
 
         # Environment Variables higher priority
         host = os.getenv(CONST.ENV_LIGHT_DB_HOST, 'db')
-        port = os.getenv(CONST.ENV_LIGHT_DB_PORT, 27017)
+        port = os.getenv(CONST.ENV_LIGHT_DB_PORT, 57017)
         user = os.getenv(CONST.ENV_LIGHT_DB_USER, self.user)
         password = os.getenv(CONST.ENV_LIGHT_DB_PASS, self.password)
         auth = os.getenv(CONST.ENV_LIGHT_DB_AUTH, 'SCRAM-SHA-1')
@@ -60,10 +119,8 @@ class Model:
                 host=host, port=port, user=user, password=password, db=self.domain, auth=auth))
 
         self.db = self.client[self.domain]
-        if self.code and self.table:
+        if self.code:
             self.db = self.db[self.code]
-
-        print('{domain} / {code}'.format(domain=self.domain, code=self.code))
 
     def get(self, condition=None, select=None):
         """
@@ -117,6 +174,7 @@ class Model:
                 if val.lower() == 'asc':
                     return ASCENDING
                 return DESCENDING
+
             sort = [[k, parse(v)] for k, v in sort.items()]
 
         skip = Number.convert(skip)

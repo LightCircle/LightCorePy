@@ -92,13 +92,19 @@ def bind_api(app):
 
 def bind_route(app):
     routes = Cache.instance().get(CONST.SYSTEM_DB_ROUTE)
+    urls = []
 
     for route in routes:
-        action = route['action']
+
+        # Do not repeat binding
         url = route['url']
+        if url in urls:
+            continue
+
+        action = route['action']
         class_name = route['class']
         template = route['template']
-        print('>>>> ', url, action, template)
+        print('>>>> ', url, template, action)
 
         # try lookup controllers class
         path = light.helper.project_path('controllers')
@@ -109,6 +115,7 @@ def bind_route(app):
                 continue
 
         # render html
+        urls.append(url)
         add_html_rule(app, url, None, None, template)
 
 

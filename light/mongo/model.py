@@ -41,6 +41,7 @@ class Model:
 
     def __init__(self, domain, code=None, table=None, option=None):
         self.domain = domain
+        self.code = None
         self.define = {}
         self._parse_code(code, table, option)
         self._parse_db(option)

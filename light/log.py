@@ -8,5 +8,5 @@ class Log:
     def init():
         logging.basicConfig(
             format='[%(asctime)s.%(msecs)03d] [A] [%(levelname)s] %(filename)s:%(lineno)d - - - - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S',
+            datefmt='%Y-%m-%dT%H:%M:%S',
             level=logging.DEBUG)

@@ -63,7 +63,7 @@
   1. 创建 ~/.pypirc 文件，指定PyPI的账户
   2. 程序打包 $ python setup.py sdist，在dist文件夹下生成zip文件
   3. 注册包 $ twine register dist/light-core-0.2.5.tar.gz
-  4. 上传包 $ twine upload dist/light-core-0.2.5.tar.gz
+  4. 上传包 $ twine upload dist/light-core-0.3.0.tar.gz
 
  - 本地安装
   ```$ python3 setup.py install```
